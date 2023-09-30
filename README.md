@@ -3,3 +3,15 @@
 Luke W. Sagers*, James A. Diao*, Luke Melas-Kyriazi*, Matthew Groh, Vijaytha Muralidharan, Zhuo Ran Cai, Jesutofunmi A. Omiye, Pranav Rajpurkar, Adewole S. Adamson, Veronica Rotemberg, Roxana Daneshjou, and Arjun K. Manrai
 
 <b>Abstract:</b> While hundreds of artificial intelligence (AI) algorithms are now approved or cleared by the US Food and Drugs Administration (FDA), many studies have shown inconsistent generalization or bias, particularly for underrepresented populations. Some have proposed that generative AI could reduce the need for real data, but its utility in model development remains unclear. Skin disease serves as a useful case study in synthetic image generation due to the diversity of disease appearances, particularly across the protected attribute of skin tone. Here we show that latent diffusion models can scalably generate images of skin disease and that augmenting model training with these data improves performance in data-limited settings. These performance gains saturate at synthetic-to-real image ratios above 10:1 and are substantially smaller than the gains obtained from adding real images. We further conducted a human reader study on the synthetic generations, revealing a correlation between physician-assessed photorealism and improvements in model performance. We release a new dataset of 458,920 synthetic images produced using several generation strategies. Our results suggest that synthetic data could serve as a force-multiplier for model development, but the collection of diverse real-world data remains the most important step to improve medical AI algorithms.
+
+
+------------
+
+### Data
+Two datasets were used to generate synthetic images:
+
+The Fitzpatrick17k dataset, curated by Groh et al. 
+You can learn more by reading their paper here: https://arxiv.org/abs/2104.09957
+
+The Stanford Diverse Dermatology Images Dataset (DDI), curated by Daneshjou et al. 
+You can learn more by reading their paper here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9374341/
