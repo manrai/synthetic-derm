@@ -1,3 +1,18 @@
+#!/usr/bin/env python
+# coding=utf-8
+# Copyright 2023 The HuggingFace Inc. team. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+
 import argparse
 import hashlib
 import itertools
@@ -31,11 +46,11 @@ from diffusers import (
 from diffusers.optimization import get_scheduler
 from diffusers.utils import check_min_version
 
-from dataset import FitzpatrickDataset
+from dataset import SyntheticDermDataset
 
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
-check_min_version("0.13.0.dev0")
+check_min_version("0.17.0.dev0")
 
 logger = get_logger(__name__)
 
@@ -422,7 +437,7 @@ def parse_args():
         "--dataset_type",
         required=True,
         default="fitzpatrick",
-        choices=["fitzpatrick", "ddi"],
+        choices=["fitzpatrick", "ddi", "custom"],
         help="The dataset type",
     )
     parser.add_argument(
@@ -683,7 +698,7 @@ def main():
 
     noise_scheduler = DDPMScheduler.from_pretrained(args.pretrained_model_name_or_path, subfolder="scheduler")
 
-    train_dataset = FitzpatrickDataset(
+    train_dataset = SyntheticDermDataset(
         dataset_type=args.dataset_type,
         disease_class=args.disease_class,
         instance_data_root=args.instance_data_dir,

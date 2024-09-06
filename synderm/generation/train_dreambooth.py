@@ -54,11 +54,8 @@ from diffusers.utils import check_min_version, is_wandb_available
 from diffusers.utils.import_utils import is_xformers_available
 from diffusers.utils.torch_utils import randn_tensor
 
-from dataset import FitzpatrickDataset
+from dataset import SyntheticDermDataset
 
-
-if is_wandb_available():
-    import wandb
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.17.0.dev0")
@@ -176,6 +173,7 @@ def log_validation(
             np_images = np.stack([np.asarray(img) for img in images])
             tracker.writer.add_images("validation", np_images, epoch, dataformats="NHWC")
         if tracker.name == "wandb":
+            import wandb
             tracker.log(
                 {
                     "validation": [
@@ -554,7 +552,7 @@ def parse_args(input_args=None):
         "--dataset_type",
         required=True,
         default="fitzpatrick",
-        choices=["fitzpatrick", "ddi"],
+        choices=["fitzpatrick", "ddi", "custom"],
         help="The dataset type",
     )
     parser.add_argument(
@@ -795,7 +793,10 @@ def encode_prompt(text_encoder, input_ids, attention_mask, text_encoder_use_atte
     return prompt_embeds
 
 
-def main(args):
+def main():
+    
+    args = parse_args()
+
     logging_dir = Path(args.output_dir, args.logging_dir)
 
     accelerator_project_config = ProjectConfiguration(total_limit=args.checkpoints_total_limit)
@@ -1070,7 +1071,7 @@ def main(args):
         pre_computed_instance_prompt_encoder_hidden_states = None
 
     # Dataset and DataLoaders creation:
-    train_dataset = FitzpatrickDataset(
+    train_dataset = SyntheticDermDataset(
         dataset_type=args.dataset_type,
         disease_class=args.disease_class,
         add_fitzpatrick_scale_to_prompt=args.add_fitzpatrick_scale_to_prompt,
@@ -1390,5 +1391,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    main(args)
+    main()

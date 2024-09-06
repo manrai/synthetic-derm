@@ -25,16 +25,20 @@ It can be installed with:
 ```bash
 pip install synderm
 ```
+or you can install the latest version directly from GitHub with:
+```bash
+pip install git+https://github.com/manrai/synthetic-derm
+```
 
 The library is organized as follows:
 
 - `generation/`: Code for synthetic data generation
 - `experiments/`: Code for image classification experiments
-- `misc/`: Additional code for generating figures in our paper
+- `misc/`: Additional code for generating figures in our paper, reproducing the environment, etc.
 
 #### Dependencies
 
-SynDerm is relatively light-weight and depends primarily upon `diffusers` for image generation and `transformers` for text encoding. We provide a complete environment for reproducibility in `environment.yml`, but any recent version of these packages should work.
+SynDerm is relatively light-weight and depends primarily upon `diffusers` for image generation, `transformers` for text encoding, and `pandas` for loading metadata. We provide a complete environment for reproducibility in `environment.yml`, but any recent version of these packages should work.
 
 #### Dataset Structure
 
@@ -51,19 +55,8 @@ To use a custom dataset, ensure it follows a similar structure and then modify `
 
 Dreambooth finetuning is an optional step that we find significantly improves performance in limited data regimes. The code for finetuning is located in `generation/train_dreambooth.py` and `generation/train_dreambooth_inpaint.py`. After installing `synderm`, it can easily be accessed via the command line as follows: 
 
-
-
-
-
-
-
-
-The Fitzpatrick-17k dataset class is located in `dataset.py`.
-
-The code for finetuning the diffusion models is located in `train_dreambooth.py` and `train_dreambooth_inpaint.py`. For example, to finetune a model on basal cell carcinoma images, one may run:
-
 ```bash
-python train_dreambooth.py \
+synderm run train_dreambooth -- \
     --pretrained_model_name_or_path="stabilityai/stable-diffusion-2-1-base" \
     --instance_prompt="An image of {}, a skin disease" \
     --validation_prompt="An image of basal cell carcinoma, a skin disease" \
@@ -80,9 +73,17 @@ python train_dreambooth.py \
     --report_to="wandb"
 ```
 
-The generation code is located in `generate.py`. For example, to sample from a model, one may run:
+To get the full list of arguments, run:
 ```bash
-python generate.py \
+synderm run train_dreambooth -- --help
+```
+
+#### Synthetic Data Generation
+
+The code for synthetic data generation is located in `generation/generate.py`. For example, to generate images of basal cell carcinoma, one may run:
+
+```bash
+synderm run generate -- \
     --instance_data_dir=${FITZPATRICK17K_DATASET_DIR} \
     --model_type "text-to-image" \
     --pretrained_model_name_or_path=${PATH_TO_YOUR_PRETRAINED_OR_FINETUNED_MODEL} \

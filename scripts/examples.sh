@@ -1,4 +1,7 @@
-FITZPATRICK17K_DATASET_DIR=/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k
+# Example scripts for running experiments
+# Note: These assume you have cloned the dataset locally, but you can also use the `synderm run` syntax if desired.
+
+export FITZPATRICK17K_DATASET_DIR=/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k
 
 # Finetune
 python train_dreambooth.py --pretrained_model_name_or_path="stabilityai/stable-diffusion-2-1-base" --instance_data_dir=/home/lukemelas/data/Fitzpatrick17k --instance_prompt="An image of {}, a skin disease" --validation_prompt="An image of allergic contact dermatitis, a skin disease" --output_dir="dreambooth-outputs/allergic-contact-dermatitis" --disease_class=allergic-contact-dermatitis --resolution=512 --train_batch_size=4 --gradient_accumulation_steps=1 --learning_rate=5e-06 --lr_scheduler="constant" --lr_warmup_steps=0 --num_train_epochs=4 --report_to="wandb"

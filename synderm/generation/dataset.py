@@ -10,13 +10,6 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 from transformers import AutoTokenizer
 
-import builtins
-import rich
-from lovely_tensors import monkey_patch
-
-builtins.print = rich.print
-monkey_patch()
-
 
 CLASS_NAMES = [
     "allergic-contact-dermatitis",
@@ -49,7 +42,7 @@ def tokenize_prompt(tokenizer, prompt, tokenizer_max_length=None):
     return text_inputs
 
 
-class FitzpatrickDataset(Dataset):
+class SyntheticDermDataset(Dataset):
     """
     A dataset to prepare the instance and class images with the prompts for fine-tuning the model.
     It pre-processes the images and the tokenizes prompts.
@@ -58,7 +51,7 @@ class FitzpatrickDataset(Dataset):
     def __init__(
         self,
         *,
-        dataset_type: Literal["fitzpatrick", "ddi"],
+        dataset_type: Literal["fitzpatrick", "ddi", "custom"],
         disease_class: str,
         instance_data_root: str,
         instance_prompt: str,
@@ -117,6 +110,14 @@ class FitzpatrickDataset(Dataset):
                 self.data_df = self.data_df[
                     self.data_df["disease"] == self.data_disease_class.replace(" ", "-")
                 ]
+            self.num_instance_images = len(self.data_df)
+            self.add_fitzpatrick_scale_to_prompt = False
+        elif self.dataset_type == "custom":
+            self.data_disease_class = disease_class
+            self.data_images_root = self.instance_data_root / "images"
+            self.data_df = pd.read_csv(self.instance_data_root / "metadata.csv")
+            if self.data_disease_class != "all":
+                self.data_df = self.data_df[self.data_df["label"] == self.data_disease_class]
             self.num_instance_images = len(self.data_df)
             self.add_fitzpatrick_scale_to_prompt = False
         else:
@@ -242,23 +243,37 @@ class FitzpatrickDataset(Dataset):
 
 
 if __name__ == "__main__":
+
+    from lovely_tensors import monkey_patch
+    from rich import print
+    monkey_patch()
+
+    # Set default dataset root
+    DEFAULT_DERM_ROOT = "/n/data1/hms/dbmi/manrai/derm"
+    
+    # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
         "stabilityai/stable-diffusion-2-1-base",
         subfolder="tokenizer",
         use_fast=False,
     )
-    # instance_data_root = str(Path(os.getenv("DERM_ROOT", "/n/data1/hms/dbmi/manrai/derm")) / 'Fitzpatrick17k')
-    # dataset = FitzpatrickDataset(
-    #     dataset_type="fitzpatrick",
-    #     disease_class="all",
-    #     instance_data_root=instance_data_root,
-    #     instance_prompt="An image of {}, a skin disease",
-    #     tokenizer=tokenizer,
-    # )
-    instance_data_root = str(
-        Path(os.getenv("DERM_ROOT", "/n/data1/hms/dbmi/manrai/derm")) / "Stanford_DDI"
+    
+    # Fitzpatrick17k example
+    instance_data_root = str(Path(os.getenv("DERM_ROOT", DEFAULT_DERM_ROOT)) / 'Fitzpatrick17k')
+    dataset = SyntheticDermDataset(
+        dataset_type="fitzpatrick",
+        disease_class="all",
+        instance_data_root=instance_data_root,
+        instance_prompt="An image of {}, a skin disease",
+        tokenizer=tokenizer,
     )
-    dataset = FitzpatrickDataset(
+    for i in range(10):
+        item = dataset[i]
+        print(item)
+
+    # Stanford DDI example
+    instance_data_root = str(Path(os.getenv("DERM_ROOT", DEFAULT_DERM_ROOT)) / "Stanford_DDI")
+    dataset = SyntheticDermDataset(
         dataset_type="ddi",
         disease_class="mycosis-fungoides",
         instance_data_root=instance_data_root,

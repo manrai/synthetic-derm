@@ -3,7 +3,7 @@ from typing import Literal, Optional, Union, List, Tuple
 
 import torch
 import torch.nn.functional as F
-from dataset import FitzpatrickDataset
+from dataset import SyntheticDermDataset
 from diffusers import (
     DPMSolverMultistepScheduler,
     StableDiffusionInpaintPipeline,
@@ -27,7 +27,7 @@ class Args(Tap):
     output_dir: Optional[str] = None
 
     # Data options
-    dataset_type: Literal["fitzpatrick", "ddi"] = "fitzpatrick"
+    dataset_type: Literal["fitzpatrick", "ddi", "custom"] = "fitzpatrick"
     disease_class: str = "psoriasis"
     instance_prompt: str = "An image of {}, a skin disease"
     instance_data_dir: str = "/home/lukemelas/data/Fitzpatrick17k"
@@ -97,14 +97,16 @@ def load_model(args: Args) -> Union[StableDiffusionInpaintPipeline, StableDiffus
 
 
 def setup_data(args: Args) -> DataLoader:
+    
     # Create tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
         args.pretrained_model_name_or_path,
         subfolder="tokenizer",
         use_fast=False,
     )
+    
     # Create dataset
-    dataset = FitzpatrickDataset(
+    dataset = SyntheticDermDataset(
         dataset_type=args.dataset_type,
         disease_class=args.disease_class,
         add_fitzpatrick_scale_to_prompt=args.add_fitzpatrick_scale_to_prompt,
@@ -118,6 +120,7 @@ def setup_data(args: Args) -> DataLoader:
         instance_prompt_encoder_hidden_states=None,
         split="val",
     )
+    
     # Create dataloader
     dataloader = DataLoader(
         dataset,
@@ -125,6 +128,7 @@ def setup_data(args: Args) -> DataLoader:
         batch_size=args.batch_size,
         num_workers=min(args.batch_size, 12),
     )
+    
     # Sizes
     print(f"{len(dataset) = }")
     return dataloader
