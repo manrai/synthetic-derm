@@ -15,14 +15,48 @@ The Stanford Diverse Dermatology Images Dataset (DDI), curated by Daneshjou et a
 You can learn more by reading their paper here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9374341/
 
 
-### Synthetic Data Generation
+### SynDerm
 
-Code for synthetic data generation is located in `generation/`. 
+#### Overview and Installation
 
-For purposes of reproducibility, the environment used to run the code is included in `environment.yml`. An environment may be created from this file with the command:
+SynDerm is our library for synthetic data augmentation of skin disease images using large-scale generative models. The library can also be used to reproduce the primary results of our paper. 
+
+It can be installed with:
 ```bash
-conda env create -f environment.yml
+pip install synderm
 ```
+
+The library is organized as follows:
+
+- `generation/`: Code for synthetic data generation
+- `experiments/`: Code for image classification experiments
+- `misc/`: Additional code for generating figures in our paper
+
+#### Dependencies
+
+SynDerm is relatively light-weight and depends primarily upon `diffusers` for image generation and `transformers` for text encoding. We provide a complete environment for reproducibility in `environment.yml`, but any recent version of these packages should work.
+
+#### Dataset Structure
+
+We provide code for loading the Fitzpatrick17k and DDI datasets in `generation/dataset.py`. The datasets are stored in a CSV file with the following information: the relative path to the image from some root directory, the skin condition label, and the skin tone classification. 
+
+For example, for the Fitzpatrick17k dataset, the CSV file contains the following columns (as well as some additional columns which are not used here):
+- `md5hash`: Unique identifier for each image
+- `fitzpatrick_scale`: Skin tone classifications
+- `label`: Specific skin condition diagnosis
+
+To use a custom dataset, ensure it follows a similar structure and then modify `generation/dataset.py` (or create a new dataset class) to load your dataset.
+
+#### Dreambooth Finetuning
+
+Dreambooth finetuning is an optional step that we find significantly improves performance in limited data regimes. The code for finetuning is located in `generation/train_dreambooth.py` and `generation/train_dreambooth_inpaint.py`. After installing `synderm`, it can easily be accessed via the command line as follows: 
+
+
+
+
+
+
+
 
 The Fitzpatrick-17k dataset class is located in `dataset.py`.
 

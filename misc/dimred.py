@@ -22,8 +22,6 @@ from torchvision.transforms import functional as TVF
 from torchvision.utils import make_grid
 from tqdm import tqdm
 
-# import lukeutils
-
 # %%
 
 # Set autograd and device

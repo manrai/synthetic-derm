@@ -26,7 +26,6 @@ from diffusers import (
     DDPMScheduler,
     DPMSolverMultistepScheduler,
     StableDiffusionInpaintPipeline,
-    StableDiffusionPipeline,
     UNet2DConditionModel,
 )
 from diffusers.optimization import get_scheduler
@@ -58,7 +57,6 @@ def prepare_mask_and_masked_image(image, mask):
     return mask, masked_image
 
 
-# generate random masks
 def random_mask(im_shape, ratio=1, mask_full_image=False):
     mask = Image.new("L", im_shape, 0)
     draw = ImageDraw.Draw(mask)
@@ -670,19 +668,8 @@ def main():
             args.learning_rate * args.gradient_accumulation_steps * args.train_batch_size * accelerator.num_processes
         )
 
-    # Use 8-bit Adam for lower memory usage or to fine-tune the model in 16GB GPUs
-    if args.use_8bit_adam:
-        try:
-            import bitsandbytes as bnb
-        except ImportError:
-            raise ImportError(
-                "To use 8-bit Adam, please install the bitsandbytes library: `pip install bitsandbytes`."
-            )
-
-        optimizer_class = bnb.optim.AdamW8bit
-    else:
-        optimizer_class = torch.optim.AdamW
-
+    # Optimizer
+    optimizer_class = torch.optim.AdamW
     params_to_optimize = (
         itertools.chain(unet.parameters(), text_encoder.parameters()) if args.train_text_encoder else unet.parameters()
     )
