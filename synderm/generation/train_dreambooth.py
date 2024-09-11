@@ -547,7 +547,7 @@ def parse_args(input_args=None):
         help="The optional `class_label` conditioning to pass to the unet, available values are `timesteps`.",
     )
     
-    # New
+    # New arguments
     parser.add_argument(
         "--dataset_type",
         required=True,
