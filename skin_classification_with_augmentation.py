@@ -25,8 +25,11 @@ random_state = 111108
 generation_folder = "all_generations/finetune-inpaint/"
 
 # Set parameters for the experiment
-n_per_label_list = [1, 8, 16, 32, 64, 128, 228]
-include_synthetic_list = [False, True]
+#n_per_label_list = [1, 8, 16, 32, 64, 128, 228]
+n_per_label_list = [32, 64, 128, 228]
+
+# include_synthetic_list = [False, True]
+include_synthetic_list = [True]
 n_synthetic_per_real_list = [10]
 generation_type_list = ['inpaint', 'inpaint-outpaint']
 
@@ -67,7 +70,7 @@ def get_n_per_label_data(train_data, val_data, n_per_label, random_state, includ
 
 if __name__ == "__main__":
     # Read in the metadata
-    metadata = pd.read_csv('../Metadata/fitzpatrick17k_10label_clean_training.csv')
+    metadata = pd.read_csv('/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k/fitzpatrick17k_10label_clean_training.csv')
 
     # Filter to the top 10 most common labels
     top_n_labels = metadata['label'].value_counts().index[:9]
@@ -77,7 +80,7 @@ if __name__ == "__main__":
 
     # Take out 40 images from each label for testing
     # test_data = pd.DataFrame(metadata.groupby(['label']).apply(lambda x: x.sample(n=40, random_state=random_state)).reset_index(drop=True))
-    test_data = pd.read_csv("../Metadata/fitzpatrick17k_10label_clean_held_out_set.csv")
+    test_data = pd.read_csv("/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k/fitzpatrick17k_10label_clean_held_out_set.csv")
     test_data = test_data[test_data['label'].isin(top_n_labels)].reset_index(drop=True)
     test_data['location'] = 'Fitzpatrick17k/finalfitz17k/' + test_data['md5hash'] + '.jpg'
     test_data['synthetic'] = False

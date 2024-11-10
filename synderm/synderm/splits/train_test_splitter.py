@@ -127,8 +127,4 @@ def synthetic_train_val_split(
     # Combine synthetic data with the sampled real data for training
     train_data = pd.concat([train_real_data, synthetic_data_subset]).reset_index(drop=True)
 
-    # Add 'is_valid' column
-    train_data['is_valid'] = False
-    val_data['is_valid'] = True
-
     return train_data, val_data
