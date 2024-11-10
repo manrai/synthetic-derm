@@ -113,15 +113,28 @@ for combo in itertools.product(n_per_label_list, include_synthetic_list, n_synth
     print("Number of real training images per label:", len(df[(df['synthetic']==False) & (df['is_valid']==False)]) /df['label'].nunique())
     print("Number of synthetic training images per label:",  len(df[(df['synthetic']==True) & (df['is_valid']==False)]) /df['label'].nunique())
 
-    # adjust batch size based on number of images
+
+    # If we have more VRAM, we can change the batch size to be larger. We need ~48gb VRAM for this
+    # # adjust batch size based on number of images
+    # if (len(df[df.is_valid == False])/10 >= 500):
+    #     batch_size = 128
+    # elif (len(df[df.is_valid == False])/10 >= 100):
+    #     batch_size = 64
+    # elif (len(df[df.is_valid == False])/10 >= 10):
+    #     batch_size = 32
+    # else:
+    #     batch_size = 8
+
+    # If we have more VRAM, we can change the batch size to be larger. This runs on 16gb for development
     if (len(df[df.is_valid == False])/10 >= 500):
-        batch_size = 128
-    elif (len(df[df.is_valid == False])/10 >= 100):
-        batch_size = 64
-    elif (len(df[df.is_valid == False])/10 >= 10):
         batch_size = 32
-    else:
+    elif (len(df[df.is_valid == False])/10 >= 100):
+        batch_size = 16
+    elif (len(df[df.is_valid == False])/10 >= 10):
         batch_size = 8
+    else:
+        batch_size = 4
+
 
     # Create a fastai dataloader
     dls = ImageDataLoaders.from_df(df, 
@@ -162,7 +175,7 @@ for combo in itertools.product(n_per_label_list, include_synthetic_list, n_synth
                         metrics=[error_rate, accuracy])
 
     # fit with wandb callback
-    learn.fit(5, cbs=[WandbCallback(), EarlyStoppingCallback(monitor='valid_loss', min_delta=0.0, patience=3),
+    learn.fit(1, cbs=[WandbCallback(), EarlyStoppingCallback(monitor='valid_loss', min_delta=0.0, patience=3),
                        SaveModelCallback(monitor='valid_loss', fname='/home/thb286/synthetic-derm/models/best_model_tb.pth')])
 
     # load the best model (update the path here too)
