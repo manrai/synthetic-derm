@@ -67,8 +67,7 @@ train, val = synthetic_train_val_split(
     n_real_per_class = 32,
     random_state = random_state,
     class_column = "label",
-    id_column = "md5hash"
-    )
+    mapping_real_to_synthetic = "md5hash")
 
 
 print(train.shape[0])

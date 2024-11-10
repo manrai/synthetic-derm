@@ -1,5 +1,7 @@
 import pandas as pd
 
+
+# TODO: if no md5 hash is supplied -- there is no mapping from real to synthetic images for the split -- we can ignore the last line and just lump all the synthetic data we have in with the training data
 def synthetic_train_val_split(
         real_data, 
         synthetic_data,
@@ -9,7 +11,9 @@ def synthetic_train_val_split(
         n_synthetic_per_class=None,
         random_state=None,
         class_column="label",
-        id_column="md5hash"):
+        #id_column="md5hash"
+        mapping_real_to_synthetic="md5hash"
+        ):
     """
     Splits the combined dataset of real and synthetic images into training and validation sets.
     The training set consists of synthetic images and a limited number of real images per class.
@@ -36,8 +40,8 @@ def synthetic_train_val_split(
         Random seed for reproducibility.
     class_column : str, default="label"
         Name of the column in the DataFrames that contains the class labels.
-    id_column : str, default="md5hash"
-        Name of the column in the DataFrames that contains unique identifiers.
+    mapping_real_to_synthetic : str or None, default="md5hash"
+        Name of the column in the DataFrames that maps instances in the real data to instances in the synthetic data. This is necessary if synthetic images are a function of real images to prevent train/test leakage.
 
     Returns:
     --------
@@ -49,6 +53,10 @@ def synthetic_train_val_split(
     # Ensure the original dataframes are not modified
     real_data = real_data.copy()
     synthetic_data = synthetic_data.copy()
+
+    # Add an ID column to each dataframe
+    real_data["id_placeholder"] = range(1, len(real_data) + 1)
+    synthetic_data["id_placeholder"] = range(len(real_data) + 1, len(real_data) + len(synthetic_data) + 1)
 
     # Assign 'synthetic' flag
     real_data["synthetic"] = False
@@ -92,8 +100,8 @@ def synthetic_train_val_split(
     val_data = pd.concat(val_data_list).reset_index(drop=True)
 
     # Exclude validation samples from real_data
-    val_ids = val_data[id_column].unique()
-    remaining_real_data = real_data[~real_data[id_column].isin(val_ids)]
+    val_ids = val_data["id_placeholder"].unique()
+    remaining_real_data = real_data[~real_data["id_placeholder"].isin(val_ids)]
 
     # Create training data
     if n_real_per_class is not None:
@@ -111,9 +119,10 @@ def synthetic_train_val_split(
     if n_synthetic_per_class is not None:
         raise NotImplementedError()
 
-    # Get the synthetic images that share the same md5hash as real images in the training data
-    md5_train = train_real_data['md5hash']
-    synthetic_data_subset = synthetic_data[synthetic_data['md5hash'].isin(md5_train)]
+    # Get the synthetic images that share the same ID (map) as real images in the training data
+    if mapping_real_to_synthetic is not None:
+        ids_train = train_real_data[mapping_real_to_synthetic]
+        synthetic_data_subset = synthetic_data[synthetic_data[mapping_real_to_synthetic].isin(ids_train)]
 
     # Combine synthetic data with the sampled real data for training
     train_data = pd.concat([train_real_data, synthetic_data_subset]).reset_index(drop=True)
