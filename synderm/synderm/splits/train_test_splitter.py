@@ -1,12 +1,10 @@
 import pandas as pd
 
-
-# TODO: if no md5 hash is supplied -- there is no mapping from real to synthetic images for the split -- we can ignore the last line and just lump all the synthetic data we have in with the training data
 def synthetic_train_val_split(
         real_data, 
         synthetic_data,
         test_size=None,
-        per_class_size=40,
+        per_class_test_size=40,
         n_real_per_class=None,
         n_synthetic_per_class=None,
         random_state=None,
@@ -24,13 +22,13 @@ def synthetic_train_val_split(
     -----------
     real_data : pandas.DataFrame
         DataFrame containing the real images data.
-    synthetic_data : pandas.DataFrame
-        DataFrame containing the synthetic images data.
+    synthetic_data : pandas.DataFrame or None
+        DataFrame containing the synthetic images data. If no synthetic data is included, will behave similarly to a train/test split
     test_size : float, int, or None, default=None
         If float, represents the proportion of the real dataset to include in the validation split.
         If int, represents the total number of validation samples.
         If None, `per_class_size` must be specified.
-    per_class_size : int or None, default=40
+    per_class_test_size : int or None, default=40
         Number of samples per class to include in the validation set.
         If None, `test_size` must be specified.
     n_real_per_class : int or None, default=None
@@ -52,26 +50,24 @@ def synthetic_train_val_split(
     """
     # Ensure the original dataframes are not modified
     real_data = real_data.copy()
-    synthetic_data = synthetic_data.copy()
-
-    # Add an ID column to each dataframe
     real_data["id_placeholder"] = range(1, len(real_data) + 1)
-    synthetic_data["id_placeholder"] = range(len(real_data) + 1, len(real_data) + len(synthetic_data) + 1)
-
-    # Assign 'synthetic' flag
     real_data["synthetic"] = False
-    synthetic_data["synthetic"] = True
+
+    if synthetic_data is not None:
+        synthetic_data = synthetic_data.copy()
+        synthetic_data["id_placeholder"] = range(len(real_data) + 1, len(real_data) + len(synthetic_data) + 1)
+        synthetic_data["synthetic"] = True
 
     # Validate input parameters
-    if (test_size is None and per_class_size is None) or (test_size is not None and per_class_size is not None):
+    if (test_size is None and per_class_test_size is None) or (test_size is not None and per_class_test_size is not None):
         raise ValueError("Specify exactly one of 'test_size' or 'per_class_size'.")
 
     val_data_list = []
 
-    if per_class_size is not None:
+    if per_class_test_size is not None:
         # Sample specified number per class for validation
         for class_name, group in real_data.groupby(class_column):
-            n_samples = min(len(group), per_class_size)
+            n_samples = min(len(group), per_class_test_size)
             val_samples = group.sample(n=n_samples, random_state=random_state, replace=False)
             val_data_list.append(val_samples)
     else:
@@ -116,15 +112,18 @@ def synthetic_train_val_split(
         # Use all remaining real images
         train_real_data = remaining_real_data.copy()
     
-    if n_synthetic_per_class is not None:
-        raise NotImplementedError()
+    if synthetic_data is not None:
+        if n_synthetic_per_class is not None:
+            raise NotImplementedError()
 
-    # Get the synthetic images that share the same ID (map) as real images in the training data
-    if mapping_real_to_synthetic is not None:
-        ids_train = train_real_data[mapping_real_to_synthetic]
-        synthetic_data_subset = synthetic_data[synthetic_data[mapping_real_to_synthetic].isin(ids_train)]
+        # Get the synthetic images that share the same ID (map) as real images in the training data
+        if mapping_real_to_synthetic is not None:
+            ids_train = train_real_data[mapping_real_to_synthetic]
+            synthetic_data_subset = synthetic_data[synthetic_data[mapping_real_to_synthetic].isin(ids_train)]
 
-    # Combine synthetic data with the sampled real data for training
-    train_data = pd.concat([train_real_data, synthetic_data_subset]).reset_index(drop=True)
+        # Combine synthetic data with the sampled real data for training
+        train_data = pd.concat([train_real_data, synthetic_data_subset]).reset_index(drop=True)
+    else:
+        train_data = train_real_data
 
     return train_data, val_data

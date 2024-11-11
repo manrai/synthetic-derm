@@ -63,7 +63,7 @@ df = df.drop(columns=['n'])
 train, val = synthetic_train_val_split(
     real_data=metadata_train, 
     synthetic_data = df, 
-    per_class_size=40,
+    per_class_test_size=40,
     n_real_per_class = 32,
     random_state = random_state,
     class_column = "label",
