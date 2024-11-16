@@ -1,4 +1,3 @@
-# %%
 import inspect
 import math
 import os
@@ -25,20 +24,15 @@ from tqdm.rich import tqdm, trange
 from transformers import AutoTokenizer
 from tap import Tap
 from IPython import get_ipython
-
 from dataset import FitzpatrickDataset
 
-is_jupyter = get_ipython() is not None
-
-# %% 
+is_jupyter = False
 
 # Device and autograd
 ctx = torch.inference_mode()
 ctx.__enter__()
 device = 'cuda'
 dtype = torch.float16
-
-# %%
 
 class Args(Tap):
 
@@ -83,8 +77,6 @@ class Args(Tap):
 args = Args().parse_args([] if is_jupyter else None)
 output_dir_path = Path(args.output_dir)
 args.save(output_dir_path / 'args.json')
-
-# %%
 
 def create_square_mask():
     H_lat, W_lat = args.resolution // 8, args.resolution // 8
@@ -140,8 +132,6 @@ dataloader = DataLoader(
 # Sizes
 print(f'{len(dataset) = }')
 
-# %%
-
 # Model
 print('Loading model')
 if args.model_type == 'inpaint':
@@ -164,13 +154,9 @@ pipeline.scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.
 print('Replaced scheduler with:')
 print(pipeline.scheduler)
 
-# %%
-
 # Generate masks
 if args.model_type == 'inpaint':
     mask_inpaint, mask_outpaint = create_square_mask()
-
-# %%
 
 def get_output_paths(batch: dict, stage: str, idx: int) -> list[Path]:
     return [

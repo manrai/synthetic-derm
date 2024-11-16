@@ -10,6 +10,23 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Generate images",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "generation/generate.py",
+            "args": [
+                "--output_root", "synderm2024/generation-pretrained-2",
+                "--instance_data_dir", "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
+                "--model_type", "text-to-image",
+                "--pretrained_model_name_or_path", "stabilityai/stable-diffusion-2-1-base",
+                "--instance_prompt", "An image of {}, a skin disease",
+                "--disease_class", "allergic-contact-dermatitis",
+                "--num_generations_per_image", "1"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }
