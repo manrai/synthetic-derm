@@ -38,11 +38,11 @@ labels = ["all", "folliculitis", "neutrophilic-dermatoses", "sarcoidosis",
 
 # First collect all image files to process
 all_image_files = []
-for method_key in methods.keys():
+for method_key in tqdm(methods.keys(), desc="Processing methods"):
     method_path = methods[method_key]["path"]
     submethods = methods[method_key]["submethods"]
-    for label in labels:
-        for submethod in submethods:
+    for label in tqdm(labels, desc=f"Processing labels for {method_key}", leave=False):
+        for submethod in tqdm(submethods, desc=f"Processing submethods for {label}", leave=False):
             submethod_path = root / method_path / label / submethod
 
             if not os.path.exists(submethod_path):
@@ -58,7 +58,6 @@ for method_key in methods.keys():
                     if not image_file.is_file():
                         continue
                     all_image_files.append((method_key, label, submethod, generation_num, image_file))
-
 if limit is not None:
     random.seed(42)
     if len(all_image_files) > limit:

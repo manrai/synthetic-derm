@@ -1,3 +1,6 @@
+from pathlib import Path
+import os
+
 def save_images(images, directory):
     pass
 
@@ -19,3 +22,9 @@ def count_png_files(directory_path):
         png_files = [f for f in files if f.endswith('.png')]
         total_png += len(png_files)
     return total_png
+
+def save(image, path):
+    path = Path(path) if isinstance(path, str) else path
+    path.parent.mkdir(exist_ok=True, parents=True)
+    image.save(path)
+

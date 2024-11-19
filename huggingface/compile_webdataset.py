@@ -2,51 +2,71 @@ import webdataset as wds
 from pathlib import Path
 import json
 import os
+import argparse
+from tqdm.auto import tqdm
 
-shard_size = 5000
+def parse_args():
+    parser = argparse.ArgumentParser(description='Compile images and metadata into WebDataset shards')
+    parser.add_argument('--input_directory', type=str, required=True,
+                      help='Directory containing source images and JSON files')
+    parser.add_argument('--output_directory', type=str, required=True, 
+                      help='Directory where WebDataset shards will be written')
+    parser.add_argument('--shard_size', type=int, default=5000,
+                      help='Number of samples per shard (default: 5000)')
+    return parser.parse_args()
 
-input_directory = Path("/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_10k")
-output_directory = Path("/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_10k_webdataset_shards")
+def main():
+    args = parse_args()
+    
+    input_directory = Path(args.input_directory)
+    output_directory = Path(args.output_directory)
+    os.makedirs(output_directory, exist_ok=True)
 
-os.makedirs(output_directory, exist_ok=True)
+    shard_number = 0
+    shard_samples = []
 
-# Collect all samples with their image and JSON paths
-samples = []
+    print("Processing and creating shards...")
+    with tqdm(os.scandir(input_directory), desc="Processing files") as it:
+        for entry in it:
+            if entry.name.endswith('.png'):
+                base_name = os.path.splitext(entry.name)[0]
+                img_path = input_directory / f"{base_name}.png"
+                json_path = input_directory / f"{base_name}.json"
 
-for file_name in os.listdir(input_directory):
-    if file_name.endswith('.png'):
-        base_name = os.path.splitext(file_name)[0]
-        img_path = input_directory / f"{base_name}.png"
-        json_path = input_directory / f"{base_name}.json"
+                if os.path.exists(json_path):
+                    with open(img_path, 'rb') as img_file:
+                        img_bytes = img_file.read()
 
-        if os.path.exists(json_path):
-            samples.append((img_path, json_path))
+                    with open(json_path, 'rb') as json_file:
+                        json_bytes = json_file.read()
 
-# Create shards
-shard_number = 0
-for i in range(0, len(samples), shard_size):
-    shard_samples = samples[i:i + shard_size]
-    shard_filename = os.path.join(output_directory, f"shard-{shard_number:05d}.tar")
+                    sample_id = base_name
 
-    with wds.TarWriter(shard_filename) as tar:
-        for img_path, json_path in shard_samples:
-            with open(img_path, 'rb') as img_file:
-                img_bytes = img_file.read()
+                    sample = {
+                        "__key__": sample_id,
+                        "png": img_bytes,
+                        "json": json_bytes
+                    }
 
-            with open(json_path, 'rb') as json_file:
-                json_bytes = json_file.read()
+                    shard_samples.append(sample)
 
-            # Use a unique identifier for the sample
-            sample_id = os.path.splitext(os.path.basename(img_path))[0]
+                    if len(shard_samples) >= args.shard_size:
+                        shard_filename = os.path.join(output_directory, f"shard-{shard_number:05d}.tar")
+                        with wds.TarWriter(shard_filename) as tar:
+                            for sample in shard_samples:
+                                tar.write(sample)
 
-            # Prepare the sample dictionary
-            sample = {
-                "__key__": sample_id,
-                "png": img_bytes,
-                "json": json_bytes
-            }
+                        print(f"Created {shard_filename} with {len(shard_samples)} samples.")
+                        shard_samples = []  # Reset for the next shard
+                        shard_number += 1
 
-            tar.write(sample)
+    if shard_samples:
+        shard_filename = os.path.join(output_directory, f"shard-{shard_number:05d}.tar")
+        with wds.TarWriter(shard_filename) as tar:
+            for sample in shard_samples:
+                tar.write(sample)
 
-    print(f"Created {shard_filename} with {len(shard_samples)} samples.")
-    shard_number += 1
+        print(f"Created {shard_filename} with {len(shard_samples)} samples.")
+
+if __name__ == "__main__":
+    main()

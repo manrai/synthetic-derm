@@ -27,6 +27,32 @@
             ],
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Compile 300k data Huggingface to tar files",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "huggingface/compile_webdataset.py",
+            "args": [
+                "--input_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete/",
+                "--output_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_webdataset_shards/",
+                "--shard_size", "5000"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Upload 300k data Huggingface",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "huggingface/upload_webdataset_to_huggingface.py",
+            "args": [
+                "--webdataset_path", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_webdataset_shards/",
+                "--repo_id", "tbuckley/synthetic-derm-300k",
+                "--repo_type", "dataset",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }
