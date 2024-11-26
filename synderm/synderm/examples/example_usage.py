@@ -1,6 +1,6 @@
 from datasets import load_dataset, Image
 from synderm.models.diffusion_model import DiffusionModel
-from synderm.generation.synthetic_generator import generate_synthetic_images
+from synderm.synderm.generation.synthetic_generation import generate_synthetic_images
 from synderm.splits.train_test_splitter import create_train_test_split
 
 # Load and preprocess data

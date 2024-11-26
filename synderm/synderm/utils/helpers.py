@@ -28,3 +28,5 @@ def save(image, path):
     path.parent.mkdir(exist_ok=True, parents=True)
     image.save(path)
 
+
+
