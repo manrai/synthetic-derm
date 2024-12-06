@@ -15,6 +15,9 @@ def parse_args():
                       help='Number of samples per shard (default: 5000)')
     return parser.parse_args()
 
+# exclude "all" images 
+# change shard names
+
 def main():
     args = parse_args()
     

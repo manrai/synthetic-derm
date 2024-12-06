@@ -50,7 +50,8 @@ class Args(Tap):
 
     # Model options
     pretrained_model_name_or_path: str = "runwayml/stable-diffusion-inpainting"
-    model_type: Literal['text-to-image', 'inpaint'] = 'text-to-image'
+    #model_type: Literal['text-to-image', 'inpaint'] = 'text-to-image'
+    model_type: Literal['text-to-image', 'inpaint'] = 'inpaint'
     resolution: int = 512
     
     # Generation options

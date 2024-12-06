@@ -28,23 +28,6 @@ from PIL import Image
 import os
 from pathlib import Path
 
-# def generate_synthetic_dataset(
-#     real_images,
-#     map_real_to_synthetic_label,
-#     method="text-to-image",
-#     text_label=None,
-#     text_prompt=None,
-#     num_synthetic_per_real=10,
-#     num_total=None,
-#     num_total_type='balanced',
-#     output_dir=None,
-#     model_path="xxx"
-# ):
-#     for image, label in real_images:
-#         # Use image and label to generate synthetic images
-#         pass
-
-
 # ** The input to our function should be a Pytorch Dataset object
 # This should also be the input to the training function we have in the other examples
 class CustomDataset(Dataset):
@@ -83,27 +66,11 @@ class CustomDataset(Dataset):
 
         return {"id": image_name, "image": image, "label": label}
 
-# # Experiment parameters 
-# model_type = "inpaint"
-
-# #output_dir_path = Path("/n/scratch/users/t/thb286/generation_test")
-# output_dir_path = Path("test_outputs")
-# resolution = 512
-# batch_size = 16
-# start_index = 0
-# num_generations_per_image = 1
-# seed = 42
-# guidance_scale = 3.0
-# num_inference_steps = 50
-# strength_inpaint = 0.970
-# strength_outpaint = 0.950
-# mask_fraction = 0.25
-# input_prompt = "An image of {}, a skin disease"
 
 def generate_synthetic_dataset(
-    model_type = "inpaint",
+    generation_type = "inpaint",
+    model_path = "runwayml/stable-diffusion-inpainting",
     output_dir_path = Path("test_outputs"),
-    resolution = 512,
     batch_size = 16,
     start_index = 0,
     num_generations_per_image = 1,
@@ -117,8 +84,8 @@ def generate_synthetic_dataset(
     device = "cuda"
     ):
 
-    if device is not "cuda":
-        raise NotImplementedError()
+    if device != "cuda":
+        raise NotImplementedError("cuda device required to generate the synthetic dataset")
 
     # Device and autograd
     ctx = torch.inference_mode()
@@ -127,14 +94,24 @@ def generate_synthetic_dataset(
     dtype = torch.float16
 
     print('Loading model')
-    if model_type == 'inpaint':
-        pipeline = StableDiffusionInpaintPipeline.from_pretrained("runwayml/stable-diffusion-inpainting", torch_dtype=dtype,
-            safety_checker=None, feature_extractor=None, requires_safety_checker=False)
-    elif model_type == 'text-to-image':
-        pipeline = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1-base", torch_dtype=dtype,
-            safety_checker=None, feature_extractor=None, requires_safety_checker=False)
+    if generation_type == 'inpaint':
+        pipeline = StableDiffusionInpaintPipeline.from_pretrained(
+            model_path,
+            torch_dtype=dtype,
+            safety_checker=None, 
+            feature_extractor=None, 
+            requires_safety_checker=False)
+    elif generation_type == 'text-to-image':
+        pipeline = StableDiffusionPipeline.from_pretrained(
+            model_path,
+            torch_dtype=dtype,
+            safety_checker=None, 
+            feature_extractor=None, 
+            requires_safety_checker=False)
     else:
-        raise ValueError(model_type)
+        raise ValueError(generation_type)
+
+    resolution = pipeline.unet.config.sample_size * 8
 
     pipeline.set_progress_bar_config(disable=True)
     pipeline.to(device)
@@ -163,7 +140,7 @@ def generate_synthetic_dataset(
         return mask_inpaint.to(device), mask_outpaint.to(device)
 
     # Generate masks
-    if model_type == 'inpaint':
+    if generation_type == 'inpaint':
         mask_inpaint, mask_outpaint = create_square_mask()
 
     def save(image, path):
@@ -171,6 +148,7 @@ def generate_synthetic_dataset(
         path.parent.mkdir(exist_ok=True, parents=True)
         image.save(path)
 
+    # TODO: note in the documentation that we already do a resize followed by a normalization
     diffusion_transforms = transforms.Compose([
         transforms.Resize((resolution, resolution), interpolation=transforms.InterpolationMode.BILINEAR),
         transforms.Normalize([0.5], [0.5])  # Normalizes to [-1, 1] range
@@ -193,7 +171,7 @@ def generate_synthetic_dataset(
             )
 
             # Text-to-image
-            if model_type == 'text-to-image':
+            if generation_type == 'text-to-image':
                 output_paths = [
                     output_dir_path / "text-to-image" / f"{idx:02d}" / label / f"{name}.png"
                     for label, name in zip(batch["label"], batch["id"])
@@ -218,9 +196,7 @@ def generate_synthetic_dataset(
                         print(f'[Repeat {idx}, batch {batch_idx}] Saved image grid to {grid_path}')
                 
             # Inpaint
-            elif model_type == 'inpaint':
-                
-                # To device
+            elif generation_type == 'inpaint':
                 batch["pixel_values"] = batch["pixel_values"].to(device)
 
                 # Inpaint
@@ -235,7 +211,6 @@ def generate_synthetic_dataset(
                     output_dir_path / "inpaint" / f"{idx:02d}" / label / f"{name}.png"
                     for label, name in zip(batch["label"], batch["id"])
                 ]
-
 
                 assert len(inpainted_images) == len(output_paths)
                 for image, path in zip(inpainted_images, output_paths, strict=True):
@@ -275,5 +250,22 @@ def generate_synthetic_dataset(
                         print(f'[Repeat {idx}, batch {batch_idx}] Saved image grid to {grid_path}')
             
             else:
-                raise ValueError(model_type)
+                raise ValueError(generation_type)
+
+if __name__ == "__main__":
+    generate_synthetic_dataset(
+        output_dir_path = Path("test_outputs"),
+        generation_type = "inpaint", 
+        model_path = "runwayml/stable-diffusion-inpainting",
+        input_prompt = "An image of {}, a skin disease",
+        batch_size = 16,
+        start_index = 0,
+        num_generations_per_image = 1,
+        seed = 42,
+        guidance_scale = 3.0,
+        num_inference_steps = 50,
+        strength_inpaint = 0.970,
+        strength_outpaint = 0.950,
+        mask_fraction = 0.25
+    )
 

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='synderm',  # Replace with your package's name
+    name='synderm',
     version='0.1.0',
     packages=find_packages(),
     include_package_data=True,
@@ -19,5 +19,5 @@ setup(
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.6',
-    license='MIT',  # Replace with your chosen license
+    license='MIT',
 )
