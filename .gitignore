@@ -162,3 +162,4 @@ cython_debug/
 wandb/*
 models/*
 test_outputs/*
+dreambooth-outputs/*

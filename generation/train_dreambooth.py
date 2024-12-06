@@ -111,7 +111,7 @@ def log_validation(
     text_encoder, tokenizer, unet, vae, args, accelerator, weight_dtype, epoch, prompt_embeds, negative_prompt_embeds
 ):
     logger.info(
-        f"Running validation... \n Generating {args.num_validation_images} images with prompt:"
+        f"running validation... \n generating {args.num_validation_images} images with prompt:"
         f" {args.validation_prompt}."
     )
 
@@ -123,7 +123,7 @@ def log_validation(
     if text_encoder is not None:
         text_encoder = accelerator.unwrap_model(text_encoder)
 
-    # create pipeline (note: unet and vae are loaded again in float32)
+    # Create pipeline (note: unet and vae are loaded again in float32)
     pipeline = DiffusionPipeline.from_pretrained(
         args.pretrained_model_name_or_path,
         tokenizer=tokenizer,
@@ -157,7 +157,7 @@ def log_validation(
     else:
         pipeline_args = {"prompt": args.validation_prompt}
 
-    # run inference
+    # Run inference
     generator = None if args.seed is None else torch.Generator(device=accelerator.device).manual_seed(args.seed)
     images = []
     if args.validation_images is None:
@@ -166,8 +166,8 @@ def log_validation(
                 image = pipeline(**pipeline_args, num_inference_steps=25, generator=generator).images[0]
             images.append(image)
     else:
-        for image in args.validation_images:
-            image = Image.open(image)
+        for img_path in args.validation_images:
+            image = Image.open(img_path)
             image = pipeline(**pipeline_args, image=image, generator=generator).images[0]
             images.append(image)
 
@@ -191,24 +191,24 @@ def log_validation(
 
 
 def import_model_class_from_model_name_or_path(pretrained_model_name_or_path: str, revision: str):
+    from transformers import PretrainedConfig
+
     text_encoder_config = PretrainedConfig.from_pretrained(
         pretrained_model_name_or_path,
         subfolder="text_encoder",
         revision=revision,
     )
     model_class = text_encoder_config.architectures[0]
+    print(f"Model class is {model_class}")
 
     if model_class == "CLIPTextModel":
         from transformers import CLIPTextModel
-
         return CLIPTextModel
-    elif model_class == "RobertaSeriesModelWithTransformation":
-        from diffusers.pipelines.alt_diffusion.modeling_roberta_series import RobertaSeriesModelWithTransformation
-
-        return RobertaSeriesModelWithTransformation
+    # elif model_class == "RobertaSeriesModelWithTransformation":
+    #     from diffusers.pipelines.alt_diffusion.modeling_roberta_series import RobertaSeriesModelWithTransformation
+    #     return RobertaSeriesModelWithTransformation
     elif model_class == "T5EncoderModel":
         from transformers import T5EncoderModel
-
         return T5EncoderModel
     else:
         raise ValueError(f"{model_class} is not supported.")
@@ -798,13 +798,15 @@ def encode_prompt(text_encoder, input_ids, attention_mask, text_encoder_use_atte
 def main(args):
     logging_dir = Path(args.output_dir, args.logging_dir)
 
-    accelerator_project_config = ProjectConfiguration(total_limit=args.checkpoints_total_limit)
+    accelerator_project_config = ProjectConfiguration(
+        total_limit=args.checkpoints_total_limit,
+        logging_dir=logging_dir
+        )
 
     accelerator = Accelerator(
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         mixed_precision=args.mixed_precision,
         log_with=args.report_to,
-        logging_dir=logging_dir,
         project_config=accelerator_project_config,
     )
 
