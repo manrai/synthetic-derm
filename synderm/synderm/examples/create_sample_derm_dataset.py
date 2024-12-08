@@ -3,10 +3,11 @@ from pathlib import Path
 from tqdm import tqdm
 
 """
-This script creates a small sample dataset from a larger synthetic dermatology dataset hosted on HuggingFace (10k samples).
+This script creates a sample dataset with separate training and validation sets from a larger synthetic dermatology dataset hosted on HuggingFace (10k samples).
 It downloads images from the 'tbuckley/synthetic-derm-10k' dataset and creates a balanced sample by:
-- Taking 32 images from each disease class
-- Saving them to a local directory structure organized by disease label
+- Taking 64 images from each disease class for training
+- Taking 32 images from each disease class for validation
+- Saving them to local directories organized by disease label within 'train' and 'val' folders
 
 The sample dataset is useful for:
 - Quick model prototyping and testing
@@ -23,25 +24,41 @@ labels = ["folliculitis", "neutrophilic-dermatoses", "sarcoidosis",
           "squamous-cell-carcinoma", "basal-cell-carcinoma", "lupus-erythematosus", "psoriasis"]
 
 output_dir = Path("sample_dataset")
+train_dir = output_dir / "train"
+val_dir = output_dir / "val"
 
-sampled_datasets = []
-counts = {label: 0 for label in labels}
+# Initialize counts for each label in train and val
+counts = {label: {"train": 0, "val": 0} for label in labels}
+
 for entry in tqdm(dataset["train"]):
     label = entry["json"]["label"]
-    if all([i >= 32 for i in counts.values()]):
-        break
+    if label not in labels:
+        continue
 
-    if label in labels:
-        print(counts)
-        if counts[label] >= 32:
-            continue
+    # Check if both train and val counts have reached their limits
+    if counts[label]["train"] >= 64 and counts[label]["val"] >= 32:
+        continue
 
-        counts[label] += 1
+    image = entry["png"]
 
-        image = entry["png"]
-        example_num = counts[label]
-        label_dir = output_dir / label
+    if counts[label]["train"] < 64:
+        counts[label]["train"] += 1
+        example_num = counts[label]["train"]
+        label_dir = train_dir / label
         image_path = label_dir / f"{example_num:04d}.png"
         image_path.parent.mkdir(parents=True, exist_ok=True)
         image.save(image_path)
-    label_dir = output_dir / label
+    elif counts[label]["val"] < 32:
+        counts[label]["val"] += 1
+        example_num = counts[label]["val"]
+        label_dir = val_dir / label
+        image_path = label_dir / f"{example_num:04d}.png"
+        image_path.parent.mkdir(parents=True, exist_ok=True)
+        image.save(image_path)
+
+    # Optional: Print counts for debugging
+    print(f"{label} - Train: {counts[label]['train']}, Val: {counts[label]['val']}")
+
+    # Check if all labels have reached their limits
+    if all(counts[l]["train"] >= 64 and counts[l]["val"] >= 32 for l in labels):
+        break

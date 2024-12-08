@@ -12,6 +12,15 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Create sample dataset",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/synderm/examples/create_sample_derm_dataset.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Generate images",
             "type": "debugpy",
             "request": "launch",
@@ -87,6 +96,16 @@
             "args": [],
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Train diffusion model",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/synderm/examples/train_diffusion_model.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
+
     ]
 }
