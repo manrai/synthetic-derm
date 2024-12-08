@@ -1,374 +1,234 @@
-from functools import lru_cache
-from pathlib import Path
-from typing import Literal
+import builtins
 import gc
-import hashlib
 import itertools
 import logging
 import math
 import os
+from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn.functional as F
-import torch.utils.checkpoint
 import transformers
 from accelerate import Accelerator
 from accelerate.logging import get_logger
 from accelerate.utils import ProjectConfiguration, set_seed
-
 import diffusers
 from diffusers import (
     AutoencoderKL,
     DDPMScheduler,
     DiffusionPipeline,
     DPMSolverMultistepScheduler,
-    StableDiffusionPipeline,
     UNet2DConditionModel,
 )
 from diffusers.optimization import get_scheduler
 from diffusers.utils import check_min_version, is_wandb_available
 from diffusers.utils.torch_utils import randn_tensor
 from huggingface_hub import model_info
-from packaging import version
 from PIL import Image
-from PIL.ImageOps import exif_transpose
-from torch.utils.data import Dataset
-from torchvision import transforms
 from tqdm.auto import tqdm
-from transformers import AutoTokenizer, PretrainedConfig
+from transformers import AutoTokenizer
 
-import builtins
 import rich
 from lovely_tensors import monkey_patch
+
+from synderm.synderm.examples.train_diffusion_model import DiffusionTrainWrapper
+from synderm.synderm.fine_tune.util import (
+    PromptDataset,
+    collate_fn,
+    encode_prompt,
+    import_model_class_from_model_name_or_path,
+)
+from utils.helpers import tokenize_prompt
 
 builtins.print = rich.print
 monkey_patch()
 
-
-
-CLASS_NAMES = [
-    "allergic-contact-dermatitis",
-    "basal-cell-carcinoma",
-    "folliculitis",
-    "lichen-planus",
-    "lupus-erythematosus",
-    "neutrophilic-dermatoses",
-    "photodermatoses",
-    "psoriasis",
-    "sarcoidosis",
-    "squamous-cell-carcinoma",
-]
-
-
-# TODO: not sure if we actually use the prior preservation features in this script? If not we can remove them for now
-
-
-# Adjust arguments here
-pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1-base"
-instance_data_dir = "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k"
-dataset_type = "fitzpatrick"
-instance_prompt = "An image of {}, a skin disease"
-validation_prompt = "An image of allergic contact dermatitis, a skin disease"
-output_dir = "dreambooth-outputs/allergic-contact-dermatitis"
-disease_class = "allergic-contact-dermatitis"
-resolution = 512
-train_batch_size = 4
-gradient_accumulation_steps = 1
-learning_rate = 5e-6
-lr_scheduler = "constant"
-lr_warmup_steps = 0
-num_train_epochs = 4
-report_to = "wandb"
-
-# Model arguments
-revision = None
-tokenizer_name = None
-
-# Data arguments
-class_data_dir = None
-class_prompt = None
-with_prior_preservation = False
-prior_loss_weight = 1.0
-num_class_images = 100
-
-# Output arguments
-seed = None
-center_crop = False
-
-# Training arguments
-train_text_encoder = False
-sample_batch_size = 4
-max_train_steps = None
-checkpointing_steps = 1_000_000
-checkpoints_total_limit = None
-resume_from_checkpoint = None
-gradient_checkpointing = False
-
-# Optimizer arguments
-scale_lr = False
-lr_num_cycles = 1
-lr_power = 1.0
-use_8bit_adam = False
-dataloader_num_workers = 0
-adam_beta1 = 0.9
-adam_beta2 = 0.999
-adam_weight_decay = 1e-2
-adam_epsilon = 1e-08
-max_grad_norm = 1.0
-
-# Hugging Face Hub arguments
-push_to_hub = False
-hub_token = None
-hub_model_id = None
-
-# Logging arguments
-log_dir = "logs"
-allow_tf32 = False
-
-# Validation arguments
-num_validation_images = 8
-validation_steps = 100
-
-# Precision arguments
-mixed_precision = None
-prior_generation_precision = None
-local_rank = -1
-set_grads_to_none = False
-
-# Additional training arguments
-offset_noise = False
-pre_compute_text_embeddings = False
-tokenizer_max_length = None
-text_encoder_use_attention_mask = False
-skip_save_text_encoder = False
-validation_images = None
-class_labels_conditioning = None
-
-# Dataset arguments
-add_fitzpatrick_scale_to_prompt = False
-
-if is_wandb_available():
-    import wandb
-
-# Will error if the minimal version of diffusers is not installed. Remove at your own risks.
-check_min_version("0.17.0.dev0")
-
-logger = get_logger(__name__)
-
-
-def log_validation(
-    text_encoder, 
-    tokenizer, 
-    unet, 
-    vae, 
-    accelerator, 
-    weight_dtype, 
-    epoch, 
-    prompt_embeds, 
-    negative_prompt_embeds
+def fine_tune_text_to_image(
+    train_dataset,
+    pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1-base",
+    instance_prompt = "An image of {}, a skin disease",
+    validation_prompt = "An image of allergic contact dermatitis, a skin disease",
+    output_dir = "dreambooth-outputs/allergic-contact-dermatitis",
+    label_filter = "allergic-contact-dermatitis",
+    resolution = 512,
+    train_batch_size = 4,
+    gradient_accumulation_steps = 1,
+    learning_rate = 5e-6,
+    lr_scheduler = "constant",
+    lr_warmup_steps = 0,
+    num_train_epochs = 4,
+    report_to = "wandb"
 ):
-    logger.info(
-        f"running validation... \n generating {num_validation_images} images with prompt:"
-        f" {validation_prompt}."
-    )
+    # Model arguments
+    revision = None
+    tokenizer_name = None
 
-    pipeline_args = {}
+    # Data arguments
+    class_data_dir = None
+    class_prompt = None
+    with_prior_preservation = False
+    prior_loss_weight = 1.0
+    num_class_images = 100
 
-    if vae is not None:
-        pipeline_args["vae"] = vae
+    # Output arguments
+    seed = None
+    center_crop = False
 
-    if text_encoder is not None:
-        text_encoder = accelerator.unwrap_model(text_encoder)
+    # Training arguments
+    train_text_encoder = False
+    sample_batch_size = 4
+    max_train_steps = None
+    checkpointing_steps = 1_000_000
+    checkpoints_total_limit = None
+    resume_from_checkpoint = None
+    gradient_checkpointing = False
 
-    # Create pipeline (note: unet and vae are loaded again in float32)
-    pipeline = DiffusionPipeline.from_pretrained(
-        pretrained_model_name_or_path,
-        tokenizer=tokenizer,
-        text_encoder=text_encoder,
-        unet=accelerator.unwrap_model(unet),
-        revision=revision,
-        torch_dtype=weight_dtype,
-        **pipeline_args,
-    )
+    # Optimizer arguments
+    scale_lr = False
+    lr_num_cycles = 1
+    lr_power = 1.0
+    use_8bit_adam = False
+    dataloader_num_workers = 0
+    adam_beta1 = 0.9
+    adam_beta2 = 0.999
+    adam_weight_decay = 1e-2
+    adam_epsilon = 1e-08
+    max_grad_norm = 1.0
 
-    # We train on the simplified learning objective. If we were previously predicting a variance, we need the scheduler to ignore it
-    scheduler_args = {}
+    # Logging arguments
+    log_dir = "logs"
+    allow_tf32 = False
 
-    if "variance_type" in pipeline.scheduler.config:
-        variance_type = pipeline.scheduler.config.variance_type
+    # Validation arguments
+    num_validation_images = 8
+    validation_steps = 100
 
-        if variance_type in ["learned", "learned_range"]:
-            variance_type = "fixed_small"
+    # Precision arguments
+    mixed_precision = None
+    prior_generation_precision = None
+    set_grads_to_none = False
 
-        scheduler_args["variance_type"] = variance_type
+    # Additional training arguments
+    offset_noise = False
+    pre_compute_text_embeddings = False
+    tokenizer_max_length = None
+    text_encoder_use_attention_mask = False
+    skip_save_text_encoder = False
+    validation_images = None
+    class_labels_conditioning = None
 
-    pipeline.scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config, **scheduler_args)
-    pipeline = pipeline.to(accelerator.device)
-    pipeline.set_progress_bar_config(disable=True)
+    # Dataset arguments
+    add_fitzpatrick_scale_to_prompt = False
 
-    if pre_compute_text_embeddings:
-        pipeline_args = {
-            "prompt_embeds": prompt_embeds,
-            "negative_prompt_embeds": negative_prompt_embeds,
-        }
-    else:
-        pipeline_args = {"prompt": validation_prompt}
+    if is_wandb_available():
+        import wandb
 
-    # Run inference
-    generator = None if seed is None else torch.Generator(device=accelerator.device).manual_seed(seed)
-    images = []
-    if validation_images is None:
-        for _ in range(num_validation_images):
-            with torch.autocast("cuda"):
-                image = pipeline(**pipeline_args, num_inference_steps=25, generator=generator).images[0]
-            images.append(image)
-    else:
-        for img_path in validation_images:
-            image = Image.open(img_path)
-            image = pipeline(**pipeline_args, image=image, generator=generator).images[0]
-            images.append(image)
+    # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
+    check_min_version("0.17.0.dev0")
 
-    for tracker in accelerator.trackers:
-        if tracker.name == "tensorboard":
-            np_images = np.stack([np.asarray(img) for img in images])
-            tracker.writer.add_images("validation", np_images, epoch, dataformats="NHWC")
-        if tracker.name == "wandb":
-            tracker.log(
-                {
-                    "validation": [
-                        wandb.Image(image, caption=f"{i}: {validation_prompt}") for i, image in enumerate(images)
-                    ]
-                }
-            )
+    logger = get_logger(__name__)
 
-    del pipeline
-    torch.cuda.empty_cache()
+    def log_validation(
+        text_encoder, 
+        tokenizer, 
+        unet, 
+        vae, 
+        accelerator, 
+        weight_dtype, 
+        epoch, 
+        prompt_embeds, 
+        negative_prompt_embeds
+    ):
+        logger.info(
+            f"running validation... \n generating {num_validation_images} images with prompt:"
+            f" {validation_prompt}."
+        )
 
-    return images
+        pipeline_args = {}
 
+        if vae is not None:
+            pipeline_args["vae"] = vae
 
-def import_model_class_from_model_name_or_path(pretrained_model_name_or_path: str, revision: str):
-    from transformers import PretrainedConfig
+        if text_encoder is not None:
+            text_encoder = accelerator.unwrap_model(text_encoder)
 
-    text_encoder_config = PretrainedConfig.from_pretrained(
-        pretrained_model_name_or_path,
-        subfolder="text_encoder",
-        revision=revision,
-    )
-    model_class = text_encoder_config.architectures[0]
-    print(f"Model class is {model_class}")
+        # Create pipeline (note: unet and vae are loaded again in float32)
+        pipeline = DiffusionPipeline.from_pretrained(
+            pretrained_model_name_or_path,
+            tokenizer=tokenizer,
+            text_encoder=text_encoder,
+            unet=accelerator.unwrap_model(unet),
+            revision=revision,
+            torch_dtype=weight_dtype,
+            **pipeline_args,
+        )
 
-    if model_class == "CLIPTextModel":
-        from transformers import CLIPTextModel
-        return CLIPTextModel
-    elif model_class == "T5EncoderModel":
-        from transformers import T5EncoderModel
-        return T5EncoderModel
-    else:
-        raise ValueError(f"{model_class} is not supported.")
+        # We train on the simplified learning objective. If we were previously predicting a variance, we need the scheduler to ignore it
+        scheduler_args = {}
 
-def collate_fn(examples, with_prior_preservation=False):
-    has_attention_mask = "instance_attention_mask" in examples[0]
+        if "variance_type" in pipeline.scheduler.config:
+            variance_type = pipeline.scheduler.config.variance_type
 
-    input_ids = [example["instance_prompt_ids"] for example in examples]
-    pixel_values = [example["instance_images"] for example in examples]
+            if variance_type in ["learned", "learned_range"]:
+                variance_type = "fixed_small"
 
-    if has_attention_mask:
-        attention_mask = [example["instance_attention_mask"] for example in examples]
+            scheduler_args["variance_type"] = variance_type
 
-    # Concat class and instance examples for prior preservation.
-    # We do this to avoid doing two forward passes.
-    if with_prior_preservation:
-        input_ids += [example["class_prompt_ids"] for example in examples]
-        pixel_values += [example["class_images"] for example in examples]
+        pipeline.scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config, **scheduler_args)
+        pipeline = pipeline.to(accelerator.device)
+        pipeline.set_progress_bar_config(disable=True)
 
-        if has_attention_mask:
-            attention_mask += [example["class_attention_mask"] for example in examples]
+        if pre_compute_text_embeddings:
+            pipeline_args = {
+                "prompt_embeds": prompt_embeds,
+                "negative_prompt_embeds": negative_prompt_embeds,
+            }
+        else:
+            pipeline_args = {"prompt": validation_prompt}
 
-    pixel_values = torch.stack(pixel_values)
-    pixel_values = pixel_values.to(memory_format=torch.contiguous_format).float()
+        # Run inference
+        generator = None if seed is None else torch.Generator(device=accelerator.device).manual_seed(seed)
+        images = []
+        if validation_images is None:
+            for _ in range(num_validation_images):
+                with torch.autocast("cuda"):
+                    image = pipeline(**pipeline_args, num_inference_steps=25, generator=generator).images[0]
+                images.append(image)
+        else:
+            for img_path in validation_images:
+                image = Image.open(img_path)
+                image = pipeline(**pipeline_args, image=image, generator=generator).images[0]
+                images.append(image)
 
-    input_ids = torch.cat(input_ids, dim=0)
+        for tracker in accelerator.trackers:
+            if tracker.name == "tensorboard":
+                np_images = np.stack([np.asarray(img) for img in images])
+                tracker.writer.add_images("validation", np_images, epoch, dataformats="NHWC")
+            if tracker.name == "wandb":
+                tracker.log(
+                    {
+                        "validation": [
+                            wandb.Image(image, caption=f"{i}: {validation_prompt}") for i, image in enumerate(images)
+                        ]
+                    }
+                )
 
-    batch = {
-        "input_ids": input_ids,
-        "pixel_values": pixel_values,
-    }
+        del pipeline
+        torch.cuda.empty_cache()
 
-    if has_attention_mask:
-        attention_mask = torch.cat(attention_mask, dim=0)
-        batch["attention_mask"] = attention_mask
+        return images
 
-    if "prompt" in examples[0]:
-        batch["prompt"] = [example["prompt"] for example in examples]
-
-    return batch
-
-
-class PromptDataset(Dataset):
-    "A simple dataset to prepare the prompts to generate class images on multiple GPUs."
-
-    def __init__(self, prompt, num_samples):
-        self.prompt = prompt
-        self.num_samples = num_samples
-
-    def __len__(self):
-        return self.num_samples
-
-    def __getitem__(self, index):
-        example = {}
-        example["prompt"] = self.prompt
-        example["index"] = index
-        return example
-
-
-def model_has_vae():
-    config_file_name = os.path.join("vae", AutoencoderKL.config_name)
-    if os.path.isdir(pretrained_model_name_or_path):
-        config_file_name = os.path.join(pretrained_model_name_or_path, config_file_name)
-        return os.path.isfile(config_file_name)
-    else:
-        files_in_repo = model_info(pretrained_model_name_or_path, revision=revision).siblings
-        return any(file.rfilename == config_file_name for file in files_in_repo)
-
-
-# def tokenize_prompt(tokenizer, prompt, tokenizer_max_length=None):
-#     if tokenizer_max_length is not None:
-#         max_length = tokenizer_max_length
-#     else:
-#         max_length = tokenizer.model_max_length
-
-#     text_inputs = tokenizer(
-#         prompt,
-#         truncation=True,
-#         padding="max_length",
-#         max_length=max_length,
-#         return_tensors="pt",
-#     )
-
-#     return text_inputs
+    def model_has_vae():
+        config_file_name = os.path.join("vae", AutoencoderKL.config_name)
+        if os.path.isdir(pretrained_model_name_or_path):
+            config_file_name = os.path.join(pretrained_model_name_or_path, config_file_name)
+            return os.path.isfile(config_file_name)
+        else:
+            files_in_repo = model_info(pretrained_model_name_or_path, revision=revision).siblings
+            return any(file.rfilename == config_file_name for file in files_in_repo)
 
 
-def encode_prompt(text_encoder, input_ids, attention_mask, text_encoder_use_attention_mask=None):
-    text_input_ids = input_ids.to(text_encoder.device)
-
-    if text_encoder_use_attention_mask:
-        attention_mask = attention_mask.to(text_encoder.device)
-    else:
-        attention_mask = None
-
-    prompt_embeds = text_encoder(
-        text_input_ids,
-        attention_mask=attention_mask,
-    )
-    prompt_embeds = prompt_embeds[0]
-
-    return prompt_embeds
-
-
-def main():
     logging_dir = Path(output_dir, log_dir)
 
     accelerator_project_config = ProjectConfiguration(
@@ -619,22 +479,36 @@ def main():
         pre_computed_instance_prompt_encoder_hidden_states = None
 
     # Dataset and DataLoaders creation:
-    train_dataset = FitzpatrickDataset(
-        dataset_type=dataset_type,
-        disease_class=disease_class,
-        add_fitzpatrick_scale_to_prompt=add_fitzpatrick_scale_to_prompt,
-        instance_data_root=instance_data_dir,
-        instance_prompt=instance_prompt,
-        class_data_root=class_data_dir if with_prior_preservation else None,
-        class_prompt=class_prompt,
-        class_num=num_class_images,
+    train_dataset = DiffusionTrainWrapper(
+        train_dataset = train_dataset,
         tokenizer=tokenizer,
+        instance_prompt=instance_prompt,
+        label_filter=label_filter,
         size=resolution,
         center_crop=center_crop,
         encoder_hidden_states=pre_computed_encoder_hidden_states,
         instance_prompt_encoder_hidden_states=pre_computed_instance_prompt_encoder_hidden_states,
         tokenizer_max_length=tokenizer_max_length,
+        add_fitzpatrick_scale_to_prompt=add_fitzpatrick_scale_to_prompt
     )
+
+    # # Dataset and DataLoaders creation:
+    # train_dataset = FitzpatrickDataset(
+    #     dataset_type=dataset_type,
+    #     disease_class=disease_class,
+    #     add_fitzpatrick_scale_to_prompt=add_fitzpatrick_scale_to_prompt,
+    #     instance_data_root=instance_data_dir,
+    #     instance_prompt=instance_prompt,
+    #     class_data_root=class_data_dir if with_prior_preservation else None,
+    #     class_prompt=class_prompt,
+    #     class_num=num_class_images,
+    #     tokenizer=tokenizer,
+    #     size=resolution,
+    #     center_crop=center_crop,
+    #     encoder_hidden_states=pre_computed_encoder_hidden_states,
+    #     instance_prompt_encoder_hidden_states=pre_computed_instance_prompt_encoder_hidden_states,
+    #     tokenizer_max_length=tokenizer_max_length,
+    # )
 
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,
@@ -919,6 +793,3 @@ def main():
 
     accelerator.end_training()
 
-
-if __name__ == "__main__":
-    main()

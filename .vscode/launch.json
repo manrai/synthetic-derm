@@ -89,16 +89,7 @@
             "justMyCode": true
         },
         {
-            "name": "Generate synthetic images test",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "synderm/synderm/examples/generate_synthetic_images.py",
-            "args": [],
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Train diffusion model",
+            "name": "Train text-to-image diffusion model",
             "type": "debugpy",
             "request": "launch",
             "program": "synderm/synderm/examples/train_diffusion_model.py",
