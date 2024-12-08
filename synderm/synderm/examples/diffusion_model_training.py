@@ -61,6 +61,10 @@ CLASS_NAMES = [
     "squamous-cell-carcinoma",
 ]
 
+
+# TODO: not sure if we actually use the prior preservation features in this script? If not we can remove them for now
+
+
 # Adjust arguments here
 pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1-base"
 instance_data_dir = "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k"
