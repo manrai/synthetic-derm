@@ -36,12 +36,12 @@ for entry in tqdm(dataset["train"]):
         continue
 
     # Check if both train and val counts have reached their limits
-    if counts[label]["train"] >= 64 and counts[label]["val"] >= 32:
+    if counts[label]["train"] >= 110 and counts[label]["val"] >= 32:
         continue
 
     image = entry["png"]
 
-    if counts[label]["train"] < 64:
+    if counts[label]["train"] < 110:
         counts[label]["train"] += 1
         example_num = counts[label]["train"]
         label_dir = train_dir / label
@@ -60,5 +60,5 @@ for entry in tqdm(dataset["train"]):
     print(f"{label} - Train: {counts[label]['train']}, Val: {counts[label]['val']}")
 
     # Check if all labels have reached their limits
-    if all(counts[l]["train"] >= 64 and counts[l]["val"] >= 32 for l in labels):
+    if all(counts[l]["train"] >= 110 and counts[l]["val"] >= 32 for l in labels):
         break
