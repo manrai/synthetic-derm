@@ -32,14 +32,14 @@ from transformers import AutoTokenizer
 import rich
 from lovely_tensors import monkey_patch
 
-from synderm.synderm.examples.train_diffusion_model import DiffusionTrainWrapper
-from synderm.synderm.fine_tune.util import (
+from synderm.fine_tune.util import (
     PromptDataset,
+    DiffusionTrainWrapper,
     collate_fn,
+    tokenize_prompt,
     encode_prompt,
     import_model_class_from_model_name_or_path,
 )
-from utils.helpers import tokenize_prompt
 
 builtins.print = rich.print
 monkey_patch()

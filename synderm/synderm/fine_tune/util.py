@@ -1,48 +1,8 @@
 from functools import lru_cache
-from pathlib import Path
-from typing import Literal
-import gc
-import hashlib
-import itertools
-import logging
-import math
-import os
-
-import numpy as np
-import pandas as pd
 import torch
-import torch.nn.functional as F
 import torch.utils.checkpoint
-import transformers
-from accelerate import Accelerator
-from accelerate.logging import get_logger
-from accelerate.utils import ProjectConfiguration, set_seed
-
-import diffusers
-from diffusers import (
-    AutoencoderKL,
-    DDPMScheduler,
-    DiffusionPipeline,
-    DPMSolverMultistepScheduler,
-    StableDiffusionPipeline,
-    UNet2DConditionModel,
-)
-from diffusers.optimization import get_scheduler
-from diffusers.utils import check_min_version, is_wandb_available
-from diffusers.utils.torch_utils import randn_tensor
-from huggingface_hub import model_info
-from packaging import version
-from PIL import Image
-from PIL.ImageOps import exif_transpose
 from torch.utils.data import Dataset
 from torchvision import transforms
-from tqdm.auto import tqdm
-from transformers import AutoTokenizer, PretrainedConfig
-
-import builtins
-import rich
-
-from utils.helpers import tokenize_prompt
 
 def import_model_class_from_model_name_or_path(pretrained_model_name_or_path: str, revision: str):
     from transformers import PretrainedConfig
@@ -142,10 +102,10 @@ class DiffusionTrainWrapper(Dataset):
         #self.data_disease_class = disease_class.replace('-', ' ')
 
         # Filter the dataset to only include samples with the desired label
-        if self.label_filter != None:
+        if self.label_filter is not None:
             self.filtered_indices = [
-                i for i, label in enumerate(train_dataset.labels)
-                if label == self.label_filter
+                i for i in range(len(train_dataset))
+                if train_dataset[i]["label"] == self.label_filter
             ]
         else:
             self.filtered_indices = list(range(len(train_dataset)))
@@ -189,7 +149,6 @@ class DiffusionTrainWrapper(Dataset):
         train_sample = self.train_dataset[index]
         image = train_sample["image"]
         label = train_sample["label"]
-        image_name = train_sample["id"]
 
         # Prepare the instance prompt
         instance_class_name = label.replace('-', ' ')
