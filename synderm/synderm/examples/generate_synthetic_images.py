@@ -6,15 +6,17 @@ from pathlib import Path
 # TODO: make sure that this script works with both a pretrained model, and the fine-tuned model
 sample_dataset = SampleDataset(dataset_dir="sample_dataset", split="train")
 
-#fine_tuned_model_path = "n/scratch/users/t/thb286/dreambooth-outputs/"
-pretrained_model_path = "runwayml/stable-diffusion-inpainting"
+fine_tuned_model_path = "/n/scratch/users/t/thb286/dreambooth-outputs/allergic-contact-dermatitis"
+#pretrained_model_path = "runwayml/stable-diffusion-inpainting"
+
+output_dir = Path("test_outputs")
 
 generate_synthetic_dataset(
     label_filter="allergic-contact-dermatitis",
     dataset=sample_dataset,
-    output_dir_path = Path("test_outputs"),
-    generation_type = "inpaint", 
-    model_path = pretrained_model_path,
+    output_dir_path = output_dir,
+    generation_type = "text-to-image", 
+    model_path = fine_tuned_model_path,
     instance_prompt = "An image of {}, a skin disease",
     batch_size = 16,
     start_index = 0,

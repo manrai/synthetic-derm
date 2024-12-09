@@ -1,5 +1,9 @@
 from pathlib import Path
+import pandas as pd
 import os
+import random
+from torch.utils.data import Subset, ConcatDataset
+from collections import defaultdict
 
 def save_images(images, directory):
     pass
@@ -32,129 +36,148 @@ def save(image, path):
 
 def synthetic_train_val_split(
         real_data, 
-        synthetic_data,
+        synthetic_data=None,
         test_size=None,
         per_class_test_size=40,
         n_real_per_class=None,
         n_synthetic_per_class=None,
         random_state=None,
         class_column="label",
-        #id_column="md5hash"
-        mapping_real_to_synthetic="md5hash"
-        ):
+        mapping_real_to_synthetic="id"  # Assuming synthetic data has a field that maps to real data 'id'
+    ):
     """
     Splits the combined dataset of real and synthetic images into training and validation sets.
     The training set consists of synthetic images and a limited number of real images per class.
-    In the training set, only synthetic entries will only be included if they have a corresponding entry in the training set. So, there needs to be a mapping from real images to synthetic images (usually based on the way they are generated, for example inpaint synthetic images will have an ID corresponding to the source image). 
+    In the training set, synthetic entries are included only if they have a corresponding entry in the training set.
     The validation set consists only of real images.
 
     Parameters:
     -----------
-    real_data : pandas.DataFrame
-        DataFrame containing the real images data.
-    synthetic_data : pandas.DataFrame or None
-        DataFrame containing the synthetic images data. If no synthetic data is included, will behave similarly to a train/test split
+    real_data : torch.utils.data.Dataset
+        Dataset containing the real images data. Each item should be a dict with at least 'id' and 'label'.
+    synthetic_data : torch.utils.data.Dataset or None, default=None
+        Dataset containing the synthetic images data. If provided, it should have a field that maps to real data 'id'.
     test_size : float, int, or None, default=None
         If float, represents the proportion of the real dataset to include in the validation split.
         If int, represents the total number of validation samples.
-        If None, `per_class_size` must be specified.
+        If None, `per_class_test_size` must be specified.
     per_class_test_size : int or None, default=40
         Number of samples per class to include in the validation set.
         If None, `test_size` must be specified.
     n_real_per_class : int or None, default=None
         Maximum number of real images per class to include in the training data.
         If None, all remaining real images (excluding validation set) are included.
+    n_synthetic_per_class : int or None, default=None
+        (Not implemented) Raises NotImplementedError if provided.
     random_state : int or None, default=None
         Random seed for reproducibility.
     class_column : str, default="label"
-        Name of the column in the DataFrames that contains the class labels.
-    mapping_real_to_synthetic : str or None, default="md5hash"
-        Name of the column in the DataFrames that maps instances in the real data to instances in the synthetic data. This is necessary if synthetic images are a function of real images to prevent train/test leakage.
+        Name of the field in the dataset that contains the class labels.
+    mapping_real_to_synthetic : str, default="id"
+        Name of the field in the synthetic dataset that maps to the real data's 'id'.
 
     Returns:
     --------
-    train_data : pandas.DataFrame
-        DataFrame containing the training data.
-    val_data : pandas.DataFrame
-        DataFrame containing the validation data.
+    train_data : torch.utils.data.Dataset
+        Dataset containing the training data (real and synthetic).
+    val_data : torch.utils.data.Dataset
+        Dataset containing the validation data.
     """
-    # Ensure the original dataframes are not modified
-    real_data = real_data.copy()
-    real_data["id_placeholder"] = range(1, len(real_data) + 1)
-    real_data["synthetic"] = False
-
-    if synthetic_data is not None:
-        synthetic_data = synthetic_data.copy()
-        synthetic_data["id_placeholder"] = range(len(real_data) + 1, len(real_data) + len(synthetic_data) + 1)
-        synthetic_data["synthetic"] = True
-
-    # Validate input parameters
     if (test_size is None and per_class_test_size is None) or (test_size is not None and per_class_test_size is not None):
-        raise ValueError("Specify exactly one of 'test_size' or 'per_class_size'.")
+        raise ValueError("Specify exactly one of 'test_size' or 'per_class_test_size'.")
 
-    val_data_list = []
+    if n_synthetic_per_class is not None:
+        raise NotImplementedError("'n_synthetic_per_class' parameter is not implemented.")
+
+    # Set random seed for reproducibility
+    rng = random.Random(random_state)
+
+    # Extract real data entries
+    real_entries = [{'index': idx, 'id': real_data[idx]['id'], 'label': real_data[idx][class_column]} for idx in range(len(real_data))]
+
+    # Group real data indices by class
+    class_to_indices = defaultdict(list)
+    for entry in real_entries:
+        class_to_indices[entry['label']].append(entry['index'])
+
+    val_indices = []
+    train_real_indices = []
 
     if per_class_test_size is not None:
         # Sample specified number per class for validation
-        for class_name, group in real_data.groupby(class_column):
-            n_samples = min(len(group), per_class_test_size)
-            val_samples = group.sample(n=n_samples, random_state=random_state, replace=False)
-            val_data_list.append(val_samples)
+        for cls, indices in class_to_indices.items():
+            n_samples = min(len(indices), per_class_test_size)
+            sampled_indices = rng.sample(indices, n_samples)
+            val_indices.extend(sampled_indices)
+            remaining = list(set(indices) - set(sampled_indices))
+            train_real_indices.extend(remaining)
     else:
         # Compute per-class validation sizes based on test_size
         if isinstance(test_size, float):
             if not 0.0 < test_size < 1.0:
                 raise ValueError("When 'test_size' is a float, it must be between 0.0 and 1.0.")
-            for class_name, group in real_data.groupby(class_column):
-                n_samples = max(1, int(round(len(group) * test_size)))
-                val_samples = group.sample(n=n_samples, random_state=random_state, replace=False)
-                val_data_list.append(val_samples)
+            for cls, indices in class_to_indices.items():
+                n_samples = max(1, int(round(len(indices) * test_size)))
+                sampled_indices = rng.sample(indices, n_samples)
+                val_indices.extend(sampled_indices)
+                remaining = list(set(indices) - set(sampled_indices))
+                train_real_indices.extend(remaining)
         elif isinstance(test_size, int):
             total_samples = test_size
-            num_classes = real_data[class_column].nunique()
+            num_classes = len(class_to_indices)
             samples_per_class = total_samples // num_classes
             remainder = total_samples % num_classes
-            for idx, (class_name, group) in enumerate(real_data.groupby(class_column)):
+            for idx, (cls, indices) in enumerate(class_to_indices.items()):
                 n_samples = samples_per_class + (1 if idx < remainder else 0)
-                n_samples = min(len(group), n_samples)
-                val_samples = group.sample(n=n_samples, random_state=random_state, replace=False)
-                val_data_list.append(val_samples)
+                n_samples = min(len(indices), n_samples)
+                sampled_indices = rng.sample(indices, n_samples)
+                val_indices.extend(sampled_indices)
+                remaining = list(set(indices) - set(sampled_indices))
+                train_real_indices.extend(remaining)
         else:
             raise ValueError("'test_size' must be a float or int.")
 
-    # Combine validation samples
-    val_data = pd.concat(val_data_list).reset_index(drop=True)
-
-    # Exclude validation samples from real_data
-    val_ids = val_data["id_placeholder"].unique()
-    remaining_real_data = real_data[~real_data["id_placeholder"].isin(val_ids)]
-
-    # Create training data
+    # If n_real_per_class is specified, limit the number of real training samples per class
     if n_real_per_class is not None:
-        # Limit the number of real images per class in training data
-        train_real_data_list = []
-        for class_name, group in remaining_real_data.groupby(class_column):
-            n_samples = min(len(group), n_real_per_class)
-            train_samples = group.sample(n=n_samples, random_state=random_state, replace=False)
-            train_real_data_list.append(train_samples)
-        train_real_data = pd.concat(train_real_data_list).reset_index(drop=True)
-    else:
-        # Use all remaining real images
-        train_real_data = remaining_real_data.copy()
-    
+        limited_train_real_indices = []
+        # Regroup training indices by class
+        train_class_to_indices = defaultdict(list)
+        for idx in train_real_indices:
+            cls = real_data[idx][class_column]
+            train_class_to_indices[cls].append(idx)
+        for cls, indices in train_class_to_indices.items():
+            n_samples = min(len(indices), n_real_per_class)
+            sampled_indices = rng.sample(indices, n_samples)
+            limited_train_real_indices.extend(sampled_indices)
+        train_real_indices = limited_train_real_indices
+
+    # Process synthetic data
+    synthetic_train_indices = []
     if synthetic_data is not None:
-        if n_synthetic_per_class is not None:
-            raise NotImplementedError()
-
-        # Get the synthetic images that share the same ID (map) as real images in the training data
-        if mapping_real_to_synthetic is not None:
-            ids_train = train_real_data[mapping_real_to_synthetic]
-            synthetic_data_subset = synthetic_data[synthetic_data[mapping_real_to_synthetic].isin(ids_train)]
-
-        # Combine synthetic data with the sampled real data for training
-        train_data = pd.concat([train_real_data, synthetic_data_subset]).reset_index(drop=True)
+        # Extract real training ids for mapping
+        train_real_ids = set([real_data[idx]['id'] for idx in train_real_indices])
+        
+        # Iterate over synthetic_data to find matching entries
+        for idx in range(len(synthetic_data)):
+            synthetic_entry = synthetic_data[idx]
+            mapped_id = synthetic_entry.get(mapping_real_to_synthetic)
+            if mapped_id in train_real_ids:
+                synthetic_train_indices.append(idx)
+        
+        train_synthetic_subset = Subset(synthetic_data, synthetic_train_indices)
     else:
-        train_data = train_real_data
+        train_synthetic_subset = None
+
+    # Create Subsets for training and validation
+    train_real_subset = Subset(real_data, train_real_indices)
+    val_subset = Subset(real_data, val_indices)
+
+    if synthetic_data is not None:
+        train_data = ConcatDataset([train_real_subset, train_synthetic_subset])
+    else:
+        train_data = train_real_subset
+
+    val_data = val_subset
 
     return train_data, val_data
 
