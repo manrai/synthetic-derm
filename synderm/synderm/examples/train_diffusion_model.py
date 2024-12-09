@@ -128,6 +128,7 @@ class SimpleFitzDataset(Dataset):
         return example
 
 # TODO: change functionality so that a new model is trained automatically for each label
+# TODO: Create a new wandb log for each model
 
 #simple_dataset = CustomDataset(dataset_dir="sample_dataset", split="train")
 simple_dataset = SimpleFitzDataset(dataset_dir="/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k")
@@ -138,7 +139,7 @@ fine_tune_text_to_image(
     instance_prompt = "An image of {}, a skin disease",
     validation_prompt = "An image of allergic contact dermatitis, a skin disease",
     output_dir = "dreambooth-outputs/allergic-contact-dermatitis",
-    label_filter = "allergic-contact-dermatitis",
+    #label_filter = "allergic-contact-dermatitis",
     resolution = 512,
     train_batch_size = 4,
     gradient_accumulation_steps = 1,

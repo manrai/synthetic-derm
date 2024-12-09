@@ -63,13 +63,22 @@
             "justMyCode": true
         },
         {
+            "name": "Copy dataset in webdataset format",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "huggingface/copy_images_to_webdataset.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Compile 300k data Huggingface to tar files",
             "type": "debugpy",
             "request": "launch",
             "program": "huggingface/compile_webdataset.py",
             "args": [
-                "--input_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete/",
-                "--output_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_webdataset_shards/",
+                "--input_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new/",
+                "--output_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new_webdataset_shards/",
                 "--shard_size", "5000"
             ],
             "console": "integratedTerminal",
