@@ -19,7 +19,7 @@ class GenerationWrapper(Dataset):
         self.filtered_indices = []
         if self.label_filter is not None:
             for i in range(len(self.dataset)):
-                test_label = self.train_dataset[i]["label"]
+                test_label = self.dataset[i]["label"]
                 if test_label == self.label_filter:
                     self.filtered_indices.append(i)
         else:
@@ -45,7 +45,7 @@ class GenerationWrapper(Dataset):
 
         index_filtered = self.filtered_indices[index]
 
-        # Access the data from the underlying train_dataset
+        # Access the data from the underlying dataset
         sample = self.dataset[index_filtered]
         image = sample["image"]
         label = sample["label"]
@@ -57,9 +57,11 @@ class GenerationWrapper(Dataset):
         # Apply image transformations
         if not image.mode == "RGB":
             image = image.convert("RGB")
-        example["instance_images"] = self.image_transforms(image)
-
+        example["image"] = self.image_transforms(image)
         example["prompt"] = instance_prompt
+
+        example["label"] = label
+        example["id"] = sample["id"]
 
         return example
 

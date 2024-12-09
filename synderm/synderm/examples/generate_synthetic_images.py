@@ -10,6 +10,8 @@ sample_dataset = SampleDataset(dataset_dir="sample_dataset", split="train")
 pretrained_model_path = "runwayml/stable-diffusion-inpainting"
 
 generate_synthetic_dataset(
+    label_filter="allergic-contact-dermatitis",
+    dataset=sample_dataset,
     output_dir_path = Path("test_outputs"),
     generation_type = "inpaint", 
     model_path = pretrained_model_path,

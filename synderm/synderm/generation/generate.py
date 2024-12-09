@@ -35,8 +35,11 @@ def generate_synthetic_dataset(
     device = "cuda"
     ):
 
+    if label_filter is None:
+        raise NotImplementedError("Generation for multiple labels not yet implemented.")
+
     if device != "cuda":
-        raise NotImplementedError("cuda device required to generate the synthetic dataset")
+        raise NotImplementedError("Cuda device required to generate the synthetic dataset")
 
     # Device and autograd
     ctx = torch.inference_mode()
@@ -98,19 +101,10 @@ def generate_synthetic_dataset(
         path.parent.mkdir(exist_ok=True, parents=True)
         image.save(path)
 
-    # TODO: note in the documentation that we already do a resize followed by a normalization
-    diffusion_transforms = transforms.Compose([
-        transforms.Resize((resolution, resolution), interpolation=transforms.InterpolationMode.BILINEAR),
-        transforms.Normalize([0.5], [0.5])  # Normalizes to [-1, 1] range
-    ])
-
     # In the generation loop:
     for idx in range(start_index, start_index + num_generations_per_image):
         for batch_idx, batch in enumerate(tqdm(dataloader)):
-            #pixel_values = diffusion_transforms(batch["image"])
-            # TODO: removing the implicit transform and moving to wrapper
-
-            pixel_values = diffusion_transforms(batch["image"])
+            pixel_values = batch["image"]
             batch["pixel_values"] = pixel_values
 
             gen_kwargs = dict(
