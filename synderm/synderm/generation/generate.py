@@ -1,76 +1,27 @@
-import inspect
-import math
-import os
-import pdb
-import datetime
-from dataclasses import dataclass
+from synderm.generation.util import GenerationWrapper
+
 from pathlib import Path
 from torch.utils.data import DataLoader
-from typing import Any, Callable, Iterable, List, Optional, Union, Literal
-import pandas as pd
-import diffusers
-import numpy as np
 import torch
 import torch.nn.functional as F
-from diffusers import StableDiffusionInpaintPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
-from IPython.display import display
+from diffusers import StableDiffusionInpaintPipeline, StableDiffusionPipeline
 from PIL import Image
-from torch import Tensor, autocast
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.transforms import functional as TVF
 from torchvision.utils import make_grid
-from tqdm.rich import tqdm, trange
-from transformers import AutoTokenizer
-from torch.utils.data import Dataset
+from tqdm.rich import tqdm
 import torchvision.transforms as transforms
 from PIL import Image
-import os
 from pathlib import Path
-
-# ** The input to our function should be a Pytorch Dataset object
-# This should also be the input to the training function we have in the other examples
-class CustomDataset(Dataset):
-    def __init__(self, dataset_dir):
-        self.dataset_dir = Path(dataset_dir)
-        self.image_paths = []
-        self.labels = []
-        self.transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
-
-        # Walk through class folders
-        for class_name in os.listdir(self.dataset_dir):
-            class_dir = self.dataset_dir / class_name
-            if not class_dir.is_dir():
-                continue
-                
-            # Get all png images in this class folder
-            for img_name in os.listdir(class_dir):
-                if img_name.lower().endswith('.png'):
-                    self.image_paths.append(class_dir / img_name)
-                    self.labels.append(class_name)
-
-    def __len__(self):
-        return len(self.image_paths)
-
-    def __getitem__(self, idx):
-        image_path = self.image_paths[idx]
-        label = self.labels[idx]
-        
-        # Load and convert image to RGB
-        image = Image.open(image_path).convert('RGB')
-        # Convert to tensor
-        image = self.transform(image)
-        image_name = image_path.stem
-
-        return {"id": image_name, "image": image, "label": label}
 
 
 def generate_synthetic_dataset(
+    dataset,
     generation_type = "inpaint",
     model_path = "runwayml/stable-diffusion-inpainting",
-    output_dir_path = Path("test_outputs"),
+    label_filter = None,
+    output_dir_path = None,
     batch_size = 16,
     start_index = 0,
     num_generations_per_image = 1,
@@ -80,7 +31,7 @@ def generate_synthetic_dataset(
     strength_inpaint = 0.970,
     strength_outpaint = 0.950,
     mask_fraction = 0.25,
-    input_prompt = "An image of {}, a skin disease",
+    instance_prompt = "An image of {}, a skin disease",
     device = "cuda"
     ):
 
@@ -118,9 +69,8 @@ def generate_synthetic_dataset(
 
     print(f'Loaded pipeline with {sum(p.numel() for p in pipeline.unet.parameters()):_} unet parameters')
 
-    dataset_directory = "sample_dataset"
-    dataset = CustomDataset(dataset_directory)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    wrapped_dataset = GenerationWrapper(dataset=dataset, instance_prompt=instance_prompt, label_filter=label_filter)
+    dataloader = DataLoader(wrapped_dataset, batch_size=batch_size, shuffle=True)
 
     generator = torch.Generator(device=device)
     generator.manual_seed(seed + start_index)
@@ -157,9 +107,11 @@ def generate_synthetic_dataset(
     # In the generation loop:
     for idx in range(start_index, start_index + num_generations_per_image):
         for batch_idx, batch in enumerate(tqdm(dataloader)):
+            #pixel_values = diffusion_transforms(batch["image"])
+            # TODO: removing the implicit transform and moving to wrapper
+
             pixel_values = diffusion_transforms(batch["image"])
             batch["pixel_values"] = pixel_values
-            batch["prompt"] = [input_prompt.format(label) for label in batch["label"]]
 
             gen_kwargs = dict(
                 prompt=batch["prompt"],

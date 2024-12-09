@@ -1,16 +1,19 @@
 from synderm.generation.generate import generate_synthetic_dataset
-from synderm.examples.sample_datasets import CustomDataset
+from synderm.examples.sample_datasets import SampleDataset
 
 from pathlib import Path
 
 # TODO: make sure that this script works with both a pretrained model, and the fine-tuned model
-sample_dataset = CustomDataset(dataset_dir="sample_dataset", split="train")
+sample_dataset = SampleDataset(dataset_dir="sample_dataset", split="train")
+
+#fine_tuned_model_path = "n/scratch/users/t/thb286/dreambooth-outputs/"
+pretrained_model_path = "runwayml/stable-diffusion-inpainting"
 
 generate_synthetic_dataset(
     output_dir_path = Path("test_outputs"),
     generation_type = "inpaint", 
-    model_path = "runwayml/stable-diffusion-inpainting",
-    input_prompt = "An image of {}, a skin disease",
+    model_path = pretrained_model_path,
+    instance_prompt = "An image of {}, a skin disease",
     batch_size = 16,
     start_index = 0,
     num_generations_per_image = 1,

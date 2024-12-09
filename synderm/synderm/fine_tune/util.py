@@ -100,8 +100,6 @@ class DiffusionTrainWrapper(Dataset):
         self.tokenizer_max_length = tokenizer_max_length
         self.label_filter = label_filter
 
-        #self.data_disease_class = disease_class.replace('-', ' ')
-
         # Filter the dataset to only include samples with the desired label
         self.filtered_indices = []
         if self.label_filter is not None:
@@ -128,16 +126,11 @@ class DiffusionTrainWrapper(Dataset):
             transforms.RandomHorizontalFlip(),
         ]
 
-            # image_transforms = [
-            #     transforms.Resize(size, interpolation=transforms.InterpolationMode.BILINEAR),
-            #     transforms.CenterCrop(size) if center_crop else transforms.RandomCrop(size),
-            # ]
-
         normalize_and_to_tensor = [transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]
         self.image_transforms = transforms.Compose(image_transforms + normalize_and_to_tensor)
 
     def __len__(self):
-        return len(self.filtered_indices)
+        return self._length
 
     @lru_cache()
     def tokenize_prompt_with_caching(self, instance_prompt: str):

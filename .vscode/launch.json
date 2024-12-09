@@ -5,23 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Create sample dataset",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "synderm/synderm/examples/create_sample_derm_dataset.py",
-            "args": [],
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Generate images",
+            "name": "[Original] Generate images",
             "type": "debugpy",
             "request": "launch",
             "program": "generation/generate.py",
@@ -38,7 +22,7 @@
             "justMyCode": true
         },
         {
-            "name": "Fine-tune dreambooth",
+            "name": "[Original] Fine-tune dreambooth",
             "type": "debugpy",
             "request": "launch",
             "program": "generation/train_dreambooth.py",
@@ -63,7 +47,7 @@
             "justMyCode": true
         },
         {
-            "name": "Copy dataset in webdataset format",
+            "name": "[Huggingface] Copy 350k dataset in webdataset format",
             "type": "debugpy",
             "request": "launch",
             "program": "huggingface/copy_images_to_webdataset.py",
@@ -72,7 +56,7 @@
             "justMyCode": true
         },
         {
-            "name": "Compile 300k data Huggingface to tar files",
+            "name": "[Huggingface] Compile 350k data Huggingface to tar files",
             "type": "debugpy",
             "request": "launch",
             "program": "huggingface/compile_webdataset.py",
@@ -85,20 +69,38 @@
             "justMyCode": true
         },
         {
-            "name": "Upload 300k data Huggingface",
+            "name": "[Huggingface] Upload 350k data Huggingface",
             "type": "debugpy",
             "request": "launch",
             "program": "huggingface/upload_webdataset_to_huggingface.py",
             "args": [
                 "--webdataset_path", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new_webdataset_shards/",
-                "--repo_id", "tbuckley/synthetic-derm-300k",
+                "--repo_id", "tbuckley/synthetic-derm-350k",
                 "--repo_type", "dataset",
             ],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
-            "name": "Train text-to-image diffusion model",
+            "name": "[Examples] Create sample dataset",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/synderm/examples/create_sample_derm_dataset.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Examples] Generate synthetic images",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/synderm/examples/generate_synthetic_images.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Examples] Train text-to-image diffusion model",
             "type": "debugpy",
             "request": "launch",
             "program": "synderm/synderm/examples/train_diffusion_model.py",
@@ -106,6 +108,5 @@
             "console": "integratedTerminal",
             "justMyCode": true
         }
-
     ]
 }
