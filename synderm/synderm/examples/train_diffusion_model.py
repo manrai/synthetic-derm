@@ -49,38 +49,38 @@ builtins.print = rich.print
 monkey_patch()
 
 
-# class CustomDataset(Dataset):
-#     def __init__(self, dataset_dir, split="train"):
-#         self.dataset_dir = Path(dataset_dir)
-#         self.image_paths = []
-#         self.labels = []
-#         self.split = split
+class CustomDataset(Dataset):
+    def __init__(self, dataset_dir, split="train"):
+        self.dataset_dir = Path(dataset_dir)
+        self.image_paths = []
+        self.labels = []
+        self.split = split
 
-#         # Walk through class folders
-#         data_dir = self.dataset_dir / self.split
-#         for class_name in os.listdir(data_dir):
-#             class_dir = data_dir / class_name
-#             if not class_dir.is_dir():
-#                 continue
+        # Walk through class folders
+        data_dir = self.dataset_dir / self.split
+        for class_name in os.listdir(data_dir):
+            class_dir = data_dir / class_name
+            if not class_dir.is_dir():
+                continue
                 
-#             # Get all png images in this class folder
-#             for img_name in os.listdir(class_dir):
-#                 if img_name.lower().endswith('.png'):
-#                     self.image_paths.append(class_dir / img_name)
-#                     self.labels.append(class_name)
+            # Get all png images in this class folder
+            for img_name in os.listdir(class_dir):
+                if img_name.lower().endswith('.png'):
+                    self.image_paths.append(class_dir / img_name)
+                    self.labels.append(class_name)
 
-#     def __len__(self):
-#         return len(self.image_paths)
+    def __len__(self):
+        return len(self.image_paths)
 
-#     def __getitem__(self, idx):
-#         image_path = self.image_paths[idx]
-#         label = self.labels[idx]
+    def __getitem__(self, idx):
+        image_path = self.image_paths[idx]
+        label = self.labels[idx]
         
-#         # Load and convert image to RGB
-#         image = Image.open(image_path).convert('RGB')
-#         image_name = image_path.stem
+        # Load and convert image to RGB
+        image = Image.open(image_path).convert('RGB')
+        image_name = image_path.stem
 
-#         return {"id": image_name, "image": image, "label": label}
+        return {"id": image_name, "image": image, "label": label}
 
 class SimpleFitzDataset(Dataset):
     def __init__(self, dataset_dir, fitz_path='fitzpatrick17k_10label_clean_training.csv'):
@@ -104,6 +104,7 @@ class SimpleFitzDataset(Dataset):
         print(f'Using csv file: {csv_file}')
 
         self.data_df = pd.read_csv(csv_file)
+        self.data_df["label"] = self.data_df["label"].apply(lambda x: x.replace(" ", "-"))
 
         # Filter to only include entries with labels in class_names
         self.data_df = self.data_df[self.data_df['label'].isin(self.class_names)]
@@ -126,8 +127,7 @@ class SimpleFitzDataset(Dataset):
 
         return example
 
-# TODO: 1) After refactoring, test that the script works equivalently to the original (walk through with the debugger)
-# TODO: 2) If function works, change functionality so that a new model is trained automatically for each label
+# TODO: change functionality so that a new model is trained automatically for each label
 
 #simple_dataset = CustomDataset(dataset_dir="sample_dataset", split="train")
 simple_dataset = SimpleFitzDataset(dataset_dir="/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k")

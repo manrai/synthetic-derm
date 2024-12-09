@@ -91,6 +91,7 @@ class DiffusionTrainWrapper(Dataset):
         tokenizer_max_length=None,
         add_fitzpatrick_scale_to_prompt: bool = False
     ):
+        self.train_dataset = train_dataset
         self.size = size
         self.center_crop = center_crop
         self.tokenizer = tokenizer
@@ -102,11 +103,12 @@ class DiffusionTrainWrapper(Dataset):
         #self.data_disease_class = disease_class.replace('-', ' ')
 
         # Filter the dataset to only include samples with the desired label
+        self.filtered_indices = []
         if self.label_filter is not None:
-            self.filtered_indices = [
-                i for i in range(len(train_dataset))
-                if train_dataset[i]["label"] == self.label_filter
-            ]
+            for i in range(len(train_dataset)):
+                test_label = self.train_dataset[i]["label"]
+                if test_label == self.label_filter:
+                    self.filtered_indices.append(i)
         else:
             self.filtered_indices = list(range(len(train_dataset)))
 
@@ -117,26 +119,25 @@ class DiffusionTrainWrapper(Dataset):
         self._length = self.num_instance_images
 
         # Image transforms
-        if self.split == 'train':
-            image_transforms = [
-                transforms.RandomResizedCrop(
-                    size=size, scale=(0.9, 1.1), ratio=(0.9, 1.1),
-                    interpolation=transforms.InterpolationMode.BILINEAR, antialias=True
-                ),
-                transforms.ColorJitter(0.05, 0.05, 0.05, 0.05),
-                transforms.RandomHorizontalFlip(),
-            ]
-        else:
-            image_transforms = [
-                transforms.Resize(size, interpolation=transforms.InterpolationMode.BILINEAR),
-                transforms.CenterCrop(size) if center_crop else transforms.RandomCrop(size),
-            ]
+        image_transforms = [
+            transforms.RandomResizedCrop(
+                size=size, scale=(0.9, 1.1), ratio=(0.9, 1.1),
+                interpolation=transforms.InterpolationMode.BILINEAR, antialias=True
+            ),
+            transforms.ColorJitter(0.05, 0.05, 0.05, 0.05),
+            transforms.RandomHorizontalFlip(),
+        ]
+
+            # image_transforms = [
+            #     transforms.Resize(size, interpolation=transforms.InterpolationMode.BILINEAR),
+            #     transforms.CenterCrop(size) if center_crop else transforms.RandomCrop(size),
+            # ]
 
         normalize_and_to_tensor = [transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]
         self.image_transforms = transforms.Compose(image_transforms + normalize_and_to_tensor)
 
     def __len__(self):
-        return self._length
+        return len(self.filtered_indices)
 
     @lru_cache()
     def tokenize_prompt_with_caching(self, instance_prompt: str):
@@ -145,8 +146,10 @@ class DiffusionTrainWrapper(Dataset):
     def __getitem__(self, index):
         example = {}
 
+        index_filtered = self.filtered_indices[index]
+
         # Access the data from the underlying train_dataset
-        train_sample = self.train_dataset[index]
+        train_sample = self.train_dataset[index_filtered]
         image = train_sample["image"]
         label = train_sample["label"]
 

@@ -2,6 +2,7 @@ import builtins
 import gc
 import itertools
 import logging
+import hashlib
 import math
 import os
 from pathlib import Path
@@ -228,8 +229,8 @@ def fine_tune_text_to_image(
             files_in_repo = model_info(pretrained_model_name_or_path, revision=revision).siblings
             return any(file.rfilename == config_file_name for file in files_in_repo)
 
-
     logging_dir = Path(output_dir, log_dir)
+    #logging_dir = os.path.join(output_dir, log_dir)
 
     accelerator_project_config = ProjectConfiguration(
         total_limit=checkpoints_total_limit,
@@ -492,23 +493,7 @@ def fine_tune_text_to_image(
         add_fitzpatrick_scale_to_prompt=add_fitzpatrick_scale_to_prompt
     )
 
-    # # Dataset and DataLoaders creation:
-    # train_dataset = FitzpatrickDataset(
-    #     dataset_type=dataset_type,
-    #     disease_class=disease_class,
-    #     add_fitzpatrick_scale_to_prompt=add_fitzpatrick_scale_to_prompt,
-    #     instance_data_root=instance_data_dir,
-    #     instance_prompt=instance_prompt,
-    #     class_data_root=class_data_dir if with_prior_preservation else None,
-    #     class_prompt=class_prompt,
-    #     class_num=num_class_images,
-    #     tokenizer=tokenizer,
-    #     size=resolution,
-    #     center_crop=center_crop,
-    #     encoder_hidden_states=pre_computed_encoder_hidden_states,
-    #     instance_prompt_encoder_hidden_states=pre_computed_instance_prompt_encoder_hidden_states,
-    #     tokenizer_max_length=tokenizer_max_length,
-    # )
+    print(f"The length of the training dataset is: {len(train_dataset)}")
 
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,
@@ -564,13 +549,82 @@ def fine_tune_text_to_image(
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / gradient_accumulation_steps)
     if overrode_max_train_steps:
         max_train_steps = num_train_epochs * num_update_steps_per_epoch
+
     # Afterwards we recalculate our number of training epochs
     num_train_epochs = math.ceil(max_train_steps / num_update_steps_per_epoch)
 
     # We need to initialize the trackers we use, and also store our configuration.
     # The trackers initializes automatically on the main process.
+    config = {
+        "pretrained_model_name_or_path": pretrained_model_name_or_path,
+        "instance_prompt": instance_prompt,
+        "validation_prompt": validation_prompt,
+        "output_dir": output_dir,
+        "label_filter": label_filter,
+        "resolution": resolution,
+        "train_batch_size": train_batch_size,
+        "gradient_accumulation_steps": gradient_accumulation_steps,
+        "learning_rate": learning_rate,
+        "lr_scheduler": lr_scheduler,
+        "lr_warmup_steps": lr_warmup_steps,
+        "num_train_epochs": num_train_epochs,
+        "report_to": report_to,
+        "with_prior_preservation": with_prior_preservation,
+        "prior_loss_weight": prior_loss_weight,
+        "num_class_images": num_class_images,
+        "seed": seed,
+        "center_crop": center_crop,
+        "train_text_encoder": train_text_encoder,
+        "sample_batch_size": sample_batch_size,
+        "max_train_steps": max_train_steps,
+        "checkpointing_steps": checkpointing_steps,
+        "checkpoints_total_limit": checkpoints_total_limit,
+        "resume_from_checkpoint": resume_from_checkpoint,
+        "gradient_checkpointing": gradient_checkpointing,
+        "scale_lr": scale_lr,
+        "lr_num_cycles": lr_num_cycles,
+        "lr_power": lr_power,
+        "use_8bit_adam": use_8bit_adam,
+        "dataloader_num_workers": dataloader_num_workers,
+        "adam_beta1": adam_beta1,
+        "adam_beta2": adam_beta2,
+        "adam_weight_decay": adam_weight_decay,
+        "adam_epsilon": adam_epsilon,
+        "max_grad_norm": max_grad_norm,
+        "log_dir": log_dir,
+        "allow_tf32": allow_tf32,
+        "num_validation_images": num_validation_images,
+        "validation_steps": validation_steps,
+        "mixed_precision": mixed_precision,
+        "prior_generation_precision": prior_generation_precision,
+        "set_grads_to_none": set_grads_to_none,
+        "offset_noise": offset_noise,
+        "pre_compute_text_embeddings": pre_compute_text_embeddings,
+        "tokenizer_max_length": tokenizer_max_length,
+        "text_encoder_use_attention_mask": text_encoder_use_attention_mask,
+        "skip_save_text_encoder": skip_save_text_encoder,
+        "validation_images": validation_images,
+        "class_labels_conditioning": class_labels_conditioning,
+        "add_fitzpatrick_scale_to_prompt": add_fitzpatrick_scale_to_prompt,
+    }
+
     if accelerator.is_main_process:
-        accelerator.init_trackers("derm", config=vars())
+        accelerator.init_trackers("derm", config=config)
+
+    # **Run validation before training starts -- see how the model performs at baseline
+    if accelerator.is_main_process:
+        images = log_validation(
+            text_encoder=text_encoder,
+            tokenizer=tokenizer,
+            unet=unet,
+            vae=vae,
+            accelerator=accelerator,
+            weight_dtype=weight_dtype,
+            epoch=0,
+            prompt_embeds=validation_prompt_encoder_hidden_states,
+            negative_prompt_embeds=validation_prompt_negative_prompt_embeds,
+        )
+        logger.info(f"Validation at epoch 0 completed. Generated {len(images)} images.")
 
     # Train!
     total_batch_size = train_batch_size * accelerator.num_processes * gradient_accumulation_steps
