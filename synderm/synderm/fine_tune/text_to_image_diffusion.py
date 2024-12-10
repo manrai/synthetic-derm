@@ -59,7 +59,8 @@ def fine_tune_text_to_image(
     lr_scheduler = "constant",
     lr_warmup_steps = 0,
     num_train_epochs = 4,
-    report_to = "wandb"
+    report_to = "wandb",
+    verbose = False
 ):
     # Model arguments
     revision = None
@@ -698,8 +699,9 @@ def fine_tune_text_to_image(
                 text_encoder.train()
             for step, batch in enumerate(train_dataloader):
                 if step % 50 == 0:
-                    print(f'Printing batch at step {step}')
-                    print(batch)
+                    if verbose:
+                        print(f'Printing batch at step {step}')
+                        print(batch)
 
                 # Skip steps until we reach the resumed step
                 if resume_from_checkpoint and epoch == first_epoch and step < resume_step:

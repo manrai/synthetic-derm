@@ -1,12 +1,13 @@
 from synderm.generation.util import GenerationWrapper
 
+from typing import Optional, Union, Literal
 from pathlib import Path
 from torch.utils.data import DataLoader
 import torch
 import torch.nn.functional as F
 from diffusers import StableDiffusionInpaintPipeline, StableDiffusionPipeline
 from PIL import Image
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from torchvision.transforms import functional as TVF
 from torchvision.utils import make_grid
@@ -14,32 +15,35 @@ from tqdm.rich import tqdm
 import torchvision.transforms as transforms
 from PIL import Image
 from pathlib import Path
+import os
 
 
 def generate_synthetic_dataset(
-    dataset,
-    generation_type = "inpaint",
-    model_path = "runwayml/stable-diffusion-inpainting",
-    label_filter = None,
-    output_dir_path = None,
-    batch_size = 16,
-    start_index = 0,
-    num_generations_per_image = 1,
-    seed = 42,
-    guidance_scale = 3.0,
-    num_inference_steps = 50,
-    strength_inpaint = 0.970,
-    strength_outpaint = 0.950,
-    mask_fraction = 0.25,
-    instance_prompt = "An image of {}, a skin disease",
-    device = "cuda"
-    ):
-
+    dataset: Dataset,
+    generation_type: Literal["inpaint", "text-to-image"] = "inpaint",
+    model_path: str = "runwayml/stable-diffusion-inpainting",
+    label_filter: Optional[str] = None,
+    output_dir_path: Optional[Union[str, Path]] = None,
+    batch_size: int = 16,
+    start_index: int = 0,
+    num_generations_per_image: int = 1,
+    seed: int = 42,
+    guidance_scale: float = 3.0,
+    num_inference_steps: int = 50,
+    strength_inpaint: float = 0.970,
+    strength_outpaint: float = 0.950,
+    mask_fraction: float = 0.25,
+    instance_prompt: str = "An image of {}, a skin disease",
+    device: Literal["cuda", "cpu"] = "cuda"
+):
     if label_filter is None:
         raise NotImplementedError("Generation for multiple labels not yet implemented.")
 
     if device != "cuda":
         raise NotImplementedError("Cuda device required to generate the synthetic dataset")
+
+    # Ensure ourput_dir_path is a Path object
+    output_dir_path = Path(output_dir_path)  
 
     # Device and autograd
     ctx = torch.inference_mode()
@@ -62,8 +66,6 @@ def generate_synthetic_dataset(
             safety_checker=None, 
             feature_extractor=None, 
             requires_safety_checker=False)
-    else:
-        raise ValueError(generation_type)
 
     resolution = pipeline.unet.config.sample_size * 8
 
@@ -194,6 +196,3 @@ def generate_synthetic_dataset(
                     )), grid_path)
                     if batch_idx % 1000 == 0:
                         print(f'[Repeat {idx}, batch {batch_idx}] Saved image grid to {grid_path}')
-            
-            else:
-                raise ValueError(generation_type)

@@ -1,6 +1,7 @@
 from synderm.fine_tune.text_to_image_diffusion import fine_tune_text_to_image
 from synderm.examples.sample_datasets import SampleDataset
 
+
 sample_dataset = SampleDataset(dataset_dir="sample_dataset", split="train")
 
 fine_tune_text_to_image(
