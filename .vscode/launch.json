@@ -110,37 +110,53 @@
             "name": "[Examples] Create sample dataset",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/synderm/examples/create_sample_derm_dataset.py",
+            "program": "synderm/examples/create_sample_derm_dataset.py",
             "args": [],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
         },
         {
             "name": "[Examples] Create sample imagenette dataset",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/synderm/examples/create_sample_imagenette_dataset.py",
+            "program": "synderm/examples/create_sample_imagenette_dataset.py",
             "args": [],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
         },
         {
             "name": "[Examples] Generate synthetic images",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/synderm/examples/generate_synthetic_images.py",
+            "program": "synderm/examples/generate_synthetic_images.py",
             "args": [],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
         },
         {
             "name": "[Examples] Train text-to-image diffusion model",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/synderm/examples/train_diffusion_model_text_to_image.py",
+            "program": "synderm/examples/train_diffusion_model_text_to_image.py",
             "args": [],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
