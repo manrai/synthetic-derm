@@ -104,8 +104,8 @@ def generate_synthetic_dataset(
         image.save(path)
 
     # In the generation loop:
-    for idx in range(start_index, start_index + num_generations_per_image):
-        for batch_idx, batch in enumerate(tqdm(dataloader)):
+    for idx in tqdm(range(start_index, start_index + num_generations_per_image)):
+        for batch_idx, batch in enumerate(dataloader):
             pixel_values = batch["image"]
             batch["pixel_values"] = pixel_values
 
