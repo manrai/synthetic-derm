@@ -12,6 +12,7 @@ import torch
 import torch.nn.functional as F
 import transformers
 from accelerate import Accelerator
+from torch.utils.data import Dataset
 from accelerate.logging import get_logger
 from accelerate.utils import ProjectConfiguration, set_seed
 import diffusers
@@ -45,22 +46,25 @@ from synderm.fine_tune.util import (
 builtins.print = rich.print
 monkey_patch()
 
+# Instance prompt can be a formatted string, in which case the label will be inserted 
 def fine_tune_text_to_image(
-    train_dataset,
-    pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1-base",
-    instance_prompt = "An image of {}, a skin disease",
-    validation_prompt_format = "An image of {}, a skin disease",
-    output_dir = "dreambooth-outputs/allergic-contact-dermatitis",
-    label_filter = None,
-    resolution = 512,
-    train_batch_size = 4,
-    gradient_accumulation_steps = 1,
-    learning_rate = 5e-6,
-    lr_scheduler = "constant",
-    lr_warmup_steps = 0,
-    num_train_epochs = 4,
-    report_to = "wandb",
-    verbose = False
+    train_dataset: Dataset,
+    pretrained_model_name_or_path: str = "stabilityai/stable-diffusion-2-1-base",
+    instance_prompt: str = "An image of {}, a skin disease",
+    validation_prompt_format: str = "An image of {}, a skin disease", 
+    output_dir: str = "dreambooth-outputs/allergic-contact-dermatitis",
+    label_filter: str | None = None,
+    resolution: int = 512,
+    train_batch_size: int = 4,
+    gradient_accumulation_steps: int = 1,
+    learning_rate: float = 5e-6,
+    lr_scheduler: str = "constant",
+    lr_warmup_steps: int = 0,
+    num_train_epochs: int = 4,
+    report_to: str = "wandb",
+    verbose: bool = False,
+    num_validation_images: int = 8,
+    validation_steps: int = 100
 ):
     # Model arguments
     revision = None
@@ -101,10 +105,6 @@ def fine_tune_text_to_image(
     # Logging arguments
     log_dir = "logs"
     allow_tf32 = False
-
-    # Validation arguments
-    num_validation_images = 8
-    validation_steps = 100
 
     # Precision arguments
     mixed_precision = None

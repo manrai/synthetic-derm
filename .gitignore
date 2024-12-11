@@ -163,3 +163,5 @@ wandb/*
 models/*
 test_outputs/*
 dreambooth-outputs/*
+imagenette2/*
+imagenette2.tgz

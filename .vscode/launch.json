@@ -91,6 +91,15 @@
             "justMyCode": true
         },
         {
+            "name": "[Examples] Create sample imagenette dataset",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/synderm/examples/create_sample_imagenette_dataset.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "[Examples] Generate synthetic images",
             "type": "debugpy",
             "request": "launch",
