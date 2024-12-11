@@ -563,13 +563,15 @@ def main():
     args = parse_args()
     logging_dir = Path(args.output_dir, args.logging_dir)
 
-    project_config = ProjectConfiguration(total_limit=args.checkpoints_total_limit)
+    project_config = ProjectConfiguration(
+        logging_dir=logging_dir,
+        total_limit=args.checkpoints_total_limit
+        )
 
     accelerator = Accelerator(
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         mixed_precision=args.mixed_precision,
         log_with=args.report_to,
-        logging_dir=logging_dir,
         project_config=project_config,
     )
 

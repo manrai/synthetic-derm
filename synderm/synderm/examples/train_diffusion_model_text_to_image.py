@@ -1,7 +1,7 @@
 from synderm.fine_tune.text_to_image_diffusion import fine_tune_text_to_image
 from synderm.examples.sample_datasets import SampleDataset, FitzDataset
 
-#sample_dataset = SampleDataset(dataset_dir="sample_dataset", split="train")
+#sample_dataset = SampleDataset(dataset_dir="sample_derm_dataset", split="train")
 sample_dataset = FitzDataset(
     images_path="/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k/finalfitz17k",
     metadata_path="fitz_metadata/fitzpatrick17k_10label_clean_training.csv"

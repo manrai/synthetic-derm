@@ -22,7 +22,7 @@
             "justMyCode": true
         },
         {
-            "name": "[Original] Fine-tune dreambooth",
+            "name": "[Original] Fine-tune text-to-image dreambooth",
             "type": "debugpy",
             "request": "launch",
             "program": "generation/train_dreambooth.py",
@@ -33,6 +33,31 @@
                 "--instance_prompt", "An image of {}, a skin disease",
                 "--validation_prompt", "An image of allergic contact dermatitis, a skin disease",
                 "--output_dir", "dreambooth-outputs/allergic-contact-dermatitis",
+                "--disease_class", "allergic-contact-dermatitis",
+                "--resolution", "512",
+                "--train_batch_size", "4",
+                "--gradient_accumulation_steps", "1",
+                "--learning_rate", "5e-06",
+                "--lr_scheduler", "constant",
+                "--lr_warmup_steps", "0",
+                "--num_train_epochs", "4",
+                "--report_to", "wandb"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Original] Fine-tune inpaint-outpaint dreambooth",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "generation/train_dreambooth_inpaint.py",
+            "args": [
+                "--pretrained_model_name_or_path", "runwayml/stable-diffusion-inpainting",
+                "--instance_data_dir", "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
+                "--dataset_type", "fitzpatrick",
+                "--instance_prompt", "An image of {}, a skin disease",
+                "--validation_prompt", "An image of allergic contact dermatitis, a skin disease",
+                "--output_dir", "dreambooth-inpaint-outputs/allergic-contact-dermatitis",
                 "--disease_class", "allergic-contact-dermatitis",
                 "--resolution", "512",
                 "--train_batch_size", "4",
