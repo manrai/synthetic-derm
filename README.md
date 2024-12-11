@@ -52,7 +52,7 @@ pip install -e .
 
 Synderm requires datasets to return entries with `image`, `label`, and `id` fields. Here's an example of how to create a custom dataset:
 
-```python:synderm/examples/train_with_synthetic_images.ipynb
+```python
 from torch.utils.data import Dataset
 from PIL import Image
 from pathlib import Path
@@ -96,7 +96,7 @@ class SampleDataset(Dataset):
 
 Fine-tune a diffusion model using your dataset to generate synthetic images:
 
-```python:synderm/examples/train_with_synthetic_images.ipynb
+```python
 from synderm.synderm.fine_tune.text_to_image_diffusion import fine_tune_text_to_image
 
 output_dir = os.path.join(EXPERIMENT_DIR, "dreambooth-outputs")
@@ -121,7 +121,7 @@ fine_tune_text_to_image(
 
 Use the fine-tuned diffusion model to generate a set of synthetic images
 
-```python:synderm/synderm/examples/train_with_synthetic_images.ipynb
+```python
 model_path = os.path.join(EXPERIMENT_DIR, "dreambooth-outputs", "English_springer")
 image_output_path = os.path.join(EXPERIMENT_DIR, "generations")
 
@@ -148,7 +148,7 @@ generate_synthetic_dataset(
 
 Combine real and synthetic data to train and evaluate the classifier:
 
-```python:synderm/synderm/examples/train_with_synthetic_images.ipynb
+```python
 from synderm.utils.utils import synthetic_train_val_split
 
 synthetic_dataset = SyntheticDataset(os.path.join(image_output_path, "text-to-image"))
