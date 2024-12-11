@@ -1,8 +1,11 @@
 from synderm.fine_tune.text_to_image_diffusion import fine_tune_text_to_image
-from synderm.examples.sample_datasets import SampleDataset
+from synderm.examples.sample_datasets import SampleDataset, FitzDataset
 
-
-sample_dataset = SampleDataset(dataset_dir="sample_dataset", split="train")
+#sample_dataset = SampleDataset(dataset_dir="sample_dataset", split="train")
+sample_dataset = FitzDataset(
+    images_path="/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k/finalfitz17k",
+    metadata_path="fitz_metadata/fitzpatrick17k_10label_clean_training.csv"
+    )
 
 fine_tune_text_to_image(
     train_dataset=sample_dataset,
@@ -10,7 +13,7 @@ fine_tune_text_to_image(
     instance_prompt = "An image of {}, a skin disease",
     validation_prompt_format = "An image of {}, a skin disease",
     output_dir = "/n/scratch/users/t/thb286/dreambooth-outputs",
-    #label_filter = "allergic-contact-dermatitis",
+    label_filter = "allergic-contact-dermatitis",
     resolution = 512,
     train_batch_size = 4,
     gradient_accumulation_steps = 1,

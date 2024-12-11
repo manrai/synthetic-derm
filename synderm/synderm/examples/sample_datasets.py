@@ -39,7 +39,7 @@ class SampleDataset(Dataset):
 
 
 class FitzDataset(Dataset):
-    def __init__(self, dataset_dir, fitz_path='fitzpatrick17k_10label_clean_training.csv'):
+    def __init__(self, images_path, metadata_path="fitzpatrick17k_10label_clean_training.csv"):
         self.class_names = [
             "allergic-contact-dermatitis",
             "basal-cell-carcinoma", 
@@ -53,11 +53,9 @@ class FitzDataset(Dataset):
             "squamous-cell-carcinoma",
         ]
 
-        self.dataset_dir = Path(dataset_dir)
-
-        self.data_images_root = self.dataset_dir / 'finalfitz17k'
-        csv_file = self.dataset_dir / fitz_path
-        print(f'Using csv file: {csv_file}')
+        self.data_images_root = Path(images_path)
+        csv_file = Path(metadata_path)
+        print(f'Using Fitz metadata file: {csv_file}')
 
         self.data_df = pd.read_csv(csv_file)
         self.data_df["label"] = self.data_df["label"].apply(lambda x: x.replace(" ", "-"))

@@ -112,7 +112,7 @@
             "name": "[Examples] Train text-to-image diffusion model",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/synderm/examples/train_diffusion_model.py",
+            "program": "synderm/synderm/examples/train_diffusion_model_text_to_image.py",
             "args": [],
             "console": "integratedTerminal",
             "justMyCode": true
