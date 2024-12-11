@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>generation package &mdash; synderm 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utils package" href="utils.html" />
+    <link rel="prev" title="fine_tune package" href="fine_tune.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            synderm
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="examples/test.html">Test Notebook</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fine_tune.html">fine_tune package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">generation package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-generation.generate">generation.generate module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#generation.generate.generate_synthetic_dataset"><code class="docutils literal notranslate"><span class="pre">generate_synthetic_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-generation.util">generation.util module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#generation.util.GenerationWrapper"><code class="docutils literal notranslate"><span class="pre">GenerationWrapper</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-generation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">synderm</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">generation package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/generation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="generation-package">
+<h1>generation package<a class="headerlink" href="#generation-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-generation.generate">
+<span id="generation-generate-module"></span><h2>generation.generate module<a class="headerlink" href="#module-generation.generate" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="generation.generate.generate_synthetic_dataset">
+<span class="sig-prename descclassname"><span class="pre">generation.generate.</span></span><span class="sig-name descname"><span class="pre">generate_synthetic_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'inpaint'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'text-to-image'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'inpaint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'runwayml/stable-diffusion-inpainting'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_generations_per_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guidance_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inference_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strength_inpaint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.97</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strength_outpaint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_fraction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'An</span> <span class="pre">image</span> <span class="pre">of</span> <span class="pre">{},</span> <span class="pre">a</span> <span class="pre">skin</span> <span class="pre">disease'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'cuda'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cpu'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/generation/generate.html#generate_synthetic_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#generation.generate.generate_synthetic_dataset" title="Link to this definition"></a></dt>
+<dd><p>Generate synthetic images from a given dataset using a Stable Diffusion model pipeline,
+either by inpainting or pure text-to-image generation. The synthetic images can be used
+to augment training data for image classification or other downstream tasks.</p>
+<p>This function processes a dataset of images, applies a prompt format (optionally conditioned
+on a specific label), and uses a Stable Diffusion pipeline to produce new images. Depending
+on <cite>generation_type</cite>, it either:
+- Inpaints masked regions of the original images to create variations.
+- Generates entirely new images from textual prompts.</p>
+<p>The generated images are saved to the specified output directory. Optional image grids are
+saved for inspection of intermediate results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>Dataset</em>) – A Torch Dataset containing images and associated metadata. Each element should
+at least contain:
+- “image”: The original PIL image
+- “label”: The class label (str) of the image.
+- “id”: A unique identifier (e.g., filename) for the image. This is used to map the source (real) image to generated synthetic images.</p></li>
+<li><p><strong>generation_type</strong> (<em>Literal</em><em>[</em><em>&quot;inpaint&quot;</em><em>, </em><em>&quot;text-to-image&quot;</em><em>]</em><em>, </em><em>optional</em>) – The type of generation to perform:
+- “inpaint”: Mask and inpaint parts of existing images, then optionally outpaint beyond the mask.
+- “text-to-image”: Generate images purely from prompts.
+Default is “inpaint”.</p></li>
+<li><p><strong>model_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path or identifier of the pretrained Stable Diffusion model. This may be a Hugging Face Hub model name or
+a local directory. Defaults to “runwayml/stable-diffusion-inpainting”.</p></li>
+<li><p><strong>label_filter</strong> (<em>str</em><em>, </em><em>optional</em>) – If provided, only images from this label will be processed. If None, an error is raised
+because handling multiple labels is not implemented. Default is None.</p></li>
+<li><p><strong>output_dir_path</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>]</em><em>, </em><em>optional</em>) – Directory where the generated images and grids will be saved. Will be created if it doesn’t exist.
+If None, no images are saved (not recommended).</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of images processed per batch. Default is 16.</p></li>
+<li><p><strong>start_index</strong> (<em>int</em><em>, </em><em>optional</em>) – Starting index for naming and seeding repeat generations. Useful for continuing runs
+or generating multiple variations. Default is 0.</p></li>
+<li><p><strong>num_generations_per_image</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of times to repeat the generation process for each image in the dataset.
+E.g., if set to 3, each image in the dataset will produce 3 sets of synthetic images.
+Default is 1.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed for deterministic generation. Default is 42.</p></li>
+<li><p><strong>guidance_scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Guidance scale controls how strongly the model adheres to the prompt. Higher values
+typically yield images more closely aligned with the prompt. Default is 3.0.</p></li>
+<li><p><strong>num_inference_steps</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of diffusion steps during generation. More steps can yield higher quality images
+but will be slower. Default is 50.</p></li>
+<li><p><strong>strength_inpaint</strong> (<em>float</em><em>, </em><em>optional</em>) – Control how strongly the model modifies the masked region during inpainting.
+1.0 would fully rely on the diffusion process; lower values rely more on the initial image.
+Default is 0.970.</p></li>
+<li><p><strong>strength_outpaint</strong> (<em>float</em><em>, </em><em>optional</em>) – Similar to <cite>strength_inpaint</cite>, but for the outpainting phase. Default is 0.950.</p></li>
+<li><p><strong>mask_fraction</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction of the image (square region) to mask for inpainting/outpainting. 0.25 means
+mask a 25% square in the center. Default is 0.25.</p></li>
+<li><p><strong>instance_prompt</strong> (<em>str</em><em>, </em><em>optional</em>) – A template string for instance-based prompts. The label will be inserted into this template
+if the prompt is a format string. Default is “An image of {}, a skin disease”.</p></li>
+<li><p><strong>device</strong> (<em>Literal</em><em>[</em><em>&quot;cuda&quot;</em><em>, </em><em>&quot;cpu&quot;</em><em>]</em><em>, </em><em>optional</em>) – Device to run inference on. Currently only “cuda” is supported. Default is “cuda”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. The function saves generated images and image grids to the specified output directory.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – If <cite>label_filter</cite> is None (multi-label generation not implemented) or <cite>device</cite> is not “cuda”.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Suppose you have a dataset of dermatology images and want to generate
+new psoriasis images by inpainting followed by outpainting.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">generate_synthetic_dataset</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">dataset</span><span class="o">=</span><span class="n">my_dataset</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">generation_type</span><span class="o">=</span><span class="s2">&quot;inpaint&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">label_filter</span><span class="o">=</span><span class="s2">&quot;psoriasis&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output_dir_path</span><span class="o">=</span><span class="s2">&quot;synthetic_data/&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">start_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">num_generations_per_image</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">seed</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">guidance_scale</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">strength_inpaint</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">mask_fraction</span><span class="o">=</span><span class="mf">0.3</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will create 2 sets of inpainted images for each image in <cite>my_dataset</cite>, saving them to “synthetic_data/”.</p>
+</dd></dl>
+
+</section>
+<section id="module-generation.util">
+<span id="generation-util-module"></span><h2>generation.util module<a class="headerlink" href="#module-generation.util" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="generation.util.GenerationWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">generation.util.</span></span><span class="sig-name descname"><span class="pre">GenerationWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/generation/util.html#GenerationWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#generation.util.GenerationWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-generation">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-generation" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="fine_tune.html" class="btn btn-neutral float-left" title="fine_tune package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utils.html" class="btn btn-neutral float-right" title="utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Thomas Buckley.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.utils &mdash; synderm 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            synderm
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/test.html">Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">synderm</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">utils.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utils.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Subset</span><span class="p">,</span> <span class="n">ConcatDataset</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<div class="viewcode-block" id="save_images">
+<a class="viewcode-back" href="../../utils.html#utils.utils.save_images">[docs]</a>
+<span class="k">def</span> <span class="nf">save_images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="load_images">
+<a class="viewcode-back" href="../../utils.html#utils.utils.load_images">[docs]</a>
+<span class="k">def</span> <span class="nf">load_images</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="count_png_files">
+<a class="viewcode-back" href="../../utils.html#utils.utils.count_png_files">[docs]</a>
+<span class="k">def</span> <span class="nf">count_png_files</span><span class="p">(</span><span class="n">directory_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count the total number of PNG files in a directory and its subdirectories</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        directory_path (str): Path to the directory to search</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        int: Total number of PNG files found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">total_png</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">directory_path</span><span class="p">,</span> <span class="n">followlinks</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">png_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">)]</span>
+        <span class="n">total_png</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">png_files</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">total_png</span></div>
+
+
+<div class="viewcode-block" id="save">
+<a class="viewcode-back" href="../../utils.html#utils.utils.save">[docs]</a>
+<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">path</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="synthetic_train_val_split">
+<a class="viewcode-back" href="../../utils.html#utils.utils.synthetic_train_val_split">[docs]</a>
+<span class="k">def</span> <span class="nf">synthetic_train_val_split</span><span class="p">(</span>
+        <span class="n">real_data</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> 
+        <span class="n">synthetic_data</span><span class="p">:</span> <span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">per_class_test_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span>
+        <span class="n">n_real_per_class</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">n_synthetic_per_class</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">class_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="n">mapping_real_to_synthetic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+    <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Splits the combined dataset of real and synthetic images into training and validation sets.</span>
+<span class="sd">    The training set consists of synthetic images and a limited number of real images per class.</span>
+<span class="sd">    In the training set, synthetic entries are included only if they have a corresponding entry in the training set.</span>
+<span class="sd">    The validation set consists only of real images.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    real_data : torch.utils.data.Dataset</span>
+<span class="sd">        Dataset containing the real images data. Each item should be a dict with at least &#39;id&#39; and &#39;label&#39;.</span>
+<span class="sd">    synthetic_data : torch.utils.data.Dataset or None, default=None</span>
+<span class="sd">        Dataset containing the synthetic images data. If provided, it should have a field that maps to real data &#39;id&#39;.</span>
+<span class="sd">    test_size : float, int, or None, default=None</span>
+<span class="sd">        If float, represents the proportion of the real dataset to include in the validation split.</span>
+<span class="sd">        If int, represents the total number of validation samples.</span>
+<span class="sd">        If None, `per_class_test_size` must be specified.</span>
+<span class="sd">    per_class_test_size : int or None, default=40</span>
+<span class="sd">        Number of samples per class to include in the validation set.</span>
+<span class="sd">        If None, `test_size` must be specified.</span>
+<span class="sd">    n_real_per_class : int or None, default=None</span>
+<span class="sd">        Maximum number of real images per class to include in the training data.</span>
+<span class="sd">        If None, all remaining real images (excluding validation set) are included.</span>
+<span class="sd">    n_synthetic_per_class : int or None, default=None</span>
+<span class="sd">        (Not implemented) Raises NotImplementedError if provided.</span>
+<span class="sd">    random_state : int or None, default=None</span>
+<span class="sd">        Random seed for reproducibility.</span>
+<span class="sd">    class_column : str, default=&quot;label&quot;</span>
+<span class="sd">        Name of the field in the dataset that contains the class labels.</span>
+<span class="sd">    mapping_real_to_synthetic : str, default=&quot;id&quot;</span>
+<span class="sd">        Name of the field in the synthetic dataset that maps to the real data&#39;s &#39;id&#39;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    train_data : torch.utils.data.Dataset</span>
+<span class="sd">        Dataset containing the training data (real and synthetic).</span>
+<span class="sd">    val_data : torch.utils.data.Dataset</span>
+<span class="sd">        Dataset containing the validation data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">test_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">per_class_test_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">test_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">per_class_test_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Specify exactly one of &#39;test_size&#39; or &#39;per_class_test_size&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n_synthetic_per_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&#39;n_synthetic_per_class&#39; parameter is not implemented.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set random seed for reproducibility</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="c1"># Extract real data entries</span>
+    <span class="n">real_entries</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="n">idx</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">real_data</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">real_data</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">class_column</span><span class="p">]}</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">real_data</span><span class="p">))]</span>
+
+    <span class="c1"># Group real data indices by class</span>
+    <span class="n">class_to_indices</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">real_entries</span><span class="p">:</span>
+        <span class="n">class_to_indices</span><span class="p">[</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+
+    <span class="n">val_indices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">train_real_indices</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">per_class_test_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Sample specified number per class for validation</span>
+        <span class="k">for</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">class_to_indices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="n">per_class_test_size</span><span class="p">)</span>
+            <span class="n">sampled_indices</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+            <span class="n">val_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sampled_indices</span><span class="p">)</span>
+            <span class="n">remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">sampled_indices</span><span class="p">))</span>
+            <span class="n">train_real_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">remaining</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Compute per-class validation sizes based on test_size</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_size</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">test_size</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;When &#39;test_size&#39; is a float, it must be between 0.0 and 1.0.&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">class_to_indices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">*</span> <span class="n">test_size</span><span class="p">)))</span>
+                <span class="n">sampled_indices</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+                <span class="n">val_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sampled_indices</span><span class="p">)</span>
+                <span class="n">remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">sampled_indices</span><span class="p">))</span>
+                <span class="n">train_real_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">remaining</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">total_samples</span> <span class="o">=</span> <span class="n">test_size</span>
+            <span class="n">num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">class_to_indices</span><span class="p">)</span>
+            <span class="n">samples_per_class</span> <span class="o">=</span> <span class="n">total_samples</span> <span class="o">//</span> <span class="n">num_classes</span>
+            <span class="n">remainder</span> <span class="o">=</span> <span class="n">total_samples</span> <span class="o">%</span> <span class="n">num_classes</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_to_indices</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">n_samples</span> <span class="o">=</span> <span class="n">samples_per_class</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">remainder</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="n">n_samples</span><span class="p">)</span>
+                <span class="n">sampled_indices</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+                <span class="n">val_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sampled_indices</span><span class="p">)</span>
+                <span class="n">remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">sampled_indices</span><span class="p">))</span>
+                <span class="n">train_real_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">remaining</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;test_size&#39; must be a float or int.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># If n_real_per_class is specified, limit the number of real training samples per class</span>
+    <span class="k">if</span> <span class="n">n_real_per_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">limited_train_real_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Regroup training indices by class</span>
+        <span class="n">train_class_to_indices</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">train_real_indices</span><span class="p">:</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="n">real_data</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">class_column</span><span class="p">]</span>
+            <span class="n">train_class_to_indices</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">for</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">train_class_to_indices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="n">n_real_per_class</span><span class="p">)</span>
+            <span class="n">sampled_indices</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+            <span class="n">limited_train_real_indices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sampled_indices</span><span class="p">)</span>
+        <span class="n">train_real_indices</span> <span class="o">=</span> <span class="n">limited_train_real_indices</span>
+
+    <span class="c1"># Process synthetic data</span>
+    <span class="n">synthetic_train_indices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">synthetic_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Extract real training ids for mapping</span>
+        <span class="n">train_real_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">real_data</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">train_real_indices</span><span class="p">])</span>
+        
+        <span class="c1"># Iterate over synthetic_data to find matching entries</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">synthetic_data</span><span class="p">)):</span>
+            <span class="n">synthetic_entry</span> <span class="o">=</span> <span class="n">synthetic_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">mapped_id</span> <span class="o">=</span> <span class="n">synthetic_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mapping_real_to_synthetic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mapped_id</span> <span class="ow">in</span> <span class="n">train_real_ids</span><span class="p">:</span>
+                <span class="n">synthetic_train_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        
+        <span class="n">train_synthetic_subset</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="n">synthetic_data</span><span class="p">,</span> <span class="n">synthetic_train_indices</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train_synthetic_subset</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Create Subsets for training and validation</span>
+    <span class="n">train_real_subset</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="n">real_data</span><span class="p">,</span> <span class="n">train_real_indices</span><span class="p">)</span>
+    <span class="n">val_subset</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="n">real_data</span><span class="p">,</span> <span class="n">val_indices</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">synthetic_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">train_data</span> <span class="o">=</span> <span class="n">ConcatDataset</span><span class="p">([</span><span class="n">train_real_subset</span><span class="p">,</span> <span class="n">train_synthetic_subset</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train_data</span> <span class="o">=</span> <span class="n">train_real_subset</span>
+
+    <span class="n">val_data</span> <span class="o">=</span> <span class="n">val_subset</span>
+
+    <span class="k">return</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">val_data</span></div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Thomas Buckley.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
