@@ -42,7 +42,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/test.html">Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/train_with_synthetic_images.html">Vignette: Augmenting an image classifier with synthetic images from your data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">Modules</a></li>
 </ul>
 
@@ -88,7 +88,6 @@
         <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">model_class</span> <span class="o">=</span> <span class="n">text_encoder_config</span><span class="o">.</span><span class="n">architectures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model class is </span><span class="si">{</span><span class="n">model_class</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">model_class</span> <span class="o">==</span> <span class="s2">&quot;CLIPTextModel&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">CLIPTextModel</span>

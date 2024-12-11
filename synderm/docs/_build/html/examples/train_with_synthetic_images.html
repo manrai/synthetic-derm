@@ -1,0 +1,905 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vignette: Augmenting an image classifier with synthetic images from your data &mdash; synderm 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Modules" href="../modules.html" />
+    <link rel="prev" title="synderm documentation" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            synderm
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Vignette: Augmenting an image classifier with synthetic images from your data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#1.-Creating-the-dataset">1. Creating the dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#2.-Train-the-synthetic-image-generator">2. Train the synthetic image generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#3.-Generate-synthetic-images">3. Generate synthetic images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#4.-Training-the-classifier">4. Training the classifier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">synderm</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Vignette: Augmenting an image classifier with synthetic images from your data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/train_with_synthetic_images.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Vignette:-Augmenting-an-image-classifier-with-synthetic-images-from-your-data">
+<h1>Vignette: Augmenting an image classifier with synthetic images from your data<a class="headerlink" href="#Vignette:-Augmenting-an-image-classifier-with-synthetic-images-from-your-data" title="Link to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">synderm.generation.generate</span> <span class="kn">import</span> <span class="n">generate_synthetic_dataset</span>
+<span class="kn">from</span> <span class="nn">synderm.fine_tune.text_to_image_diffusion</span> <span class="kn">import</span> <span class="n">fine_tune_text_to_image</span>
+<span class="kn">from</span> <span class="nn">synderm.utils.utils</span> <span class="kn">import</span> <span class="n">synthetic_train_val_split</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
+<span class="kn">from</span> <span class="nn">fastai.vision.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+</pre></div>
+</div>
+</div>
+<section id="Introduction">
+<h2>Introduction<a class="headerlink" href="#Introduction" title="Link to this heading"></a></h2>
+<p>This notebook will walk you through the entire process of augmenting a classifier with synthetic images. For simplicity, we will use a preloaded sample dataset containing 10 classes from Imagenet (Imagenette2). We have purposely subset this dataset to include 200 images for each class in the training data, but only 20 images for the English Springer class. We will demonstrate how to train a diffusion model and generate synthetic images to train an image classification model.</p>
+<p>This notebook is intended to demonstrate how the Synderm package can be used to generate high-quality synthetic images for your dataset. It is not intended to be an impressive benchmark on Imagenet, this is just a standin for your data.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the experiment directory -- change this to your experiment directory</span>
+<span class="n">EXPERIMENT_DIR</span> <span class="o">=</span> <span class="s2">&quot;/n/scratch/users/t/thb286/dog_experiment&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="1.-Creating-the-dataset">
+<h2>1. Creating the dataset<a class="headerlink" href="#1.-Creating-the-dataset" title="Link to this heading"></a></h2>
+<p>The first step is the create a Pytorch dataset. Example datasets are listed in <code class="docutils literal notranslate"><span class="pre">sample_datasets.py</span></code>. For this example, we will use a simplified dataset that contains 10 classes. This dataset is included at <code class="docutils literal notranslate"><span class="pre">/imagenette2_subset</span></code>.</p>
+<p>For datasets to work with methods in this package, each entry must contain an <code class="docutils literal notranslate"><span class="pre">image</span></code> field returning a PIL Image, a <code class="docutils literal notranslate"><span class="pre">label</span></code> field with the label, and an <code class="docutils literal notranslate"><span class="pre">id</span></code> field containing a unique ID for each image.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SampleDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split</span> <span class="o">=</span> <span class="n">split</span>
+
+        <span class="c1"># Walk through class folders</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">split</span>
+        <span class="k">for</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+            <span class="n">class_dir</span> <span class="o">=</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="n">class_name</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">class_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Get all png images in this class folder</span>
+            <span class="k">for</span> <span class="n">img_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">class_dir</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">img_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.jpeg&#39;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_dir</span> <span class="o">/</span> <span class="n">img_name</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">image_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="c1"># Load and convert image to RGB</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+        <span class="n">image_name</span> <span class="o">=</span> <span class="n">image_path</span><span class="o">.</span><span class="n">stem</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">image_name</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">SampleDataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="s2">&quot;imagenette2_subset&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+<span class="n">test_dataset</span> <span class="o">=</span> <span class="n">SampleDataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="s2">&quot;imagenette2_subset&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;id&#39;: &#39;ILSVRC2012_val_00000665&#39;,
+ &#39;image&#39;: &lt;PIL.Image.Image image mode=RGB size=500x334&gt;,
+ &#39;label&#39;: &#39;English_springer&#39;}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Label distribution in training dataset:&quot;</span><span class="p">)</span>
+<span class="n">label_counts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+    <span class="n">label_counts</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">label_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">label_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Label distribution in training dataset:
+English_springer: 20
+French_horn: 200
+cassette_player: 200
+chain_saw: 200
+church: 200
+garbage_truck: 200
+gas_pump: 200
+golf_ball: 200
+parachute: 200
+tench: 200
+</pre></div></div>
+</div>
+</section>
+<section id="2.-Train-the-synthetic-image-generator">
+<h2>2. Train the synthetic image generator<a class="headerlink" href="#2.-Train-the-synthetic-image-generator" title="Link to this heading"></a></h2>
+<p>Now that we have a dataset, we will train a diffusion model using Dreambooth on our training set of images. This will result in generating images more similar to our training data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">EXPERIMENT_DIR</span><span class="p">,</span> <span class="s2">&quot;dreambooth-outputs&quot;</span><span class="p">)</span>
+
+<span class="n">fine_tune_text_to_image</span><span class="p">(</span>
+    <span class="n">train_dataset</span><span class="o">=</span> <span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">output_dir</span><span class="p">,</span>
+    <span class="n">pretrained_model_name_or_path</span> <span class="o">=</span> <span class="s2">&quot;stabilityai/stable-diffusion-2-1-base&quot;</span><span class="p">,</span>
+    <span class="n">instance_prompt</span> <span class="o">=</span> <span class="s2">&quot;An image of an English Springer&quot;</span><span class="p">,</span>
+    <span class="n">validation_prompt_format</span> <span class="o">=</span> <span class="s2">&quot;An image of an English Springer&quot;</span><span class="p">,</span>
+    <span class="n">label_filter</span> <span class="o">=</span> <span class="s2">&quot;English_springer&quot;</span><span class="p">,</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span>
+    <span class="n">train_batch_size</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="n">gradient_accumulation_steps</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">5e-6</span><span class="p">,</span>
+    <span class="n">lr_scheduler</span> <span class="o">=</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span>
+    <span class="n">lr_warmup_steps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_train_epochs</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="n">report_to</span> <span class="o">=</span> <span class="s2">&quot;wandb&quot;</span><span class="p">,</span>
+    <span class="n">validation_steps</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Detected kernel version 3.10.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+12/11/2024 18:21:13 - INFO - synderm.fine_tune.text_to_image_diffusion - Starting training for label: English_springer
+12/11/2024 18:21:13 - INFO - synderm.fine_tune.text_to_image_diffusion - The length of the training dataset for label &#39;English_springer&#39; is: 20
+<span class="ansi-blue-intense-fg ansi-bold">wandb</span>: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.
+<span class="ansi-blue-intense-fg ansi-bold">wandb</span>: Currently logged in as: <span class="ansi-yellow-fg">tbu</span>. Use <span class="ansi-bold">`wandb login --relogin`</span> to force relogin
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+Tracking run with wandb version 0.19.0</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+Run data is saved locally in <code>/home/thb286/synthetic-derm/wandb/run-20241211_182115-m25k7lpr</code></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+Syncing run <strong><a href='https://wandb.ai/tbu/derm_English_springer/runs/m25k7lpr' target="_blank">young-lake-16</a></strong> to <a href='https://wandb.ai/tbu/derm_English_springer' target="_blank">Weights & Biases</a> (<a href='https://wandb.me/developer-guide' target="_blank">docs</a>)<br/></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+View project at <a href='https://wandb.ai/tbu/derm_English_springer' target="_blank">https://wandb.ai/tbu/derm_English_springer</a></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+View run at <a href='https://wandb.ai/tbu/derm_English_springer/runs/m25k7lpr' target="_blank">https://wandb.ai/tbu/derm_English_springer/runs/m25k7lpr</a></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+12/11/2024 18:21:16 - INFO - synderm.fine_tune.text_to_image_diffusion - running validation...
+ generating 8 images with prompt: An image of an English Springer.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f68497fd425b4a33a026fbf574f0d16d", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion - Validation at epoch 0 completed for label &#39;English_springer&#39;. Generated 8 images.
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion - ***** Running training *****
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion -   Label = English_springer
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion -   Num examples = 20
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion -   Num batches each epoch = 5
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion -   Num Epochs = 12
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion -   Instantaneous batch size per device = 4
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion -   Total train batch size (w. parallel, distributed &amp; accumulation) = 4
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion -   Gradient Accumulation steps = 1
+12/11/2024 18:21:27 - INFO - synderm.fine_tune.text_to_image_diffusion -   Total optimization steps = 60
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8f831efcb1784b4684ad2f524e2b4e0c", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+12/11/2024 18:21:48 - INFO - synderm.fine_tune.text_to_image_diffusion - running validation...
+ generating 8 images with prompt: An image of an English Springer.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "d93adef995bc4b68a4cdaf884b4068bd", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+12/11/2024 18:22:19 - INFO - synderm.fine_tune.text_to_image_diffusion - running validation...
+ generating 8 images with prompt: An image of an English Springer.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "da87d03de56645d5bdc62d6779efeb21", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+12/11/2024 18:22:51 - INFO - synderm.fine_tune.text_to_image_diffusion - running validation...
+ generating 8 images with prompt: An image of an English Springer.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "51de49a25cce465dbcd4e7e96d6acfdf", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6f680240ddb9462c8acd19711864fa97", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+12/11/2024 18:23:49 - INFO - synderm.fine_tune.text_to_image_diffusion - Saved model for label &#39;English_springer&#39; to /n/scratch/users/t/thb286/dog_experiment/dreambooth-outputs/English_springer
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+    <style>
+        .wandb-row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            width: 100%;
+        }
+        .wandb-col {
+            display: flex;
+            flex-direction: column;
+            flex-basis: 100%;
+            flex: 1;
+            padding: 10px;
+        }
+    </style>
+<div class="wandb-row"><div class="wandb-col"><h3>Run history:</h3><br/><table class="wandb"><tr><td>loss</td><td>▃▃█▄▄█▄▄▅▄▃▄▇▃▂▆▂▅▄▇▆▂▂▄▁▃▂▂▅▄▂▃▄▁▃▂▅▆▄▄</td></tr><tr><td>lr</td><td>▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁</td></tr></table><br/></div><div class="wandb-col"><h3>Run summary:</h3><br/><table class="wandb"><tr><td>loss</td><td>0.13308</td></tr><tr><td>lr</td><td>1e-05</td></tr></table><br/></div></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+View run <strong style="color:#cdcd00">young-lake-16</strong> at: <a href='https://wandb.ai/tbu/derm_English_springer/runs/m25k7lpr' target="_blank">https://wandb.ai/tbu/derm_English_springer/runs/m25k7lpr</a><br/> View project at: <a href='https://wandb.ai/tbu/derm_English_springer' target="_blank">https://wandb.ai/tbu/derm_English_springer</a><br/>Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 32 other file(s)</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+Find logs at: <code>./wandb/run-20241211_182115-m25k7lpr/logs</code></div>
+</div>
+</section>
+<section id="3.-Generate-synthetic-images">
+<h2>3. Generate synthetic images<a class="headerlink" href="#3.-Generate-synthetic-images" title="Link to this heading"></a></h2>
+<p>We have trained a model to generate synthetic images. We now need to use this model to generate a lot of synthetic images.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">EXPERIMENT_DIR</span><span class="p">,</span> <span class="s2">&quot;dreambooth-outputs&quot;</span><span class="p">,</span> <span class="s2">&quot;English_springer&quot;</span><span class="p">)</span>
+<span class="n">image_output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">EXPERIMENT_DIR</span><span class="p">,</span> <span class="s2">&quot;generations&quot;</span><span class="p">)</span>
+
+<span class="n">generate_synthetic_dataset</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="o">=</span> <span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="n">model_path</span><span class="p">,</span>
+    <span class="n">output_dir_path</span> <span class="o">=</span> <span class="n">image_output_path</span><span class="p">,</span>
+    <span class="n">generation_type</span> <span class="o">=</span> <span class="s2">&quot;text-to-image&quot;</span><span class="p">,</span>
+    <span class="n">label_filter</span> <span class="o">=</span> <span class="s2">&quot;English_springer&quot;</span><span class="p">,</span>
+    <span class="n">instance_prompt</span> <span class="o">=</span> <span class="s2">&quot;An image of an English Springer&quot;</span><span class="p">,</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+    <span class="n">start_index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_generations_per_image</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">guidance_scale</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="n">num_inference_steps</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="n">strength_inpaint</span> <span class="o">=</span> <span class="mf">0.970</span><span class="p">,</span>
+    <span class="n">strength_outpaint</span> <span class="o">=</span> <span class="mf">0.950</span><span class="p">,</span>
+    <span class="n">mask_fraction</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Loading model
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ff2563e64a6d49f5b26c3154b343083a", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Loaded pipeline with 865_910_724 unet parameters
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "2219c3b7cacf4d20969b6b5dfc5cc0ec", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/thb286/synthetic-derm/synderm/generation/generate.py:218: TqdmExperimentalWarning: rich is experimental/alpha
+  for idx in tqdm(range(start_index, start_index + num_generations_per_image)):
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre></div>
+</div>
+<p>Preview some of the images generated by the fine-tuned model (top row are newly is generated, bottom row are original)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_output_path</span><span class="p">,</span> <span class="s2">&quot;grid/00-batch-00.png&quot;</span><span class="p">))</span>
+<span class="n">display</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_train_with_synthetic_images_14_0.png" src="../_images/examples_train_with_synthetic_images_14_0.png" />
+</div>
+</div>
+</section>
+<section id="4.-Training-the-classifier">
+<h2>4. Training the classifier<a class="headerlink" href="#4.-Training-the-classifier" title="Link to this heading"></a></h2>
+<p>We now have a directory of synthetic images. We need to train a classifier using our real training data, as well as these synthetic images.</p>
+<p>We will first create a new Torch Dataset to load the synthetically generated images. These will be present in multiple folders (00, 01, …, 10) indicating the generation number.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SyntheticDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Walk through class folders</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+            <span class="n">split</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_dir</span> <span class="o">/</span> <span class="n">split</span>
+            <span class="k">for</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+                <span class="n">class_dir</span> <span class="o">=</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="n">class_name</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">class_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Get all png images in this class folder</span>
+                <span class="k">for</span> <span class="n">img_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">class_dir</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">img_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_dir</span> <span class="o">/</span> <span class="n">img_name</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">image_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_paths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="c1"># Load and convert image to RGB</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+        <span class="n">image_name</span> <span class="o">=</span> <span class="n">image_path</span><span class="o">.</span><span class="n">stem</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">image_name</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">synthetic_dataset</span> <span class="o">=</span> <span class="n">SyntheticDataset</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_output_path</span><span class="p">,</span> <span class="s2">&quot;text-to-image&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Now we will use the synthetic_train_val_split function to generate a training dataset that includes both real and synthetic images, and a validation set that only includes real images.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">synthetic_train_val_split</span><span class="p">(</span>
+    <span class="n">real_data</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">synthetic_data</span><span class="o">=</span><span class="n">synthetic_dataset</span><span class="p">,</span>
+    <span class="n">per_class_test_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="n">mapping_real_to_synthetic</span><span class="o">=</span><span class="s2">&quot;id&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print first entries to inspect the training dataset</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sample </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">,</span> <span class="n">train</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Sample 0: {&#39;id&#39;: &#39;ILSVRC2012_val_00001968&#39;, &#39;image&#39;: &lt;PIL.Image.Image image mode=RGB size=500x334&gt;, &#39;label&#39;: &#39;English_springer&#39;}
+Sample 1: {&#39;id&#39;: &#39;ILSVRC2012_val_00002294&#39;, &#39;image&#39;: &lt;PIL.Image.Image image mode=RGB size=500x375&gt;, &#39;label&#39;: &#39;English_springer&#39;}
+Sample 2: {&#39;id&#39;: &#39;ILSVRC2012_val_00004548&#39;, &#39;image&#39;: &lt;PIL.Image.Image image mode=RGB size=500x375&gt;, &#39;label&#39;: &#39;English_springer&#39;}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">train</span><span class="p">]</span>
+<span class="n">label_counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Label distribution in training dataset:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">label_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Label distribution in training dataset:
+English_springer: 165
+French_horn: 195
+cassette_player: 195
+chain_saw: 195
+church: 195
+garbage_truck: 195
+gas_pump: 195
+golf_ball: 195
+parachute: 195
+tench: 195
+</pre></div></div>
+</div>
+<p>With these datasets, any image classification pipeline can now be used. Since we use Pytorch Datasets, a Pytorch system will be easiest to implement. We demonstrate how to use the training and validation sets to train and evaluate a model using the <code class="docutils literal notranslate"><span class="pre">fastai</span></code> library.</p>
+<p>We need to use a custom collate_fn to make our datasets work with fastai DataLoaders.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unique_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+<span class="n">label_to_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique_labels</span><span class="p">)}</span>
+
+<span class="k">def</span> <span class="nf">collate_fn</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+    <span class="n">tfms</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)),</span>  <span class="c1"># Ensure all images have same size</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="p">])</span>
+
+    <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">tfms</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">])</span>
+        <span class="n">lbl</span> <span class="o">=</span> <span class="n">label_to_idx</span><span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]]</span>
+        <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span>
+
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">collate_fn</span><span class="p">)</span>
+<span class="n">val_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">collate_fn</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fastai</span>
+
+<span class="c1"># Wrap the PyTorch DataLoaders in fastai&#39;s DataLoaders class for fastai training</span>
+<span class="n">dls</span> <span class="o">=</span> <span class="n">fastai</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataLoaders</span><span class="p">(</span><span class="n">train_loader</span><span class="p">,</span> <span class="n">val_loader</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">fastai.vision.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="n">num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_to_idx</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">create_vision_model</span><span class="p">(</span><span class="n">arch</span><span class="o">=</span><span class="n">efficientnet_v2_m</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_out</span><span class="o">=</span><span class="n">num_classes</span><span class="p">)</span>
+
+<span class="n">learn</span> <span class="o">=</span> <span class="n">Learner</span><span class="p">(</span><span class="n">dls</span><span class="p">,</span>
+                <span class="n">model</span><span class="p">,</span>
+                <span class="n">loss_func</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">,</span>
+                <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">error_rate</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">],</span>
+                <span class="n">cbs</span><span class="o">=</span><span class="p">[</span><span class="n">EarlyStoppingCallback</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;valid_loss&#39;</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">3</span><span class="p">)])</span>
+
+<span class="n">learn</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/thb286/synthetic-derm/.venv/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter &#39;pretrained&#39; is deprecated since 0.13 and may be removed in the future, please use &#39;weights&#39; instead.
+  warnings.warn(
+/home/thb286/synthetic-derm/.venv/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for &#39;weights&#39; are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=EfficientNet_V2_M_Weights.IMAGENET1K_V1`. You can also use `weights=EfficientNet_V2_M_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>epoch</th>
+      <th>train_loss</th>
+      <th>valid_loss</th>
+      <th>error_rate</th>
+      <th>accuracy</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>0.835907</td>
+      <td>1.975043</td>
+      <td>0.340000</td>
+      <td>0.660000</td>
+      <td>00:22</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.825740</td>
+      <td>1.536225</td>
+      <td>0.240000</td>
+      <td>0.760000</td>
+      <td>00:19</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.562762</td>
+      <td>0.635972</td>
+      <td>0.140000</td>
+      <td>0.860000</td>
+      <td>00:24</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>0.580996</td>
+      <td>0.681080</td>
+      <td>0.200000</td>
+      <td>0.800000</td>
+      <td>00:23</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>0.463088</td>
+      <td>0.983149</td>
+      <td>0.320000</td>
+      <td>0.680000</td>
+      <td>00:21</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<p>Now that we have trained the classifier, we can evaluate the model on the held-out test dataset.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">collate_fn</span><span class="p">)</span>
+
+<span class="n">test_preds</span><span class="p">,</span> <span class="n">test_targets</span> <span class="o">=</span> <span class="n">learn</span><span class="o">.</span><span class="n">get_preds</span><span class="p">(</span><span class="n">dl</span><span class="o">=</span><span class="n">test_loader</span><span class="p">)</span>
+
+<span class="n">test_accuracy</span> <span class="o">=</span> <span class="p">(</span><span class="n">test_preds</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">test_targets</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test accuracy: </span><span class="si">{</span><span class="n">test_accuracy</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">pred_classes</span> <span class="o">=</span> <span class="n">test_preds</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="n">true_classes</span> <span class="o">=</span> <span class="n">test_targets</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="n">idx_to_label</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">label_to_idx</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">classification_report</span><span class="p">(</span>
+    <span class="n">true_classes</span><span class="p">,</span>
+    <span class="n">pred_classes</span><span class="p">,</span>
+    <span class="n">target_names</span><span class="o">=</span><span class="p">[</span><span class="n">idx_to_label</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_classes</span><span class="p">)],</span>
+    <span class="n">digits</span><span class="o">=</span><span class="mi">4</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Detailed Classification Report:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<!-- empty output --></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Test accuracy: 0.7190
+
+Detailed Classification Report:
+                  precision    recall  f1-score   support
+
+English_springer     0.9906    0.5316    0.6919       395
+     French_horn     0.3862    0.6802    0.4926       394
+ cassette_player     0.8258    0.8235    0.8247       357
+       chain_saw     0.7961    0.5259    0.6334       386
+          church     0.6475    0.8802    0.7461       409
+   garbage_truck     0.9446    0.7892    0.8599       389
+        gas_pump     0.7429    0.8138    0.7768       419
+       golf_ball     0.6541    0.6065    0.6294       399
+       parachute     0.8131    0.8256    0.8193       390
+           tench     0.9106    0.7106    0.7983       387
+
+        accuracy                         0.7190      3925
+       macro avg     0.7711    0.7187    0.7272      3925
+    weighted avg     0.7693    0.7190    0.7264      3925
+
+</pre></div></div>
+</div>
+</section>
+<section id="Conclusion">
+<h2>Conclusion<a class="headerlink" href="#Conclusion" title="Link to this heading"></a></h2>
+<p>Considering most of our English springer training images are synthetically generated, this performance is good! Of course, this is only an example, and you should substitute this dataset for your own.</p>
+<p>See the next example, <code class="docutils literal notranslate"><span class="pre">train_fitz_classifier2.ipynb</span></code> for an applied example of the gains in performance that can be achieved by generating synthetic dermatology examples.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="synderm documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../modules.html" class="btn btn-neutral float-right" title="Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Thomas Buckley.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

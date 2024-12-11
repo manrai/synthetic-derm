@@ -15,7 +15,7 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
-   examples/test.ipynb
+   examples/train_with_synthetic_images.ipynb
 
    modules
 

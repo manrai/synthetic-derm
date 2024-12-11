@@ -6,6 +6,7 @@ import hashlib
 import math
 import os
 from pathlib import Path
+import warnings
 
 import numpy as np
 import torch
@@ -31,9 +32,6 @@ from PIL import Image
 from tqdm.auto import tqdm
 from transformers import AutoTokenizer
 
-import rich
-from lovely_tensors import monkey_patch
-
 from synderm.fine_tune.util import (
     PromptDataset,
     DiffusionTrainWrapper,
@@ -42,9 +40,6 @@ from synderm.fine_tune.util import (
     encode_prompt,
     import_model_class_from_model_name_or_path,
 )
-
-builtins.print = rich.print
-monkey_patch()
 
 # Instance prompt can be a formatted string, in which case the label will be inserted 
 def fine_tune_text_to_image(
@@ -62,7 +57,7 @@ def fine_tune_text_to_image(
     lr_warmup_steps: int = 0,
     num_train_epochs: int = 4,
     report_to: str = "wandb",
-    verbose: bool = False,
+    verbose: bool = True,
     num_validation_images: int = 8,
     validation_steps: int = 100
 ):
@@ -124,7 +119,8 @@ def fine_tune_text_to_image(
             Logging integration to use (e.g., "wandb", "tensorboard"). Default: "wandb"
         
         verbose (bool): 
-            If True, print additional debug information during training. Default: False
+            If True, print additional debug information during training. 
+            Note that warnings are surpressed if verbose is set to false. Default: True 
         
         num_validation_images (int): 
             Number of images to generate for validation at each validation step. Default: 8
@@ -326,6 +322,7 @@ def fine_tune_text_to_image(
             project_config=accelerator_project_config,
         )
 
+
         if report_to == "wandb":
             if not is_wandb_available():
                 raise ImportError("Make sure to install wandb if you want to use it for logging during training.")
@@ -337,13 +334,15 @@ def fine_tune_text_to_image(
             level=logging.INFO,
         )
 
-        logger.info(accelerator.state, main_process_only=False)
-        if accelerator.is_local_main_process:
-            transformers.utils.logging.set_verbosity_warning()
-            diffusers.utils.logging.set_verbosity_info()
-        else:
+        if verbose:
+            logger.info(accelerator.state, main_process_only=False)
+
+        if not verbose:
             transformers.utils.logging.set_verbosity_error()
             diffusers.utils.logging.set_verbosity_error()
+        else:
+            transformers.utils.logging.set_verbosity_warning()
+            diffusers.utils.logging.set_verbosity_info()
 
         # If passed along, set the training seed now.
         if seed is not None:
@@ -789,7 +788,7 @@ def fine_tune_text_to_image(
                     else:
                         model_input = pixel_values
 
-                    # Sample noise that we'll add to the model input
+                    # Sample noise that we'll add to the input
                     if offset_noise:
                         noise = torch.randn_like(model_input) + 0.1 * torch.randn(
                             model_input.shape[0], model_input.shape[1], 1, 1, device=model_input.device

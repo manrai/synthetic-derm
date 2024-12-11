@@ -13,7 +13,6 @@ def import_model_class_from_model_name_or_path(pretrained_model_name_or_path: st
         revision=revision,
     )
     model_class = text_encoder_config.architectures[0]
-    print(f"Model class is {model_class}")
 
     if model_class == "CLIPTextModel":
         from transformers import CLIPTextModel
