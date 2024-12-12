@@ -11,6 +11,8 @@ root = Path("/n/data1/hms/dbmi/manrai/derm")
 methods = {
     "finetune_text_to_image": {
         "paths_tags": [
+            {"path": "nature-revisions/fitz_ddi_crossover_full_fitz/generations/text-to-image/", "tag": "fitz_ddi_crossover_full_fitz"},
+            {"path": "nature-revisions/new_fitz_diseases/generations/text-to-image/", "tag": "new_fitz_diseases"},
             {"path": "generations/text-to-image", "tag": "generations1"},
             {"path": "generations-more/text-to-image", "tag": "generations2"},
             {"path": "generations-lots-more/text-to-image", "tag": "generations3"}
@@ -37,19 +39,19 @@ methods = {
     }
 }
 
-labels = [
-    "all",
-    "folliculitis",
-    "neutrophilic-dermatoses",
-    "sarcoidosis",
-    "allergic-contact-dermatitis",
-    "lichen-planus",
-    "photodermatoses",
-    "squamous-cell-carcinoma",
-    "basal-cell-carcinoma",
-    "lupus-erythematosus",
-    "psoriasis"
-]
+# labels = [
+#     "all",
+#     "folliculitis",
+#     "neutrophilic-dermatoses",
+#     "sarcoidosis",
+#     "allergic-contact-dermatitis",
+#     "lichen-planus",
+#     "photodermatoses",
+#     "squamous-cell-carcinoma",
+#     "basal-cell-carcinoma",
+#     "lupus-erythematosus",
+#     "psoriasis"
+# ]
 
 # First collect all image files to process
 all_image_files = []
@@ -62,11 +64,19 @@ for method_key in tqdm(methods.keys(), desc="Processing methods"):
         method_path = path_tag["path"]
         tag = path_tag["tag"]
 
-        for label in tqdm(labels, desc=f"Processing labels for {method_key} - {tag}", leave=False):
+        root_method_path = root / method_path
+
+        #for label in tqdm(labels, desc=f"Processing labels for {method_key} - {tag}", leave=False):
+        for label_dir in tqdm(root_method_path.iterdir(), desc=f"Processing labels for {method_key} - {tag}", leave=False):
+            if not label_dir.is_dir():
+                continue
+
+            label = label_dir.name
             for submethod in tqdm(submethods, desc=f"Processing submethods for {label}", leave=False):
-                submethod_path = root / method_path / label / submethod
+                submethod_path = root_method_path / label / submethod
 
                 if not submethod_path.exists():
+                    print(f"Warning: Expected path does not exist: {submethod_path}")
                     continue
 
                 prefix = f"{label}_{method_key}_{submethod}".replace("-", "_")
