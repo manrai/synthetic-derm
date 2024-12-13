@@ -1,4 +1,5 @@
 # Synderm
+[Synderm Documentation](https://synthetic-derm.readthedocs.io/en/latest/index.html)
 
 Synderm is a package designed to enhance image classification tasks using synthetic data generation. It provides tools to generate high-quality synthetic images using diffusion models, fine-tune these models on your specific datasets, and seamlessly integrate synthetic data into your training pipelines to improve classifier performance.
 
