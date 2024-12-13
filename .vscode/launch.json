@@ -1,0 +1,176 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "[Original] Generate images",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "paper_experiments/generate.py",
+            "args": [
+                "--output_root", "synderm2024/generation-pretrained-2",
+                "--instance_data_dir", "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
+                "--model_type", "text-to-image",
+                "--pretrained_model_name_or_path", "stabilityai/stable-diffusion-2-1-base",
+                "--instance_prompt", "An image of {}, a skin disease",
+                "--disease_class", "allergic-contact-dermatitis",
+                "--num_generations_per_image", "1"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Original] Fine-tune text-to-image dreambooth",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "paper_experiments/train_dreambooth.py",
+            "args": [
+                "--pretrained_model_name_or_path", "stabilityai/stable-diffusion-2-1-base",
+                "--instance_data_dir", "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
+                "--dataset_type", "fitzpatrick",
+                "--instance_prompt", "An image of {}, a skin disease",
+                "--validation_prompt", "An image of allergic contact dermatitis, a skin disease",
+                "--output_dir", "dreambooth-outputs/allergic-contact-dermatitis",
+                "--disease_class", "allergic-contact-dermatitis",
+                "--resolution", "512",
+                "--train_batch_size", "4",
+                "--gradient_accumulation_steps", "1",
+                "--learning_rate", "5e-06",
+                "--lr_scheduler", "constant",
+                "--lr_warmup_steps", "0",
+                "--num_train_epochs", "4",
+                "--report_to", "wandb"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Original] Fine-tune inpaint-outpaint dreambooth",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "paper_experiments/train_dreambooth_inpaint.py",
+            "args": [
+                "--pretrained_model_name_or_path", "runwayml/stable-diffusion-inpainting",
+                "--instance_data_dir", "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
+                "--dataset_type", "fitzpatrick",
+                "--instance_prompt", "An image of {}, a skin disease",
+                "--validation_prompt", "An image of allergic contact dermatitis, a skin disease",
+                "--output_dir", "dreambooth-inpaint-outputs/allergic-contact-dermatitis",
+                "--disease_class", "allergic-contact-dermatitis",
+                "--resolution", "512",
+                "--train_batch_size", "4",
+                "--gradient_accumulation_steps", "1",
+                "--learning_rate", "5e-06",
+                "--lr_scheduler", "constant",
+                "--lr_warmup_steps", "0",
+                "--num_train_epochs", "4",
+                "--report_to", "wandb"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Huggingface] Copy 350k dataset in webdataset format",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "huggingface/copy_images_to_webdataset.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Huggingface] Compile 350k data Huggingface to tar files",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "huggingface/compile_webdataset.py",
+            "args": [
+                "--input_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new/",
+                "--output_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new2_webdataset_shards/",
+                "--shard_size", "5000"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Huggingface] Upload 350k data Huggingface",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "huggingface/upload_webdataset_to_huggingface.py",
+            "args": [
+                "--webdataset_path", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new_webdataset_shards/",
+                "--repo_id", "tbuckley/synthetic-derm-350k",
+                "--repo_type", "dataset",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "[Examples] Create sample dataset",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/example_scripts/create_sample_derm_dataset.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "[Examples] Create sample imagenette dataset",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/example_scripts/create_sample_imagenette_dataset.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "[Examples] Generate synthetic images",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/example_scripts/generate_synthetic_images.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "[Examples] Train text-to-image diffusion model",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/example_scripts/train_diffusion_model_text_to_image.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "[Examples] Train inpaint diffusion model",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/example_scripts/train_diffusion_model_inpaint.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
+        }
+
+    ]
+}

@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fine_tune package &mdash; synderm 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="generation package" href="generation.html" />
+    <link rel="prev" title="Modules" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            synderm
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="examples/train_with_synthetic_images.html">Vignette: Augmenting an image classifier with synthetic images from your data</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">fine_tune package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fine_tune.text_to_image_diffusion">fine_tune.text_to_image_diffusion module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fine_tune.text_to_image_diffusion.fine_tune_text_to_image"><code class="docutils literal notranslate"><span class="pre">fine_tune_text_to_image()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fine_tune.util">fine_tune.util module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fine_tune.util.DiffusionTrainWrapper"><code class="docutils literal notranslate"><span class="pre">DiffusionTrainWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine_tune.util.PromptDataset"><code class="docutils literal notranslate"><span class="pre">PromptDataset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine_tune.util.collate_fn"><code class="docutils literal notranslate"><span class="pre">collate_fn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine_tune.util.encode_prompt"><code class="docutils literal notranslate"><span class="pre">encode_prompt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine_tune.util.import_model_class_from_model_name_or_path"><code class="docutils literal notranslate"><span class="pre">import_model_class_from_model_name_or_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine_tune.util.tokenize_prompt"><code class="docutils literal notranslate"><span class="pre">tokenize_prompt()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fine_tune">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generation.html">generation package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">synderm</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">fine_tune package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/fine_tune.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fine-tune-package">
+<h1>fine_tune package<a class="headerlink" href="#fine-tune-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-fine_tune.text_to_image_diffusion">
+<span id="fine-tune-text-to-image-diffusion-module"></span><h2>fine_tune.text_to_image_diffusion module<a class="headerlink" href="#module-fine_tune.text_to_image_diffusion" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="fine_tune.text_to_image_diffusion.fine_tune_text_to_image">
+<span class="sig-prename descclassname"><span class="pre">fine_tune.text_to_image_diffusion.</span></span><span class="sig-name descname"><span class="pre">fine_tune_text_to_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained_model_name_or_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stabilityai/stable-diffusion-2-1-base'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'An</span> <span class="pre">image</span> <span class="pre">of</span> <span class="pre">{}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_prompt_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'An</span> <span class="pre">image</span> <span class="pre">of</span> <span class="pre">{}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_accumulation_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_scheduler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_warmup_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_train_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_to</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wandb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_validation_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fine_tune/text_to_image_diffusion.html#fine_tune_text_to_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fine_tune.text_to_image_diffusion.fine_tune_text_to_image" title="Link to this definition"></a></dt>
+<dd><p>Fine-tune a diffusion model (e.g., Stable Diffusion) on a given training dataset of images and associated prompts
+to produce synthetic images for improving image classifier performance. This function sets up training loops,
+handles prompt-tokenization and embedding computation, and logs intermediate results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_dataset</strong> (<em>Dataset</em>) – A Torch <cite>Dataset</cite> object containing an image and a label.
+Each example in the Dataset object should be a dictionary that includes:
+- “image”: This should be a PIL image.
+- “label”: The label/class name associated with the image.</p></li>
+<li><p><strong>pretrained_model_name_or_path</strong> (<em>str</em>) – The path to a pretrained diffusion model or a model name on the HuggingFace Hub.
+Default: “stabilityai/stable-diffusion-2-1-base”</p></li>
+<li><p><strong>instance_prompt</strong> (<em>str</em>) – A prompt template string used for generating instance embeddings. The label will be inserted
+into this template if it’s a formatted string. Default: “An image of {}”</p></li>
+<li><p><strong>validation_prompt_format</strong> (<em>str</em>) – A prompt template string for generating validation images. The label will be inserted into
+this format if needed. Default: “An image of {}”</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – Directory where model checkpoints and final pipeline should be saved.</p></li>
+<li><p><strong>label_filter</strong> (<em>str</em><em> | </em><em>None</em>) – If provided, only data from this particular label/class will be used for training. If None,
+all available labels in the dataset are used. Default: None</p></li>
+<li><p><strong>resolution</strong> (<em>int</em>) – The size of the images for training and inference. Images will be resized to <cite>resolution x resolution</cite>.
+Default: 512</p></li>
+<li><p><strong>train_batch_size</strong> (<em>int</em>) – Batch size used during training. Default: 4</p></li>
+<li><p><strong>gradient_accumulation_steps</strong> (<em>int</em>) – Number of gradient accumulation steps before a parameter update is performed.
+Useful for simulating a larger effective batch size. Default: 1</p></li>
+<li><p><strong>learning_rate</strong> (<em>float</em>) – Initial learning rate for the optimizer. Default: 5e-6</p></li>
+<li><p><strong>lr_scheduler</strong> (<em>str</em>) – Learning rate scheduler type. Default: “constant”</p></li>
+<li><p><strong>lr_warmup_steps</strong> (<em>int</em>) – Number of warmup steps for the learning rate scheduler. Default: 0</p></li>
+<li><p><strong>num_train_epochs</strong> (<em>int</em>) – Total number of training epochs. Default: 4</p></li>
+<li><p><strong>report_to</strong> (<em>str</em>) – Logging integration to use (e.g., “wandb”, “tensorboard”). Default: “wandb”</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print additional debug information during training.
+Note that warnings are surpressed if verbose is set to false. Default: True</p></li>
+<li><p><strong>num_validation_images</strong> (<em>int</em>) – Number of images to generate for validation at each validation step. Default: 8</p></li>
+<li><p><strong>validation_steps</strong> (<em>int</em>) – Interval (in steps) at which validation images are generated. Default: 100</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. The function saves the trained model (and intermediate checkpoints) to <cite>output_dir</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-fine_tune.util">
+<span id="fine-tune-util-module"></span><h2>fine_tune.util module<a class="headerlink" href="#module-fine_tune.util" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="fine_tune.util.DiffusionTrainWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fine_tune.util.</span></span><span class="sig-name descname"><span class="pre">DiffusionTrainWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_hidden_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_prompt_encoder_hidden_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer_max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_fitzpatrick_scale_to_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fine_tune/util.html#DiffusionTrainWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fine_tune.util.DiffusionTrainWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fine_tune.util.DiffusionTrainWrapper.tokenize_prompt_with_caching">
+<span class="sig-name descname"><span class="pre">tokenize_prompt_with_caching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance_prompt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fine_tune/util.html#DiffusionTrainWrapper.tokenize_prompt_with_caching"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fine_tune.util.DiffusionTrainWrapper.tokenize_prompt_with_caching" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fine_tune.util.PromptDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fine_tune.util.</span></span><span class="sig-name descname"><span class="pre">PromptDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fine_tune/util.html#PromptDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fine_tune.util.PromptDataset" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
+<p>A simple dataset to prepare the prompts to generate class images on multiple GPUs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fine_tune.util.collate_fn">
+<span class="sig-prename descclassname"><span class="pre">fine_tune.util.</span></span><span class="sig-name descname"><span class="pre">collate_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">examples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_prior_preservation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fine_tune/util.html#collate_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fine_tune.util.collate_fn" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fine_tune.util.encode_prompt">
+<span class="sig-prename descclassname"><span class="pre">fine_tune.util.</span></span><span class="sig-name descname"><span class="pre">encode_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_encoder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_encoder_use_attention_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fine_tune/util.html#encode_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fine_tune.util.encode_prompt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fine_tune.util.import_model_class_from_model_name_or_path">
+<span class="sig-prename descclassname"><span class="pre">fine_tune.util.</span></span><span class="sig-name descname"><span class="pre">import_model_class_from_model_name_or_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained_model_name_or_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fine_tune/util.html#import_model_class_from_model_name_or_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fine_tune.util.import_model_class_from_model_name_or_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fine_tune.util.tokenize_prompt">
+<span class="sig-prename descclassname"><span class="pre">fine_tune.util.</span></span><span class="sig-name descname"><span class="pre">tokenize_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer_max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fine_tune/util.html#tokenize_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fine_tune.util.tokenize_prompt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-fine_tune">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fine_tune" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generation.html" class="btn btn-neutral float-right" title="generation package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Thomas Buckley.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
