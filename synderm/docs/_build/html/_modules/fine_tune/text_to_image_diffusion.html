@@ -137,8 +137,7 @@
     <span class="n">validation_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fine-tune a diffusion model (e.g., Stable Diffusion) on a given training dataset of images and associated prompts </span>
-<span class="sd">    to produce synthetic images for improving image classifier performance. This function sets up training loops, </span>
+<span class="sd">    Fine-tune a diffusion model (e.g., Stable Diffusion) on a given training dataset. This function sets up training loops, </span>
 <span class="sd">    handles prompt-tokenization and embedding computation, and logs intermediate results.</span>
 
 <span class="sd">    Args:</span>
@@ -843,9 +842,9 @@
                 <span class="n">text_encoder</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataloader</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">step</span> <span class="o">%</span> <span class="mi">50</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Printing batch at step </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                    <span class="k">pass</span>
+                    <span class="c1"># print(f&#39;Printing batch at step {step}&#39;)</span>
+                    <span class="c1"># print(batch)</span>
 
                 <span class="c1"># Skip steps until we reach the resumed step</span>
                 <span class="k">if</span> <span class="n">resume_from_checkpoint</span> <span class="ow">and</span> <span class="n">epoch</span> <span class="o">==</span> <span class="n">first_epoch</span> <span class="ow">and</span> <span class="n">step</span> <span class="o">&lt;</span> <span class="n">resume_step</span><span class="p">:</span>
