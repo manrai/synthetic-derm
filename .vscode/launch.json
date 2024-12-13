@@ -99,7 +99,7 @@
             "request": "launch",
             "program": "huggingface/upload_webdataset_to_huggingface.py",
             "args": [
-                "--webdataset_path", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new_webdataset_shards/",
+                "--webdataset_path", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new2_webdataset_shards/",
                 "--repo_id", "tbuckley/synthetic-derm-350k",
                 "--repo_type", "dataset",
             ],
