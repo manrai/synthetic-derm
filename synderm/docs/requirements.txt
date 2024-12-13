@@ -4,9 +4,6 @@ sphinx_rtd_theme>=0.5.0
 
 # Extensions for Sphinx
 nbsphinx>=0.8.0
-sphinx.ext.autodoc
-sphinx.ext.viewcode
-sphinx.ext.napoleon
 
 # Dependencies for Jupyter notebooks
 jupyter>=1.0.0
