@@ -12,7 +12,8 @@ Synderm is a package designed to enhance image classification tasks using synthe
   - [2. Training the Synthetic Image Generator](#2-training-the-synthetic-image-generator)
   - [3. Generate Synthetic Images](#3-generate-synthetic-images)
   - [4. Augmenting the Classifier with Synthetic Images](#4-augmenting-the-classifier-with-synthetic-images)
-- [Examples](#usage-example)
+- [Example Scripts](#example-scripts)
+- [Data](#data)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -162,9 +163,17 @@ train, val = synthetic_train_val_split(
 )
 ```
 
-## Examples
+## Example Scripts
 
-Please see the notebook at `examples/train_with_synthetic_images.ipynb` shows a complete examples.
+We include several example scripts at `synderm/example_scripts`:
+- `train_diffusion_model_text_to_image.py`: Script for fine-tuning the Stable Diffusion model conditioned on a text prompt.
+- `train_diffusion_model_inpaint.py`: Script for fine-tuning the Stable Diffusion model conditioned on a text prompt, and random masks of an image.
+- `generate_synthetic_images.py`: Script for generating synthetic images using fine-tuned models
+- `sample_datasets.py`: A few example Torch datasets that are compatible with this package. Includes a `FitzDataset` sample that can be used once the original images are downloaded (see [Data](#data))
+
+## Data
+
+The original Fitzpatrick17k dataset can be installed from [this GitHub link.](https://github.com/mattgroh/fitzpatrick17k) The images need to be downloaded from original source. We include clean training and held-out splits in the `fitz_metadata` folder.
 
 ## Contributing
 

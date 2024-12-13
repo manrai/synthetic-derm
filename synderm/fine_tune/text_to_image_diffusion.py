@@ -62,8 +62,7 @@ def fine_tune_text_to_image(
     validation_steps: int = 100
 ):
     """
-    Fine-tune a diffusion model (e.g., Stable Diffusion) on a given training dataset of images and associated prompts 
-    to produce synthetic images for improving image classifier performance. This function sets up training loops, 
+    Fine-tune a diffusion model (e.g., Stable Diffusion) on a given training dataset. This function sets up training loops, 
     handles prompt-tokenization and embedding computation, and logs intermediate results.
 
     Args:
@@ -768,9 +767,9 @@ def fine_tune_text_to_image(
                 text_encoder.train()
             for step, batch in enumerate(train_dataloader):
                 if step % 50 == 0:
-                    if verbose:
-                        print(f'Printing batch at step {step}')
-                        print(batch)
+                    pass
+                    # print(f'Printing batch at step {step}')
+                    # print(batch)
 
                 # Skip steps until we reach the resumed step
                 if resume_from_checkpoint and epoch == first_epoch and step < resume_step:

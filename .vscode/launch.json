@@ -8,7 +8,7 @@
             "name": "[Original] Generate images",
             "type": "debugpy",
             "request": "launch",
-            "program": "generation/generate.py",
+            "program": "paper_experiments/generate.py",
             "args": [
                 "--output_root", "synderm2024/generation-pretrained-2",
                 "--instance_data_dir", "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
@@ -25,7 +25,7 @@
             "name": "[Original] Fine-tune text-to-image dreambooth",
             "type": "debugpy",
             "request": "launch",
-            "program": "generation/train_dreambooth.py",
+            "program": "paper_experiments/train_dreambooth.py",
             "args": [
                 "--pretrained_model_name_or_path", "stabilityai/stable-diffusion-2-1-base",
                 "--instance_data_dir", "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
@@ -50,7 +50,7 @@
             "name": "[Original] Fine-tune inpaint-outpaint dreambooth",
             "type": "debugpy",
             "request": "launch",
-            "program": "generation/train_dreambooth_inpaint.py",
+            "program": "paper_experiments/train_dreambooth_inpaint.py",
             "args": [
                 "--pretrained_model_name_or_path", "runwayml/stable-diffusion-inpainting",
                 "--instance_data_dir", "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
@@ -87,7 +87,7 @@
             "program": "huggingface/compile_webdataset.py",
             "args": [
                 "--input_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new/",
-                "--output_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new_webdataset_shards/",
+                "--output_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new2_webdataset_shards/",
                 "--shard_size", "5000"
             ],
             "console": "integratedTerminal",
@@ -110,7 +110,7 @@
             "name": "[Examples] Create sample dataset",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/examples/create_sample_derm_dataset.py",
+            "program": "synderm/example_scripts/create_sample_derm_dataset.py",
             "args": [],
             "console": "integratedTerminal",
             "justMyCode": true,
@@ -123,7 +123,7 @@
             "name": "[Examples] Create sample imagenette dataset",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/examples/create_sample_imagenette_dataset.py",
+            "program": "synderm/example_scripts/create_sample_imagenette_dataset.py",
             "args": [],
             "console": "integratedTerminal",
             "justMyCode": true,
@@ -136,7 +136,7 @@
             "name": "[Examples] Generate synthetic images",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/examples/generate_synthetic_images.py",
+            "program": "synderm/example_scripts/generate_synthetic_images.py",
             "args": [],
             "console": "integratedTerminal",
             "justMyCode": true,
@@ -149,7 +149,20 @@
             "name": "[Examples] Train text-to-image diffusion model",
             "type": "debugpy",
             "request": "launch",
-            "program": "synderm/examples/train_diffusion_model_text_to_image.py",
+            "program": "synderm/example_scripts/train_diffusion_model_text_to_image.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "[Examples] Train inpaint diffusion model",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/example_scripts/train_diffusion_model_inpaint.py",
             "args": [],
             "console": "integratedTerminal",
             "justMyCode": true,
@@ -158,5 +171,6 @@
             },
             "cwd": "${workspaceFolder}"
         }
+
     ]
 }
