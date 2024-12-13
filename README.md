@@ -30,8 +30,8 @@ Synderm is a package designed to enhance image classification tasks using synthe
 
 Synderm directly supports the following models for image generation:
 
-- **Inpainting:** [`runwayml/stable-diffusion-inpainting`](https://huggingface.co/runwayml/stable-diffusion-inpainting)
-- **Outpainting:** [`stabilityai/stable-diffusion-2-1-base`](https://huggingface.co/stabilityai/stable-diffusion-2-1-base)
+- **Text-to-image:** [`stabilityai/stable-diffusion-2-1-base`](https://huggingface.co/stabilityai/stable-diffusion-2-1-base)
+- **Inpainting/outpainting:** [`runwayml/stable-diffusion-inpainting`](https://huggingface.co/runwayml/stable-diffusion-inpainting)
 
 Other diffusion models can be used but are currently untested.
 
