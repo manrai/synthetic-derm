@@ -13,6 +13,7 @@ Synderm is a package designed to enhance image classification tasks using synthe
    :caption: Contents:
 
    examples/train_with_synthetic_images.ipynb
+   examples/synderm_dataset.ipynb
 
    modules
 
