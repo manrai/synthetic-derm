@@ -1,6 +1,7 @@
 # Synderm
-[Synderm Package Documentation](https://synthetic-derm.readthedocs.io/en/latest/index.html)
-[synthetic-derm-1M Dataset](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M)
+
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://synthetic-derm.readthedocs.io/en/latest/index.html)
+[![Dataset](https://img.shields.io/badge/dataset-HuggingFace-yellow.svg)](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M)
 
 Synderm is a package designed to enhance image classification tasks using synthetic data generation. It provides tools to generate high-quality synthetic images using diffusion models, fine-tune these models on your specific datasets, and seamlessly integrate synthetic data into your training pipelines to improve classifier performance.
 
