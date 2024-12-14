@@ -168,3 +168,4 @@ imagenette2.tgz
 synderm/docs/_build/*
 synderm/docs/_static/*
 synderm/docs/_templates/*
+dist/*

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "synderm"
-version = "0.1.1"
+version = "0.1.2"
 description = "A package for generating synthetic data to augment image classifiers."
 authors = [
     { name="Thomas Buckley", email="32546943+2v@users.noreply.github.com" }
