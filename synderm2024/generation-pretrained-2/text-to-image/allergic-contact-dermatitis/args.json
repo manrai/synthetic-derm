@@ -1,0 +1,32 @@
+{
+    "add_fitzpatrick_scale_to_prompt": false,
+    "batch_size": 16,
+    "dataset_type": "fitzpatrick",
+    "disease_class": "allergic-contact-dermatitis",
+    "guidance_scale": 3.0,
+    "instance_data_dir": "/n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k",
+    "instance_prompt": "An image of {}, a skin disease",
+    "mask_fraction": 0.25,
+    "model_type": "text-to-image",
+    "num_generations_per_image": 1,
+    "num_inference_steps": 50,
+    "output_dir": {
+        "_string": "synderm2024/generation-pretrained-2/text-to-image/allergic-contact-dermatitis",
+        "_type": "python_object (type = PosixPath)",
+        "_value": "gASVdAAAAAAAAACMB3BhdGhsaWKUjAlQb3NpeFBhdGiUk5QojAtzeW5kZXJtMjAyNJSMF2dlbmVyYXRpb24tcHJldHJhaW5lZC0ylIwNdGV4dC10by1pbWFnZZSMG2FsbGVyZ2ljLWNvbnRhY3QtZGVybWF0aXRpc5R0lFKULg=="
+    },
+    "output_root": "synderm2024/generation-pretrained-2",
+    "pretrained_model_name_or_path": "stabilityai/stable-diffusion-2-1-base",
+    "reproducibility": {
+        "command_line": "python paper_experiments/generate.py --output_root synderm2024/generation-pretrained-2 --instance_data_dir /n/data1/hms/dbmi/manrai/derm/Fitzpatrick17k --model_type text-to-image --pretrained_model_name_or_path stabilityai/stable-diffusion-2-1-base --instance_prompt 'An image of {}, a skin disease' --disease_class allergic-contact-dermatitis --num_generations_per_image 1",
+        "git_has_uncommitted_changes": true,
+        "git_root": "/home/thb286/synthetic-derm",
+        "git_url": "https://github.com/manrai/synthetic-derm/tree/27c462cd8ac0ca7ed2be0d7bd05c076f12374d4a",
+        "time": "Sun Dec 15 16:44:08 2024"
+    },
+    "resolution": 512,
+    "seed": 42,
+    "start_index": 0,
+    "strength_inpaint": 0.97,
+    "strength_outpaint": 0.95
+}
