@@ -4,38 +4,34 @@ import shutil
 import json
 import os
 
-
-# TODO: Create webdataset that is completely random -- only organized by method
-
-
-output_directory = Path("/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_new")
+output_directory = Path("/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_train")
 
 root = Path("/n/data1/hms/dbmi/manrai/derm")
 
 methods = {
-    "finetune_text_to_image": {
+    "finetune-text-to-image": {
         "paths_tags": [
-            {"path": "nature-revisions/fitz_ddi_crossover_full_fitz/generations/text-to-image/", "tag": "fitz_ddi_crossover_full_fitz"},
-            {"path": "nature-revisions/new_fitz_diseases/generations/text-to-image/", "tag": "new_fitz_diseases"},
+            {"path": "nature-revisions/fitz_ddi_crossover_full_fitz/generations/text-to-image/", "tag": "fitz-ddi-crossover-full-fitz"},
+            {"path": "nature-revisions/new_fitz_diseases/generations/text-to-image/", "tag": "new-fitz-diseases"},
             {"path": "generations/text-to-image", "tag": "generations1"},
             {"path": "generations-more/text-to-image", "tag": "generations2"},
             {"path": "generations-lots-more/text-to-image", "tag": "generations3"}
         ],
         "submethods": ["text-to-image"]
     },
-    "pretrained_text_to_image": {
+    "pretrained-text-to-image": {
         "paths_tags": [
             {"path": "generations-pretrained/text-to-image", "tag": "generations1"}
         ],
         "submethods": ["text-to-image"]
     },
-    "finetune_inpaint": {
+    "finetune-inpaint": {
         "paths_tags": [
             {"path": "generations/inpaint", "tag": "generations1"}
         ],
         "submethods": ["inpaint-outpaint", "inpaint"]
     },
-    "pretrained_inpaint": {
+    "pretrained-inpaint": {
         "paths_tags": [
             {"path": "generations-pretrained/inpaint", "tag": "generations1"}
         ],
@@ -51,12 +47,12 @@ for method_key in tqdm(methods.keys(), desc="Processing methods"):
     submethods = method_info["submethods"]
 
     for path_tag in tqdm(paths_tags, desc=f"Processing paths for {method_key}", leave=False):
+
         method_path = path_tag["path"]
         tag = path_tag["tag"]
 
         root_method_path = root / method_path
 
-        #for label in tqdm(labels, desc=f"Processing labels for {method_key} - {tag}", leave=False):
         for label_dir in tqdm(root_method_path.iterdir(), desc=f"Processing labels for {method_key} - {tag}", leave=False):
             if not label_dir.is_dir():
                 continue
@@ -69,12 +65,10 @@ for method_key in tqdm(methods.keys(), desc="Processing methods"):
                     print(f"Warning: Expected path does not exist: {submethod_path}")
                     continue
 
-                prefix = f"{label}_{method_key}_{submethod}".replace("-", "_")
+                sub_output_directory = output_directory / method_key.replace("-", "_")
 
-                sub_output_directory = output_directory / prefix
-
-                # Iterate over generation numbers
-                for gen_dir in submethod_path.iterdir():
+                # iterate over all generation numbers
+                for gen_dir in submethod_path.iterdir(): 
                     if not gen_dir.is_dir():
                         continue
                     generation_num = gen_dir.name  # e.g., "01", "02"
@@ -87,7 +81,9 @@ for method_key in tqdm(methods.keys(), desc="Processing methods"):
                         relative_path = image_file.relative_to(root)
 
                         md5hash = file_name.split(".")[0]
-                        unique_name = f"{prefix}_{tag}_{generation_num}_{md5hash}"
+
+                        unique_name = f"{label}_{method_key}_{submethod}_{tag}_{generation_num}_{md5hash}"
+                        #unique_name = f"{file_prefix}-{tag}-{generation_num}-{md5hash}"
 
                         image_extension = image_file.suffix
                         image_path = f"{unique_name}{image_extension}"
