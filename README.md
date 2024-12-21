@@ -1,7 +1,7 @@
 # Synderm
 [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://synthetic-derm.readthedocs.io/en/latest/index.html)
-[![Complete Dataset](https://img.shields.io/badge/dataset-HuggingFace-yellow.svg)](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M)
-[![Train Dataset](https://img.shields.io/badge/dataset-HuggingFace-yellow.svg)](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M-train)
+[![Complete Dataset](https://img.shields.io/badge/complete_dataset-HuggingFace-yellow.svg)](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M)
+[![Train Dataset](https://img.shields.io/badge/train_dataset-HuggingFace-yellow.svg)](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M-train)
 [![PyPI](https://img.shields.io/pypi/v/synderm.svg)](https://pypi.org/project/synderm/)
 
 Synderm is a package designed to enhance image classification tasks using synthetic data generation. It provides tools to generate high-quality synthetic images using diffusion models, fine-tune these models on your specific datasets, and seamlessly integrate synthetic data into your training pipelines to improve classifier performance.
@@ -9,6 +9,7 @@ Synderm is a package designed to enhance image classification tasks using synthe
 ## Table of Contents
 
 - [Features](#features)
+- [Dataset Details](#dataset-details)
 - [Models](#models)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
@@ -28,6 +29,18 @@ Synderm is a package designed to enhance image classification tasks using synthe
 - **Dataset Augmentation:** Combine real and synthetic data effortlessly to enhance your training datasets.
 - **Seamless Integration:** Compatible with popular deep learning frameworks like PyTorch and FastAI.
 - **Flexible Configuration:** Easily customize prompts, training parameters, and data splits to fit your project's needs.
+
+### Dataset Details
+
+We have developed a HuggingFace dataset with over 1 millions (more than 600GB). To support efficient use and reuse of such a large dataset, we use the [WebDataset](https://github.com/webdataset/webdataset) format. Using this format, data is split into into TAR shards that contain at most 5,000 images (up to ~2GB). This allows for fine-grained data subsetting with minimal memory and time overhead.
+
+We have developed two versions of the dataset to support different applications. These are:
+1) [synthetic-derm-1M](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M): This dataset is intended for fine-grained retrieval of particular labels and generation methods. Each shard is named using the format: `shard-{disease-label}-{synthetic-generation-method}-{submethod}-{index}.tar`. An example shard name is `shard-vitiligo-finetune-text-to-image-text-to-image-00000.tar`. 
+
+1) [synthetic-derm-1M-train](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M-train): This dataset is intended to be used directly for training models. We group images by generation method, perform a shuffle, and then shard the images. Each shard is named using the format: `shard-{synthetic-generation-method}-{index}.tar`. For model training, the dataset can still be subset to specific labels.
+
+See [WebDataset FAQ](https://github.com/webdataset/webdataset/blob/main/FAQ.md) for many more examples of how to use these two datasets. We also provide a vignette demonstrating how to use these dataset.
+
 
 ## Models
 
