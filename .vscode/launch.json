@@ -107,6 +107,21 @@
             "justMyCode": true
         },
         {
+            "name": "[Huggingface] Compile 1M train data Huggingface to tar files",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "huggingface/compile_webdataset_coarse.py",
+            "args": [
+                "--input_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_train/",
+                "--output_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_train_shards/",
+                "--output_metadata_directory", "/n/data1/hms/dbmi/manrai/derm/synderm2024/complete_train_shards/metadata.json",
+                "--shard_size", "5000"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+
+        {
             "name": "[Examples] Create sample dataset",
             "type": "debugpy",
             "request": "launch",
@@ -170,7 +185,19 @@
                 "PYTHONPATH": "${workspaceFolder}"
             },
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "[Examples] Train model using webdataset with real data",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "synderm/example_scripts/training_webdataset.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "cwd": "${workspaceFolder}"
         }
-
     ]
 }

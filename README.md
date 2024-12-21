@@ -1,6 +1,7 @@
 # Synderm
 [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://synthetic-derm.readthedocs.io/en/latest/index.html)
-[![Dataset](https://img.shields.io/badge/dataset-HuggingFace-yellow.svg)](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M)
+[![Complete Dataset](https://img.shields.io/badge/dataset-HuggingFace-yellow.svg)](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M)
+[![Train Dataset](https://img.shields.io/badge/dataset-HuggingFace-yellow.svg)](https://huggingface.co/datasets/tbuckley/synthetic-derm-1M-train)
 [![PyPI](https://img.shields.io/pypi/v/synderm.svg)](https://pypi.org/project/synderm/)
 
 Synderm is a package designed to enhance image classification tasks using synthetic data generation. It provides tools to generate high-quality synthetic images using diffusion models, fine-tune these models on your specific datasets, and seamlessly integrate synthetic data into your training pipelines to improve classifier performance.

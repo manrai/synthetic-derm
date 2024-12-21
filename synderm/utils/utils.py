@@ -38,7 +38,7 @@ def synthetic_train_val_split(
         real_data: Dataset, 
         synthetic_data: Dataset | None = None,
         test_size: float | int | None = None,
-        per_class_test_size: int = 40,
+        per_class_test_size: int | None = 40,
         n_real_per_class: int | None = None,
         n_synthetic_per_class: int | None = None,
         random_state: int | None = None,
@@ -50,6 +50,10 @@ def synthetic_train_val_split(
     The training set consists of synthetic images and a limited number of real images per class.
     In the training set, synthetic entries are included only if they have a corresponding entry in the training set.
     The validation set consists only of real images.
+
+    # TODO: adjust this logic to instead exclude synthetic images that have a corresponding version in the validation set
+
+    # TODO: add n_synthetic_per_class logic
 
     Parameters:
     -----------
