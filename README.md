@@ -55,6 +55,9 @@ All functions assume that the training and validation datasets return entries wi
 
 ## Installation
 ```bash
+# Install the requirements
+pip install -r requirements.txt
+
 # To install from the Python Package Index:
 pip install synderm
 

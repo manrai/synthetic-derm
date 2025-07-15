@@ -35,5 +35,5 @@ Homepage = "https://github.com/manrai/synthetic-derm"
 Issues = "https://github.com/manrai/synthetic-derm/issues"
 
 [tool.setuptools.packages.find]
-where = ["synderm"]
+where = ["."]
 include = ["synderm*"]
