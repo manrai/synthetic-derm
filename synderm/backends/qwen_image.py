@@ -84,4 +84,11 @@ class QwenImageBackend(GeneratorBackend):
         return self._call(prompt, None, n, generator, height, width, steps, guidance, negative_prompt)
 
     def _edit(self, prompt, image, n, generator, height, width, steps, guidance, negative_prompt):
-        return self._call(prompt, image, n, generator, height, width, steps, guidance, negative_prompt)
+        # The reference image adds vision tokens and latents; one edit at 768 px already peaks near 31 GB
+        # on a 32 GB card, so edits are generated one at a time with consecutive seeds.
+        out = []
+        base_seed = generator.initial_seed() if generator is not None else None
+        for k in range(n):
+            g = None if base_seed is None else torch.Generator(device="cpu").manual_seed(base_seed + k)
+            out.extend(self._call(prompt, image, 1, g, height, width, steps, guidance, negative_prompt))
+        return out
