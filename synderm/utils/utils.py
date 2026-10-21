@@ -1,188 +1,120 @@
-from torch.utils.data import Dataset
-from pathlib import Path
-import pandas as pd
-import os
+"""Real/synthetic train-validation splitting that follows the paper's protocol."""
+from __future__ import annotations
+
 import random
-from torch.utils.data import Subset, ConcatDataset
 from collections import defaultdict
+from typing import Optional
 
-def save_images(images, directory):
-    pass
+from torch.utils.data import ConcatDataset, Dataset, Subset
 
-def load_images(directory):
-    pass
+from synderm.data.datasets import label_of
 
 
-def count_png_files(directory_path):
-    """
-    Count the total number of PNG files in a directory and its subdirectories
-    
-    Args:
-        directory_path (str): Path to the directory to search
-        
-    Returns:
-        int: Total number of PNG files found
-    """
-    total_png = 0
-    for root, dirs, files in os.walk(directory_path, followlinks=True):
-        png_files = [f for f in files if f.endswith('.png')]
-        total_png += len(png_files)
-    return total_png
+def split_by_label(dataset: Dataset, per_label: int, random_state: Optional[int] = None,
+                   labels: Optional[list[str]] = None) -> tuple[Subset, Subset]:
+    """Take ``per_label`` items of each label into the first subset, the rest into the second."""
+    rng = random.Random(random_state)
+    by = defaultdict(list)
+    for i in range(len(dataset)):
+        by[label_of(dataset, i)].append(i)
+    first, rest = [], []
+    for lab in sorted(by):
+        if labels and lab not in labels:
+            continue
+        idx = by[lab]
+        rng.shuffle(idx)
+        first.extend(idx[:per_label])
+        rest.extend(idx[per_label:])
+    return Subset(dataset, sorted(first)), Subset(dataset, sorted(rest))
 
-def save(image, path):
-    path = Path(path) if isinstance(path, str) else path
-    path.parent.mkdir(exist_ok=True, parents=True)
-    image.save(path)
 
 def synthetic_train_val_split(
-        real_data: Dataset, 
-        synthetic_data: Dataset | None = None,
-        test_size: float | int | None = None,
-        per_class_test_size: int | None = 40,
-        n_real_per_class: int | None = None,
-        n_synthetic_per_class: int | None = None,
-        random_state: int | None = None,
-        class_column: str = "label",
-        mapping_real_to_synthetic: str = "id"
-    ):
+    real_data: Dataset,
+    synthetic_data: Optional[Dataset] = None,
+    per_class_test_size: int = 40,
+    n_real_per_class: Optional[int] = None,
+    n_synthetic_per_real: Optional[int] = None,
+    random_state: Optional[int] = None,
+    mapping_real_to_synthetic: str = "ref_id",
+    synthetic_policy: str = "ref-in-train",
+    exclude_ref_ids: Optional[set] = None,
+) -> tuple[Dataset, Dataset]:
+    """Split real images into train and validation per class, then attach synthetic images.
+
+    Synthetic images are included only when their ``ref_id`` (the real image they were
+    generated from) is in the real training subset, so nothing derived from a validation
+    image leaks into training. ``n_real_per_class`` caps real training images per class (the
+    paper's 1, 8, 16, ... 228 sweep); ``n_synthetic_per_real`` caps synthetic images per real
+    training image (the dose-response sweep). Synthetic images without a ``ref_id`` (label-only
+    text-to-image) are included for every label present in training, capped by
+    ``n_synthetic_per_real`` times the number of real training images of that label.
+
+    ``synthetic_policy`` selects how synthetic images with a ``ref_id`` are admitted:
+    ``"ref-in-train"`` (the paper's protocol) keeps only those generated from a real training
+    image; ``"ref-not-in-val"`` keeps every synthetic image of a training label except those
+    generated from a validation image or from ``exclude_ref_ids`` (use this with the public
+    2024 shards, whose source images are mostly outside your sample). Per-label caps apply in
+    both cases.
     """
-    Splits the combined dataset of real and synthetic images into training and validation sets.
-    The training set consists of synthetic images and a limited number of real images per class.
-    In the training set, synthetic entries are included only if they have a corresponding entry in the training set.
-    The validation set consists only of real images.
-
-    # TODO: adjust this logic to instead exclude synthetic images that have a corresponding version in the validation set
-
-    # TODO: add n_synthetic_per_class logic
-
-    Parameters:
-    -----------
-    real_data : torch.utils.data.Dataset
-        Dataset containing the real images data. Each item should be a dict with at least 'id' and 'label'.
-    synthetic_data : torch.utils.data.Dataset or None, default=None
-        Dataset containing the synthetic images data. If provided, it should have a field that maps to real data 'id'.
-    test_size : float, int, or None, default=None
-        If float, represents the proportion of the real dataset to include in the validation split.
-        If int, represents the total number of validation samples.
-        If None, `per_class_test_size` must be specified.
-    per_class_test_size : int or None, default=40
-        Number of samples per class to include in the validation set.
-        If None, `test_size` must be specified.
-    n_real_per_class : int or None, default=None
-        Maximum number of real images per class to include in the training data.
-        If None, all remaining real images (excluding validation set) are included.
-    n_synthetic_per_class : int or None, default=None
-        (Not implemented) Raises NotImplementedError if provided.
-    random_state : int or None, default=None
-        Random seed for reproducibility.
-    class_column : str, default="label"
-        Name of the field in the dataset that contains the class labels.
-    mapping_real_to_synthetic : str, default="id"
-        Name of the field in the synthetic dataset that maps to the real data's 'id'.
-
-    Returns:
-    --------
-    train_data : torch.utils.data.Dataset
-        Dataset containing the training data (real and synthetic).
-    val_data : torch.utils.data.Dataset
-        Dataset containing the validation data.
-    """
-    if (test_size is None and per_class_test_size is None) or (test_size is not None and per_class_test_size is not None):
-        raise ValueError("Specify exactly one of 'test_size' or 'per_class_test_size'.")
-
-    if n_synthetic_per_class is not None:
-        raise NotImplementedError("'n_synthetic_per_class' parameter is not implemented.")
-
-    # Set random seed for reproducibility
+    if synthetic_policy not in ("ref-in-train", "ref-not-in-val"):
+        raise ValueError("synthetic_policy must be 'ref-in-train' or 'ref-not-in-val'")
     rng = random.Random(random_state)
+    by = defaultdict(list)
+    for i in range(len(real_data)):
+        by[label_of(real_data, i)].append(i)
+    val_idx, train_idx = [], []
+    for lab in sorted(by):
+        idx = list(by[lab])
+        rng.shuffle(idx)
+        n_val = min(per_class_test_size, len(idx))
+        val_idx.extend(idx[:n_val])
+        remaining = idx[n_val:]
+        if n_real_per_class is not None:
+            remaining = remaining[:n_real_per_class]
+        train_idx.extend(remaining)
+    train_real = Subset(real_data, sorted(train_idx))
+    val = Subset(real_data, sorted(val_idx))
+    if synthetic_data is None:
+        return train_real, val
 
-    # Extract real data entries
-    real_entries = [{'index': idx, 'id': real_data[idx]['id'], 'label': real_data[idx][class_column]} for idx in range(len(real_data))]
+    train_ids_by_label: dict[str, set] = defaultdict(set)
+    for i in train_idx:
+        item = real_data[i] if not hasattr(real_data, "df") else None
+        rid = real_data.df.iloc[i]["md5hash"] if item is None else item["id"]
+        train_ids_by_label[label_of(real_data, i)].add(rid)
+    train_ids = set().union(*train_ids_by_label.values()) if train_ids_by_label else set()
+    val_ids = set()
+    for i in val_idx:
+        val_ids.add(real_data.df.iloc[i]["md5hash"] if hasattr(real_data, "df") else real_data[i]["id"])
+    banned = val_ids | (exclude_ref_ids or set())
 
-    # Group real data indices by class
-    class_to_indices = defaultdict(list)
-    for entry in real_entries:
-        class_to_indices[entry['label']].append(entry['index'])
-
-    val_indices = []
-    train_real_indices = []
-
-    if per_class_test_size is not None:
-        # Sample specified number per class for validation
-        for cls, indices in class_to_indices.items():
-            n_samples = min(len(indices), per_class_test_size)
-            sampled_indices = rng.sample(indices, n_samples)
-            val_indices.extend(sampled_indices)
-            remaining = list(set(indices) - set(sampled_indices))
-            train_real_indices.extend(remaining)
-    else:
-        # Compute per-class validation sizes based on test_size
-        if isinstance(test_size, float):
-            if not 0.0 < test_size < 1.0:
-                raise ValueError("When 'test_size' is a float, it must be between 0.0 and 1.0.")
-            for cls, indices in class_to_indices.items():
-                n_samples = max(1, int(round(len(indices) * test_size)))
-                sampled_indices = rng.sample(indices, n_samples)
-                val_indices.extend(sampled_indices)
-                remaining = list(set(indices) - set(sampled_indices))
-                train_real_indices.extend(remaining)
-        elif isinstance(test_size, int):
-            total_samples = test_size
-            num_classes = len(class_to_indices)
-            samples_per_class = total_samples // num_classes
-            remainder = total_samples % num_classes
-            for idx, (cls, indices) in enumerate(class_to_indices.items()):
-                n_samples = samples_per_class + (1 if idx < remainder else 0)
-                n_samples = min(len(indices), n_samples)
-                sampled_indices = rng.sample(indices, n_samples)
-                val_indices.extend(sampled_indices)
-                remaining = list(set(indices) - set(sampled_indices))
-                train_real_indices.extend(remaining)
+    per_ref: dict = defaultdict(int)
+    per_label_unref: dict = defaultdict(int)
+    syn_idx = []
+    metas = synthetic_data.items if hasattr(synthetic_data, "items") else None
+    for j in range(len(synthetic_data)):
+        meta = metas[j][1] if metas is not None else {k: v for k, v in synthetic_data[j].items() if k != "image"}
+        lab = label_of(synthetic_data, j)
+        ref = meta.get(mapping_real_to_synthetic)
+        if ref and synthetic_policy == "ref-in-train":
+            if ref not in train_ids:
+                continue
+            if n_synthetic_per_real is not None and per_ref[ref] >= n_synthetic_per_real:
+                continue
+            per_ref[ref] += 1
+        elif ref and synthetic_policy == "ref-not-in-val":
+            if ref in banned or lab not in train_ids_by_label:
+                continue
+            cap = None if n_synthetic_per_real is None else n_synthetic_per_real * len(train_ids_by_label[lab])
+            if cap is not None and per_label_unref[lab] >= cap:
+                continue
+            per_label_unref[lab] += 1
         else:
-            raise ValueError("'test_size' must be a float or int.")
-
-    # If n_real_per_class is specified, limit the number of real training samples per class
-    if n_real_per_class is not None:
-        limited_train_real_indices = []
-        # Regroup training indices by class
-        train_class_to_indices = defaultdict(list)
-        for idx in train_real_indices:
-            cls = real_data[idx][class_column]
-            train_class_to_indices[cls].append(idx)
-        for cls, indices in train_class_to_indices.items():
-            n_samples = min(len(indices), n_real_per_class)
-            sampled_indices = rng.sample(indices, n_samples)
-            limited_train_real_indices.extend(sampled_indices)
-        train_real_indices = limited_train_real_indices
-
-    # Process synthetic data
-    synthetic_train_indices = []
-    if synthetic_data is not None:
-        # Extract real training ids for mapping
-        train_real_ids = set([real_data[idx]['id'] for idx in train_real_indices])
-        
-        # Iterate over synthetic_data to find matching entries
-        for idx in range(len(synthetic_data)):
-            synthetic_entry = synthetic_data[idx]
-            mapped_id = synthetic_entry.get(mapping_real_to_synthetic)
-            if mapped_id in train_real_ids:
-                synthetic_train_indices.append(idx)
-        
-        train_synthetic_subset = Subset(synthetic_data, synthetic_train_indices)
-    else:
-        train_synthetic_subset = None
-
-    # Create Subsets for training and validation
-    train_real_subset = Subset(real_data, train_real_indices)
-    val_subset = Subset(real_data, val_indices)
-
-    if synthetic_data is not None:
-        train_data = ConcatDataset([train_real_subset, train_synthetic_subset])
-    else:
-        train_data = train_real_subset
-
-    val_data = val_subset
-
-    return train_data, val_data
-
-
+            if lab not in train_ids_by_label:
+                continue
+            cap = None if n_synthetic_per_real is None else n_synthetic_per_real * len(train_ids_by_label[lab])
+            if cap is not None and per_label_unref[lab] >= cap:
+                continue
+            per_label_unref[lab] += 1
+        syn_idx.append(j)
+    return ConcatDataset([train_real, Subset(synthetic_data, syn_idx)]), val

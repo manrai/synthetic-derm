@@ -61,3 +61,26 @@ A full set of example scripts is provided in `scripts/examples.sh`.
 ### Experiments
 
 Code for experiments is located in `experiments/`. Code is extensively commented. In each script, results are saved to Weights and Biases; if you have not already installed WandB, you can install it with `pip install wandb`. 
+
+
+---
+
+### Note added October 2026: model weight availability
+
+This directory is the code that produced the 2023 paper and the 2024 `synthetic-derm-1M`
+release. It is kept unchanged for reproducibility; the modernized package lives in `synderm/`
+(see `MODERNIZATION_PLAN.md`). The git tag `v0.1.2-paper` marks the repository state before
+the modernization began.
+
+As of 2026-10-21 the model repositories the scripts reference have moved:
+
+| model used in the paper | original repository | status | substitute |
+|---|---|---|---|
+| Stable Diffusion 2.1-base (text-to-image, DreamBooth) | `stabilityai/stable-diffusion-2-1-base` | HTTP 401 for anonymous users; the official weights are no longer downloadable | community mirrors, e.g. `sd2-community/stable-diffusion-2-1-base` (most downloaded). Verify file checksums against a known copy before use. |
+| Stable Diffusion 1.5 inpainting (inpaint, in-then-outpaint) | `runwayml/stable-diffusion-inpainting` | redirects | `stable-diffusion-v1-5/stable-diffusion-inpainting` (same weights, new organization) |
+
+The released synthetic images on Hugging Face remain the primary artifact: every classifier
+result in the paper reproduces from the dataset plus `Experiments/` without regenerating
+anything. If no verified mirror of SD 2.1-base is available, the text-to-image generation step
+itself cannot be re-run. The conda environment that ran this code is recorded in
+`environment.yml`.
