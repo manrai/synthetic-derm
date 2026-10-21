@@ -99,3 +99,13 @@ def test_atlas_sample_if_cached():
     assert len(ds) == 192 and len(ds.labels) == 6
     item = ds[0]
     assert item["image"].mode == "RGB" and 1 <= item["fitzpatrick_scale"] <= 6 or item["fitzpatrick_scale"] == -1
+
+
+def test_distances():
+    import numpy as np
+    from synderm.eval import frechet_distance, kernel_distance
+    rng = np.random.default_rng(0)
+    a, b = rng.normal(size=(300, 16)), rng.normal(size=(300, 16))
+    c = rng.normal(loc=2.0, size=(300, 16))
+    assert frechet_distance(a, b) < frechet_distance(a, c)
+    assert kernel_distance(a, b, subsets=5, subset_size=100)[0] < kernel_distance(a, c, subsets=5, subset_size=100)[0]

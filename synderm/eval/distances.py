@@ -10,11 +10,11 @@ def frechet_distance(feats_a: np.ndarray, feats_b: np.ndarray) -> float:
     mu1, mu2 = feats_a.mean(0), feats_b.mean(0)
     s1, s2 = np.cov(feats_a, rowvar=False), np.cov(feats_b, rowvar=False)
     diff = mu1 - mu2
-    covmean, _ = linalg.sqrtm(s1 @ s2, disp=False)
+    covmean = linalg.sqrtm(s1 @ s2)
     if not np.isfinite(covmean).all():
         eps = np.eye(s1.shape[0]) * 1e-6
         covmean = linalg.sqrtm((s1 + eps) @ (s2 + eps))
-    covmean = covmean.real
+    covmean = np.real(covmean)
     return float(diff @ diff + np.trace(s1) + np.trace(s2) - 2 * np.trace(covmean))
 
 
