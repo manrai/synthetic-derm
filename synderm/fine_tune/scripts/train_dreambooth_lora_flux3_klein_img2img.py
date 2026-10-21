@@ -347,7 +347,7 @@ def make_validation_pipeline(args, transformer, weight_dtype, device):
         args.pretrained_model_name_or_path, subfolder="text_encoder", revision=args.revision, torch_dtype=weight_dtype
     )
     tokenizer = AutoProcessor.from_pretrained(
-        args.pretrained_model_name_or_path, subfolder="tokenizer", revision=args.revision
+        args.pretrained_model_name_or_path, subfolder="text_encoder"  # synderm patch: BFL repos keep the Qwen3-VL processor under text_encoder, revision=args.revision
     )
     scheduler = FlowMatchEulerDiscreteScheduler(shift=FLOW_SHIFT, use_dynamic_shifting=False)
     pipeline = Flux3AutoBlocks().init_pipeline()
@@ -1229,7 +1229,7 @@ def main(args):
     # Load the tokenizers
     tokenizer = AutoProcessor.from_pretrained(
         args.pretrained_model_name_or_path,
-        subfolder="tokenizer",
+        subfolder="text_encoder"  # synderm patch: BFL repos keep the Qwen3-VL processor under text_encoder,
         revision=args.revision,
     )
 

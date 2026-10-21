@@ -325,6 +325,52 @@ the conda environment for one class with the mirror weights and the paper's seed
 the output against the same class in the 2024 shards. A match confirms the mirror weights are
 the originals.
 
+### A6. Stage A execution log (2026-10-21)
+
+Work happens on the `modernize` branch (tag `v0.1.2-paper` marks the prior state). Status of
+the Stage A items after the first day:
+
+| item | status |
+|---|---|
+| A0 Atlas sample | done: 576 images (6 labels, 64+32), all md5-verified, fetched in 12 min |
+| A1.1 delete SD-era loops | done (about 1,850 lines removed; vendored diffusers scripts pinned to commit `0c7d56d6f4ea`) |
+| A1.2 backend interface | done: `synderm.backends` (SDXL, Qwen-Image-2.1, FLUX 3 Klein), all three smoke-tested |
+| A1.3 timm classifier | done: `synderm.classify` |
+| A1.4 /workspace | done: `HF_HOME`, `SYNDERM_DATA_DIR`, `SYNDERM_WORK_DIR` |
+| A1.5 dependencies | done: diffusers 0.42.0.dev0 (GitHub), transformers 5.20, torch 2.8 cu128 |
+| A1.6 shard naming | done: `huggingface/compile_webdataset_v2.py`, `synderm.data.load_2024_shards` |
+| A1.7 Imagenette | removed from the tree (history untouched) |
+| A1.8 smoke experiment | in progress: LoRA training verified for SDXL and Qwen (t2i, i2i); FLUX needed a one-line vendored-script patch (tokenizer subfolder) |
+| A2 vignettes | 8 notebooks written (00 to 07); end-to-end execution in progress |
+| A3 storage | 160 GB of weights plus 15 GB of data and outputs on `/workspace` so far |
+
+Measured on the RTX 5090 (32 GB), 768 px unless noted:
+
+| backend | load from network disk | text-to-image | edit / inpaint | peak VRAM | notes |
+|---|---|---|---|---|---|
+| SDXL (fp16) | 2.5 min | 2.1 s / image (30 steps) | inpaint ok | 12 to 15 GB | inpainting pipeline is a second 7 GB load |
+| Qwen-Image-2.1, 8-bit text encoder | 3.5 min | 0.21 s / step, ~8.5 s / image (40 steps) | edit ok, 31 GB peak | 29 to 31 GB | 1024 px needs the 4-bit encoder (7 min load); cpu offload instead of quantization is 7x slower per step |
+| FLUX 3 Klein, distilled | 4.5 min | 2.3 s / image (16 steps) | edit 3.1 s | 23 to 25 GB | base checkpoint (50 steps, guidance) used with LoRA adapters |
+
+LoRA training (20-step smoke runs at 512 px, rank 8, batch 1): SDXL 8 min, Qwen t2i 8 min,
+Qwen i2i 8 min, each dominated by loading weights from the network filesystem.
+
+Decisions taken during execution:
+
+- Qwen's 17 GB Qwen3-VL text encoder is loaded in 8-bit (bitsandbytes) by default so the
+  whole pipeline stays on the GPU; default output 768 px.
+- Edit prompts explicitly ask for the same skin tone and no watermarks: a Qwen edit of a
+  dark-skinned reference came back light-skinned, and a FLUX edit copied the Atlas "SFS"
+  watermark from its reference.
+- The 2024 Hugging Face shards are sorted by source hash across 9 to 19 shards per label, so
+  vignettes use one shard per label with an exclusion policy (`synthetic_policy="ref-not-in-val"`)
+  rather than the paper's inclusion policy, which remains the default for local generations.
+- The vendored FLUX 3 trainers load the tokenizer from `text_encoder/` (documented in
+  `synderm/fine_tune/scripts/README.md`); all other vendored scripts are unmodified.
+
+Stage B sizing update: at 768 px one 5090 produces roughly 400 Qwen images, 1,500 FLUX
+(distilled) images or 1,700 SDXL images per hour, before LoRA loading overhead.
+
 ## 4. Stage B: open models at scale (more GPUs)
 
 Goal: regenerate the full synthetic dataset with the three open-weight models, rerun the paper's
