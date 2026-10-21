@@ -12,14 +12,16 @@ CLINICAL_TEMPLATE = (
 
 #: Instruction for reference-conditioned editing: same condition, different patient.
 EDIT_TEMPLATE = (
-    "A clinical photograph of the same skin disease, {condition}, on a different patient and a "
-    "different body site, keeping the characteristic appearance of the lesions."
+    "A clinical photograph of the same skin disease, {condition}, on a different patient who has the "
+    "same skin tone, at a different body site, keeping the characteristic appearance of the lesions. "
+    "No text, watermarks or annotations."
 )
 
 #: FLUX 3 addresses the reference image as <ref_image_0>.
 FLUX_EDIT_TEMPLATE = (
     "Using <ref_image_0> as the reference, a clinical photograph of the same skin disease, {condition}, "
-    "on a different patient and a different body site, keeping the characteristic appearance of the lesions."
+    "on a different patient who has the same skin tone, at a different body site, keeping the "
+    "characteristic appearance of the lesions. No text, watermarks or annotations."
 )
 
 
