@@ -18,3 +18,7 @@ upstream repository and record the commit here. License: Apache-2.0 (diffusers).
   `subfolder="tokenizer"`, because the `black-forest-labs/flux-3-image-klein-base` repository keeps
   the processor files next to the text encoder (its `modular_model_index.json` maps `tokenizer` to
   that folder). Upstream fails with "Unrecognized processing class" against that layout.
+- All four Qwen-Image-2.1 and FLUX 3 Klein trainers: with `--offload`, the latent/prompt caching
+  pass keeps the text encoder and VAE on the GPU and parks the transformer on the CPU, then
+  restores the layout. Upstream moves the text encoder to the GPU and back once per batch when
+  every image has its own caption, which cost 12 s per image for Qwen's 17 GB encoder.

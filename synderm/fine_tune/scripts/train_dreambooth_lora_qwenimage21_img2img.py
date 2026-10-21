@@ -1692,6 +1692,13 @@ def main(args):
             collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
             num_workers=args.dataloader_num_workers,
         )
+        # synderm patch: with --offload, keep the text encoder and VAE resident on the GPU for the whole
+        # caching pass and park the transformer on the CPU meanwhile. Upstream moves the 17 GB text encoder
+        # to the GPU and back once per batch when every image has its own caption (12 s per image).
+        if args.offload:
+            transformer.to("cpu")
+            text_encoding_pipeline.to(accelerator.device)
+            vae.to(accelerator.device)
         for batch in tqdm(cache_dataloader, desc="Caching latents"):
             with torch.no_grad():
                 sample_indices = batch["indices"]
@@ -1717,6 +1724,10 @@ def main(args):
                         prompt_embeds_mask_cache[idx] = prompt_embeds_mask
                         image_pad_mask_cache[idx] = image_pad_mask
 
+        if args.offload:  # synderm patch, see above
+            text_encoding_pipeline.to("cpu")
+            vae.to("cpu")
+            transformer.to(accelerator.device)
         if args.cache_latents:
             assert all(latents is not None for latents in instance_latents_cache), "Latent cache has unfilled entries."
             assert all(latents is not None for latents in cond_latents_cache), (

@@ -1646,6 +1646,13 @@ def main(args):
         text_ids_cache = []
         latents_cache = []
         cond_latents_cache = []
+        # synderm patch: with --offload, keep the text encoder and VAE resident on the GPU for the whole
+        # caching pass and park the transformer on the CPU meanwhile, instead of moving the text encoder
+        # to the GPU and back once per batch when every image has its own caption.
+        if args.offload and not args.fsdp_text_encoder:
+            transformer.to("cpu")
+            text_encoder.to(accelerator.device)
+            vae.to(accelerator.device)
         for batch in tqdm(train_dataloader, desc="Caching latents"):
             with torch.no_grad():
                 if args.cache_latents:
@@ -1669,6 +1676,10 @@ def main(args):
                     prompt_embeds_cache.append(prompt_embeds)
                     text_ids_cache.append(text_ids)
 
+    if args.offload and not args.fsdp_text_encoder:  # synderm patch, see above
+        text_encoder.to("cpu")
+        vae.to("cpu")
+        transformer.to(accelerator.device)
     # Caption dropout replaces the instruction with the empty prompt for a fraction of samples (the conditioning
     # image is kept). FLUX.3 pads each prompt to its own window (a multiple of TEXT_PAD_MULTIPLE) and the transformer
     # attends to it, so the empty prompt must match the dropped sample's window. Precompute it for every window in
