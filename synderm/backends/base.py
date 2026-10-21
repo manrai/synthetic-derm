@@ -95,12 +95,12 @@ class GeneratorBackend(ABC):
     def _unload(self) -> None: ...
 
     # ----- prompts ---------------------------------------------------------------------
-    def caption(self, label: str, template: Optional[str] = None) -> str:
-        """Text-to-image prompt for a label, using the backend's default template."""
-        return P.caption(label, template or self.info.caption_template)
+    def caption(self, label: str, template: Optional[str] = None, fitzpatrick: Optional[int] = None) -> str:
+        """Text-to-image prompt for a label; ``fitzpatrick`` (1 to 6) states the skin tone."""
+        return P.caption(label, template or self.info.caption_template, fitzpatrick)
 
-    def edit_caption(self, label: str, template: Optional[str] = None) -> str:
-        return P.caption(label, template or self.info.edit_template)
+    def edit_caption(self, label: str, template: Optional[str] = None, fitzpatrick: Optional[int] = None) -> str:
+        return P.caption(label, template or self.info.edit_template, fitzpatrick)
 
     # ----- generation ------------------------------------------------------------------
     def text_to_image(

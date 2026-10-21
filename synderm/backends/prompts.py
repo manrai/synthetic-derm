@@ -25,5 +25,23 @@ FLUX_EDIT_TEMPLATE = (
 )
 
 
-def caption(label: str, template: str = PAPER_TEMPLATE) -> str:
-    return template.format(condition=label_words(label))
+FITZPATRICK_PHRASES = {
+    1: "very fair skin (Fitzpatrick type I)", 2: "fair skin (Fitzpatrick type II)",
+    3: "light brown skin (Fitzpatrick type III)", 4: "medium brown skin (Fitzpatrick type IV)",
+    5: "dark brown skin (Fitzpatrick type V)", 6: "deeply pigmented dark skin (Fitzpatrick type VI)",
+}
+
+
+def caption(label: str, template: str = PAPER_TEMPLATE, fitzpatrick: int | None = None) -> str:
+    """Prompt for ``label``. ``fitzpatrick`` (1 to 6) appends the patient's skin tone.
+
+    State the skin tone whenever the generator or its prompt upsampler is free to choose: left
+    unspecified, FLUX 3 Klein's upsampler wrote "a white adult ... with fair skin" into every
+    caption in the zero-shot vignette, which would skew a synthetic dataset toward light skin.
+    """
+    text = template.format(condition=label_words(label))
+    if fitzpatrick is not None:
+        if fitzpatrick not in FITZPATRICK_PHRASES:
+            raise ValueError("fitzpatrick must be 1 to 6")
+        text = text.rstrip(".") + f", on a patient with {FITZPATRICK_PHRASES[fitzpatrick]}."
+    return text
