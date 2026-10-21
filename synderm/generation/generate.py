@@ -30,7 +30,7 @@ def generate_synthetic_dataset(
     prompt_template: Optional[str] = None,
     prompts_by_label: Optional[dict[str, str]] = None,
     seed: int = 42,
-    batch_size: int = 4,
+    batch_size: int = 2,
     height: Optional[int] = None,
     width: Optional[int] = None,
     num_inference_steps: Optional[int] = None,

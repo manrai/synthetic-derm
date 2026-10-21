@@ -57,6 +57,8 @@ class QwenImageBackend(GeneratorBackend):
             # a bitsandbytes-quantized text encoder is already on the device and must not be moved
             for name in ("transformer", "vae"):
                 getattr(self.pipe, name).to(self.device)
+        if hasattr(self.pipe.vae, "enable_slicing"):
+            self.pipe.vae.enable_slicing()  # decode one image at a time: the VAE decode is the memory spike
         self.pipe.set_progress_bar_config(disable=True)
 
     def _unload(self) -> None:
