@@ -325,48 +325,69 @@ the conda environment for one class with the mirror weights and the paper's seed
 the output against the same class in the 2024 shards. A match confirms the mirror weights are
 the originals.
 
-### A6. Stage A execution log (2026-10-21)
+### A6. Stage A execution log (2026-10-21 to 2026-10-22)
 
-Work happens on the `modernize` branch (tag `v0.1.2-paper` marks the prior state). Status of
-the Stage A items after the first day:
+Work happens on the `modernize` branch (tag `v0.1.2-paper` marks the prior state).
 
 | item | status |
 |---|---|
-| A0 Atlas sample | done: 576 images (6 labels, 64+32), all md5-verified, fetched in 12 min |
-| A1.1 delete SD-era loops | done (about 1,850 lines removed; vendored diffusers scripts pinned to commit `0c7d56d6f4ea`) |
-| A1.2 backend interface | done: `synderm.backends` (SDXL, Qwen-Image-2.1, FLUX 3 Klein), all three smoke-tested |
+| A0 Atlas sample | done: 576 images (6 labels, 64+32), md5-verified, fetched in 12 min |
+| A1.1 delete SD-era loops | done (about 1,850 lines removed; vendored diffusers scripts pinned to commit `0c7d56d6f4ea`, two documented patches) |
+| A1.2 backend interface | done: `synderm.backends` (SDXL, Qwen-Image-2.1, FLUX 3 Klein); text-to-image, edit and inpaint smoke-tested |
 | A1.3 timm classifier | done: `synderm.classify` |
 | A1.4 /workspace | done: `HF_HOME`, `SYNDERM_DATA_DIR`, `SYNDERM_WORK_DIR` |
 | A1.5 dependencies | done: diffusers 0.42.0.dev0 (GitHub), transformers 5.20, torch 2.8 cu128 |
 | A1.6 shard naming | done: `huggingface/compile_webdataset_v2.py`, `synderm.data.load_2024_shards` |
 | A1.7 Imagenette | removed from the tree (history untouched) |
-| A1.8 smoke experiment | in progress: LoRA training verified for SDXL and Qwen (t2i, i2i); FLUX needed a one-line vendored-script patch (tokenizer subfolder) |
-| A2 vignettes | 8 notebooks written (00 to 07); end-to-end execution in progress |
-| A3 storage | 160 GB of weights plus 15 GB of data and outputs on `/workspace` so far |
+| A1.8 smoke experiment | done on the Atlas subset: LoRA training verified for all five paths (SDXL t2i; Qwen t2i and i2i; FLUX t2i and i2i); classifier gains reproduce (below) |
+| A2 vignettes | done: 8 notebooks (00 to 07) executed end to end with `SMALL=True` on one 5090 (3 to 21 min each) |
+| A3 storage | 160 GB of weights, 20 GB of data, adapters and outputs on `/workspace` |
+| tests | `tests/test_cpu.py`, 8 CPU tests |
+| PyPI | not uploaded: awaiting maintainer review (see Branching) |
 
 Measured on the RTX 5090 (32 GB), 768 px unless noted:
 
 | backend | load from network disk | text-to-image | edit / inpaint | peak VRAM | notes |
 |---|---|---|---|---|---|
 | SDXL (fp16) | 2.5 min | 2.1 s / image (30 steps) | inpaint ok | 12 to 15 GB | inpainting pipeline is a second 7 GB load |
-| Qwen-Image-2.1, 8-bit text encoder | 3.5 min | 0.21 s / step, ~8.5 s / image (40 steps) | edit ok, 31 GB peak | 29 to 31 GB | 1024 px needs the 4-bit encoder (7 min load); cpu offload instead of quantization is 7x slower per step |
+| Qwen-Image-2.1, 8-bit text encoder | 3.5 min | 0.21 s / step, ~8.5 s / image (40 steps) | edit ok, one image per call (31 GB peak) | 29 to 31 GB | 1024 px needs the 4-bit encoder; cpu offload instead of quantization is 7x slower per step |
 | FLUX 3 Klein, distilled | 4.5 min | 2.3 s / image (16 steps) | edit 3.1 s | 23 to 25 GB | base checkpoint (50 steps, guidance) used with LoRA adapters |
 
-LoRA training (20-step smoke runs at 512 px, rank 8, batch 1): SDXL 8 min, Qwen t2i 8 min,
-Qwen i2i 8 min, each dominated by loading weights from the network filesystem.
+LoRA training (20-step smoke runs at 512 px, rank 8, batch 1, including weight loading):
+SDXL 8 min, Qwen t2i and i2i 8 min each, FLUX t2i and i2i 4 min each. A 200-step Qwen
+text-to-image adapter on 384 images at 512 px trains in 4.5 min (1.4 s per step) after the
+caching patch below.
+
+Classifier results from the vignettes (six labels, 192 held-out Atlas images, one seed, 2024
+SD 2.1 synthetic images at 10 per real, EfficientNetV2-M):
+
+| experiment | real only | real + synthetic |
+|---|---|---|
+| 8 real per class (vignette 5) | 22.4% | 58.3% |
+| 16 real per class (vignette 4) | 53.6% | 62.5% |
+| 32 real per class (vignette 5, 7) | 66.1% | 69.3% |
+| 32 real per class, Fitzpatrick V-VI only (vignette 7, n=51) | 60.8% | 70.6% |
+
+The paper's low-data effect reproduces at small scale; intervals overlap at 32 per class,
+as in the paper.
 
 Decisions taken during execution:
 
 - Qwen's 17 GB Qwen3-VL text encoder is loaded in 8-bit (bitsandbytes) by default so the
-  whole pipeline stays on the GPU; default output 768 px.
+  whole pipeline stays on the GPU; default output 768 px; edits run one image per call.
 - Edit prompts explicitly ask for the same skin tone and no watermarks: a Qwen edit of a
   dark-skinned reference came back light-skinned, and a FLUX edit copied the Atlas "SFS"
-  watermark from its reference.
+  watermark. `caption(..., fitzpatrick=n)` states the skin tone; the FLUX prompt upsampler
+  otherwise writes in a light-skinned patient.
+- Reference-image edits stay close to their source (CLIP matched distance 0.09 vs 0.33
+  unmatched, the paper's in-then-outpaint had 0.08 vs 0.24); diversity needs guidance or
+  text-to-image with a LoRA.
 - The 2024 Hugging Face shards are sorted by source hash across 9 to 19 shards per label, so
   vignettes use one shard per label with an exclusion policy (`synthetic_policy="ref-not-in-val"`)
   rather than the paper's inclusion policy, which remains the default for local generations.
-- The vendored FLUX 3 trainers load the tokenizer from `text_encoder/` (documented in
-  `synderm/fine_tune/scripts/README.md`); all other vendored scripts are unmodified.
+- Vendored trainer patches (`synderm/fine_tune/scripts/README.md`): FLUX 3 trainers read the
+  tokenizer from `text_encoder/`; all four Qwen and FLUX trainers keep the text encoder resident
+  during latent caching with `--offload` (upstream moved it per batch, 12 s per image).
 
 Stage B sizing update: at 768 px one 5090 produces roughly 400 Qwen images, 1,500 FLUX
 (distilled) images or 1,700 SDXL images per hour, before LoRA loading overhead.
