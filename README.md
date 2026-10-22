@@ -44,6 +44,11 @@ export SYNDERM_DATA_DIR=/workspace/data        # real images and unpacked shards
 export SYNDERM_WORK_DIR=/workspace/synderm     # adapters, generations, vignette outputs
 ```
 
+`requirements-lock.txt` records the exact versions that ran the Stage A vignettes (torch
+2.8.0+cu128, diffusers at a pinned GitHub commit). On a fresh pod whose `/workspace` volume
+survived, `bash bootstrap_pod.sh` restores the environment from it and checks the model cache,
+token and data directories.
+
 ## Quick start
 
 ### 1. Real images
