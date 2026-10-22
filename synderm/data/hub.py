@@ -66,9 +66,17 @@ def load_2024_shards(
     images (validation or held-out hashes). Shards are 1 to 2.5 GB each and are cached by
     huggingface_hub; the first shard of a label covers source images whose md5 hashes sort first.
     """
+    import hashlib
     root = Path(data_root) if data_root else default_data_root()
-    out_root = root / "synthetic-derm-1M-2024" / f"{method}-{submethod}"
     gen_name = GENERATOR_2024[method.split("-")[0]]
+    key = {"max_per_label": max_per_label, "max_shards": max_shards_per_label,
+           "ref_ids": sorted(ref_ids) if ref_ids else None,
+           "exclude_ref_ids": sorted(exclude_ref_ids) if exclude_ref_ids else None}
+    # Each distinct filter gets its own directory, so different notebooks never clobber each other.
+    key_hash = hashlib.md5(json.dumps(key, sort_keys=True).encode()).hexdigest()[:10]
+    out_root = root / "synthetic-derm-1M-2024" / f"{method}-{submethod}" / f"filter-{key_hash}"
+    out_root.mkdir(parents=True, exist_ok=True)
+    (out_root / "filter.json").write_text(json.dumps(key, indent=1))
     for label in labels:
         label = normalize_label(label)
         shards = list_2024_shards([label], method, submethod)[:max_shards_per_label]
@@ -76,10 +84,7 @@ def load_2024_shards(
             raise FileNotFoundError(f"No {method}/{submethod} shards for label {label!r} in {REPO_1M}")
         label_dir = out_root / label
         marker = label_dir / ".complete"
-        key = {"max_per_label": max_per_label, "max_shards": max_shards_per_label,
-               "ref_ids": sorted(ref_ids) if ref_ids else None,
-               "exclude_ref_ids": sorted(exclude_ref_ids) if exclude_ref_ids else None}
-        if marker.exists() and {k: v for k, v in json.loads(marker.read_text()).items() if k != "n"} == key:
+        if marker.exists():
             continue
         for old in label_dir.glob("*"):
             old.unlink()
