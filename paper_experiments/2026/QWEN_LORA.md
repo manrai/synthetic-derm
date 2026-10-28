@@ -245,7 +245,7 @@ analysis notebook makes the plot and a table, both recorded here.
   `pilot/edit-psoriasis-untuned-varied`. The remaining edit LoRA checkpoints (1000/1500/2000) are scored when their
   Stage A folders finish; if one keeps the reference (ref_dist between 0.20 and ~0.45, ITA shift under ~20 deg)
   it also gets a Stage B run.
-- **Stage B result for edit (scored 23:33 UTC):**
+- **Stage B result for edit (scored 23:30 UTC):**
 
   | folder | label_match | within_dist | ref_dist | nn_real_dist | near_copies | ita_shift |
   |---|---|---|---|---|---|---|
@@ -259,7 +259,7 @@ analysis notebook makes the plot and a table, both recorded here.
   foot or knuckles) and the other half stay close to the reference; for two of the six references nearly all ten
   slots remain near copies (near_copies 0.08 overall). The ckpt1000 edit LoRA behaves like ckpt500: it ignores
   the reference (ref_dist 0.60, ITA shift 45 deg) and has the lowest label_match (0.60).
-- 23:35 UTC: Step 2 started for the t2i arm on idle GPU 0 before the edit decision, because the t2i outcome is fixed
+- 23:31 UTC: Step 2 started for the t2i arm on idle GPU 0 before the edit decision, because the t2i outcome is fixed
   by the cut-offs above (Stage A, ckpt1500): `qwen_lora_train.py --label "basal cell carcinoma" --method t2i
   --steps 2000 --checkpoint-every 500`, same rank/lr/resolution as psoriasis.
 
