@@ -259,6 +259,9 @@ analysis notebook makes the plot and a table, both recorded here.
   foot or knuckles) and the other half stay close to the reference; for two of the six references nearly all ten
   slots remain near copies (near_copies 0.08 overall). The ckpt1000 edit LoRA behaves like ckpt500: it ignores
   the reference (ref_dist 0.60, ITA shift 45 deg) and has the lowest label_match (0.60).
+- 23:35 UTC: Step 2 started for the t2i arm on idle GPU 0 before the edit decision, because the t2i outcome is fixed
+  by the cut-offs above (Stage A, ckpt1500): `qwen_lora_train.py --label "basal cell carcinoma" --method t2i
+  --steps 2000 --checkpoint-every 500`, same rank/lr/resolution as psoriasis.
 
 ## Spend ledger
 
