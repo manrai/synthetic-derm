@@ -185,7 +185,7 @@ analysis notebook makes the plot and a table, both recorded here.
 - Protocol for the cut-off: the GPT Image varied-prompt pilot folder is scored on its own first (eval on GPU 0, shared
   with the t2i generation), and the "lacks variety" threshold is written below from its numbers and grid before any
   Qwen LoRA folder is scored.
-- **"Lacks variety" cut-off (written 23:12 UTC, before any Qwen LoRA folder was scored).** Reference numbers from
+- **"Lacks variety" cut-off (written 23:03 UTC, before any Qwen LoRA folder was scored).** Reference numbers from
   `eval-psoriasis/metrics.csv`: GPT Image varied-prompt pilot (146 images, 15 reals, top-ups dropped): label_match 0.89,
   within_dist 0.43, ref_dist 0.52, nn_real_dist 0.17, near_copies 0, ita_shift 15.7 deg; random sets of 10 real
   psoriasis images: within_dist 0.59; nearest-neighbour distance among reals: 0.17. In the GPT grid the 10 slots of a
