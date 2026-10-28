@@ -264,6 +264,36 @@ analysis notebook makes the plot and a table, both recorded here.
   --steps 2000 --checkpoint-every 500`, same rank/lr/resolution as psoriasis.
 - 23:38 UTC: edit ckpt1500 (Stage A) scored: label_match 0.61, within_dist 0.55, ref_dist 0.56, ITA shift 41 deg,
   near_copies 0: same reference-ignoring behaviour as ckpt500 and ckpt1000. ckpt2000 folder still generating.
+- 23:42 UTC: edit ckpt2000 (Stage A) scored: label_match 0.56, within_dist 0.57, ref_dist 0.55, ITA shift 43 deg.
+  All ten Qwen psoriasis folders are now in `pilot/eval-psoriasis/metrics.csv`.
+
+**Step 1 decision (psoriasis), 23:43 UTC.**
+
+| arm | choice | stage | evidence |
+|---|---|---|---|
+| text-to-image | psoriasis LoRA, rank 16, lr 1e-4, 512 px, **checkpoint 1500** of 2000, single prompt, seed-only variety | **A** | within_dist 0.53 (cut-off 0.21, GPT 0.43), label_match 0.78 (threshold 0.74), no near copies |
+| edit | **untuned Qwen-Image-2.1 edit with the 10 varied prompts**; no edit LoRA | **B** | all four edit LoRA checkpoints ignore the reference (ref_dist 0.55-0.60, ITA shift 41-47 deg, label_match 0.56-0.61), so none beats untuned edit under the plan's rule; untuned single-prompt edit fails (a) and (c) (near copies); untuned varied passes (a) 0.35 and (c) 0.34, keeps skin tone (15.7 deg) |
+
+Caveats recorded with the decision:
+- The Stage B edit folder narrowly misses two written lines: label_match 0.72 vs 0.74 (about one standard error) and
+  near_copies 0.08 vs 0.05 (for two of six references in the grid most slots stay close to the reference). It is
+  used because the plan's fallback for "no LoRA beats untuned" is untuned Qwen, and the varied prompts are the only
+  tested way to give untuned edit variety. The t2i LoRA checkpoints other than 1500 also miss the label line
+  (0.63-0.68); 1500 vs the rest is 2-3 standard errors.
+- Stage C (VLM captions, paid) is not triggered: for t2i Stage A has enough variety; for edit the Stage B prompts
+  are followed by untuned Qwen. The edit LoRAs' failure is the pairing design (reference = a different patient), which
+  captions would not fix; a within-patient or self-reference (augmented copy) pairing would be a different experiment
+  and is not tried here.
+- Comparability: the Qwen t2i arm has seed-only variety while the Qwen edit arm and the GPT Image arm have
+  prompt-driven variety. Recorded for the results write-up.
+- Stage B on a t2i LoRA was not run (not required by the plan: Stage A did not lack variety).
+
+**Step 2 (confirm on basal cell carcinoma and lupus erythematosus), started 23:31/23:43 UTC.**
+- t2i LoRAs at the chosen settings: BCC on GPU 0 (started 23:31), lupus on GPU 1 (23:43); 2000 steps, checkpoints
+  every 500, the 1500 checkpoint is the candidate.
+- Generation for the 16 reals of each class in the API pilot `reals.csv`: t2i untuned and ckpt1500 (single prompt),
+  edit untuned varied; chained automatically after each training. Then `qwen_lora_eval.py --label <class>` on
+  those folders plus the GPT Image pilot folder for the same class, with the same cut-offs as psoriasis.
 
 ## Spend ledger
 
