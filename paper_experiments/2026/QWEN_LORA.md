@@ -172,6 +172,13 @@ analysis notebook makes the plot and a table, both recorded here.
   `r16-lr0.0001-512px-2000steps`. Generation and scoring for Step 1A are scripted in `qwen_lora_pilot.sh` (`generate <method> <gpu> <label> <run>`
   per method as soon as its training finishes, then `eval <gpu> <label>`). A 30-minute check-in loop was set up at
   the user's request (22:01 UTC).
+- 22:34 UTC: t2i psoriasis LoRA finished, 2000 steps in 32.9 min (1.03 steps/s), final loss noisy around 0.3-1.0
+  as expected for flow matching; checkpoints 500/1000/1500/2000 and final weights in
+  `/workspace/synderm/qwen_lora/t2i/psoriasis/r16-lr0.0001-512px-2000steps/`. Edit LoRA at step 1103/2000 (1.75 s/step).
+- 22:37 UTC: t2i pilot generation started on GPU 0 (`qwen_lora_pilot.sh generate t2i 0 psoriasis r16-lr0.0001-512px-2000steps`:
+  untuned, ckpt500, ckpt1000, ckpt1500, ckpt2000; 16 reals x 10). Started by hand 3 min late: the automatic chain had
+  used a `pgrep -f` pattern that matched its own shell and so never fired (fixed with a `[q]wen...` pattern for the
+  edit chain).
 
 ## Spend ledger
 
