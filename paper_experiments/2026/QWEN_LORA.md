@@ -197,6 +197,9 @@ analysis notebook makes the plot and a table, both recorded here.
   `label_match` >= 0.74 (within 0.15 of GPT) and `near_copies` <= 0.05; the LoRA checkpoint is chosen among those
   that keep the disease look, preferring the highest `within_dist`, ties to the earlier checkpoint. Edit LoRAs must
   beat untuned Qwen edit on label_match or within_dist without failing (c), else the edit arm uses untuned Qwen.
+- 23:17 UTC: t2i pilot generation finished: 5 folders x 160 images (untuned, ckpt500, ckpt1000, ckpt1500, ckpt2000),
+  2.8-2.95 s/image at 512 px, 40 sampling steps, 10 prompts batched per call; ~8.5 min per folder including the
+  one-minute pipeline load. Scoring the five t2i folders on GPU 0 while the edit generation continues on GPU 1.
 
 ## Spend ledger
 
