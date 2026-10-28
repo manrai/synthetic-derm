@@ -262,6 +262,8 @@ analysis notebook makes the plot and a table, both recorded here.
 - 23:31 UTC: Step 2 started for the t2i arm on idle GPU 0 before the edit decision, because the t2i outcome is fixed
   by the cut-offs above (Stage A, ckpt1500): `qwen_lora_train.py --label "basal cell carcinoma" --method t2i
   --steps 2000 --checkpoint-every 500`, same rank/lr/resolution as psoriasis.
+- 23:38 UTC: edit ckpt1500 (Stage A) scored: label_match 0.61, within_dist 0.55, ref_dist 0.56, ITA shift 41 deg,
+  near_copies 0: same reference-ignoring behaviour as ckpt500 and ckpt1000. ckpt2000 folder still generating.
 
 ## Spend ledger
 
