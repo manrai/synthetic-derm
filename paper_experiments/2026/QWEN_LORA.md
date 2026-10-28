@@ -200,6 +200,29 @@ analysis notebook makes the plot and a table, both recorded here.
 - 23:17 UTC: t2i pilot generation finished: 5 folders x 160 images (untuned, ckpt500, ckpt1000, ckpt1500, ckpt2000),
   2.8-2.95 s/image at 512 px, 40 sampling steps, 10 prompts batched per call; ~8.5 min per folder including the
   one-minute pipeline load. Scoring the five t2i folders on GPU 0 while the edit generation continues on GPU 1.
+- **t2i pilot scores (psoriasis, 16 reals x 10, `eval-psoriasis/metrics.csv`), 23:30 UTC:**
+
+  | folder | label_match | top wrong label | within_dist | nn_real_dist | near_copies |
+  |---|---|---|---|---|---|
+  | GPT Image varied (reference) | 0.89 | sarcoidosis 6 | 0.43 | 0.17 | 0 |
+  | t2i untuned | 0.49 | neutrophilic dermatoses 24 | 0.37 | 0.20 | 0 |
+  | t2i ckpt500 | 0.68 | squamous cell carcinoma 21 | 0.55 | 0.29 | 0 |
+  | t2i ckpt1000 | 0.63 | allergic contact dermatitis 25 | 0.51 | 0.26 | 0 |
+  | t2i ckpt1500 | 0.78 | photodermatoses 7 | 0.53 | 0.26 | 0 |
+  | t2i ckpt2000 | 0.66 | allergic contact dermatitis 16 | 0.54 | 0.25 | 0 |
+
+  Variety: every LoRA folder has within_dist 0.51-0.55, above the GPT reference (0.43) and close to random sets of
+  10 reals (0.59), so by measure (a) seed-only variety is **not** lacking for t2i; untuned Qwen is lower (0.37) and
+  its grid is mostly hands on white backgrounds. By eye (grid 6 reals x 10), the LoRA folders vary body site,
+  framing, background and skin tone across the 10 seeds, condition (b) also passes. No near copies (nn_real_dist
+  0.25-0.29 vs 0.17 among reals).
+  Disease look: only ckpt1500 reaches the label_match threshold (0.78 >= 0.74); ckpt500/1000/2000 sit at 0.63-0.68
+  (standard error about 0.04 at n=160, so 1500 vs the rest is about 2-3 SE, not a large margin). Grids: the LoRA
+  has learned the Fitzpatrick 17k photographic style (varied clinics, dark backgrounds, occasional text/watermark
+  artifacts, some nude anatomy, as in the training pool); ckpt500 has many blurred or blotchy textures, ckpt1500
+  is the cleanest, but in all LoRA folders fewer tiles show the classic scaly plaque than in the GPT grid, where
+  nearly every tile does. Untuned Qwen draws clean, generic pink papules/plaques (probe: neutrophilic dermatoses).
+  Provisional t2i choice: ckpt1500 (Stage A); final decision after the edit folders are scored.
 
 ## Spend ledger
 
