@@ -151,6 +151,20 @@ analysis notebook makes the plot and a table, both recorded here.
 - Smoke tests started: 20-step psoriasis t2i (GPU 0) and edit (GPU 1) trainings, `--checkpoint-every 10`,
   run name `smoke-20steps-b`. Edit pairs for psoriasis: 1,108 same Fitzpatrick type, 0 adjacent, 0 any,
   60 with unknown target type (584 images x 2 pairs).
+- Smoke tests, all passed (psoriasis, `HF_HOME=/dev/shm/hf`):
+  - `qwen_lora_train.py --method t2i --steps 20 --checkpoint-every 10`: 1.0 min end to end; latent caching of 584
+    images in 15 s; training 1.1 steps/s (batch 1 x grad-accum 4, 512 px, gradient checkpointing); 34 GB GPU memory;
+    checkpoint-10, checkpoint-20 and final weights written to `/workspace`.
+  - `... --method edit --steps 20 --checkpoint-every 10`: 2.5 min; caching 1,168 pairs in 74 s; 1.8 s/step.
+  - `qwen_lora_generate.py` with each smoke LoRA, 2 reals x 10 slots, 40 sampling steps, 512 px: 2.7 s/image (t2i)
+    and 2.8 s/image (edit), 51 GB GPU memory, loads from RAM in under a minute. Images and JSON sidecars look right
+    (t2i: hand lesions from the prompt; edit: the reference's composition with altered lesions).
+  - `qwen_lora_eval.py` on the two smoke folders: see below.
+- Projected timings: 2000-step LoRA ~32 min (t2i) / ~62 min (edit) per class; full generation 33,390 images per
+  method at 2.7 s = ~25 GPU-h per method, ~13 h wall-clock per method on two GPUs.
+- Pilot trainings launched 21:59 UTC: `qwen_lora_train.py --label psoriasis --method {t2i,edit} --steps 2000
+  --checkpoint-every 500` (rank 16, lr 1e-4, 512 px, seed 0), t2i on GPU 0, edit on GPU 1; run name
+  `r16-lr0.0001-512px-2000steps`. Generation and scoring for Step 1A are scripted in `qwen_lora_pilot.sh`.
 
 ## Spend ledger
 
