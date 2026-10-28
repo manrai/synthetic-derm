@@ -245,6 +245,20 @@ analysis notebook makes the plot and a table, both recorded here.
   `pilot/edit-psoriasis-untuned-varied`. The remaining edit LoRA checkpoints (1000/1500/2000) are scored when their
   Stage A folders finish; if one keeps the reference (ref_dist between 0.20 and ~0.45, ITA shift under ~20 deg)
   it also gets a Stage B run.
+- **Stage B result for edit (scored 23:33 UTC):**
+
+  | folder | label_match | within_dist | ref_dist | nn_real_dist | near_copies | ita_shift |
+  |---|---|---|---|---|---|---|
+  | edit untuned, varied prompts (Stage B) | 0.72 | 0.35 | 0.34 | 0.17 | 0.08 | 15.7 |
+  | edit ckpt1000, single prompt (Stage A) | 0.60 | 0.57 | 0.60 | 0.32 | 0 | 44.8 |
+
+  Untuned Qwen edit with the 10 varied prompts passes (a) within_dist 0.35 >= 0.21 and (c) ref_dist 0.34 >= 0.20,
+  keeps skin tone (ITA shift 15.7 deg, same as GPT), and its label_match 0.72 is within one standard error of the
+  0.74 line (GPT 0.89). The grid shows what the numbers average over: for most references about half the slots
+  follow the prompt (new body site, same lesion morphology and skin tone, e.g. plaques moved to the back, chest,
+  foot or knuckles) and the other half stay close to the reference; for two of the six references nearly all ten
+  slots remain near copies (near_copies 0.08 overall). The ckpt1000 edit LoRA behaves like ckpt500: it ignores
+  the reference (ref_dist 0.60, ITA shift 45 deg) and has the lowest label_match (0.60).
 
 ## Spend ledger
 
