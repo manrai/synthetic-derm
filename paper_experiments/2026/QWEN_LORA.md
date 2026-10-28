@@ -159,12 +159,19 @@ analysis notebook makes the plot and a table, both recorded here.
   - `qwen_lora_generate.py` with each smoke LoRA, 2 reals x 10 slots, 40 sampling steps, 512 px: 2.7 s/image (t2i)
     and 2.8 s/image (edit), 51 GB GPU memory, loads from RAM in under a minute. Images and JSON sidecars look right
     (t2i: hand lesions from the prompt; edit: the reference's composition with altered lesions).
-  - `qwen_lora_eval.py` on the two smoke folders: see below.
+  - `qwen_lora_eval.py` on the two smoke folders (GPU shared with a training job): ran end to end, wrote
+    `metrics.csv` and grids. The DINOv2 ViT-S/14 linear probe on the 3,339-image pool has 5-fold CV accuracy 0.51
+    over nine labels (chance 0.11), so `label_match` is a relative measure between folders, not an absolute one.
+    Smoke numbers (20-step LoRAs, 2 reals, not a result): t2i label_match 0.45, within_dist 0.53 (real sets of 10:
+    0.59); edit label_match 1.0 but within_dist 0.10 and ref_dist 0.10, i.e. near copies of the reference, as the
+    side-by-side showed.
 - Projected timings: 2000-step LoRA ~32 min (t2i) / ~62 min (edit) per class; full generation 33,390 images per
   method at 2.7 s = ~25 GPU-h per method, ~13 h wall-clock per method on two GPUs.
 - Pilot trainings launched 21:59 UTC: `qwen_lora_train.py --label psoriasis --method {t2i,edit} --steps 2000
   --checkpoint-every 500` (rank 16, lr 1e-4, 512 px, seed 0), t2i on GPU 0, edit on GPU 1; run name
-  `r16-lr0.0001-512px-2000steps`. Generation and scoring for Step 1A are scripted in `qwen_lora_pilot.sh`.
+  `r16-lr0.0001-512px-2000steps`. Generation and scoring for Step 1A are scripted in `qwen_lora_pilot.sh` (`generate <method> <gpu> <label> <run>`
+  per method as soon as its training finishes, then `eval <gpu> <label>`). A 30-minute check-in loop was set up at
+  the user's request (22:01 UTC).
 
 ## Spend ledger
 
