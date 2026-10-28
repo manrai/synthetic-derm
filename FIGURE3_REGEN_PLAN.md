@@ -151,7 +151,8 @@ Text-to-image, more seeds and the second generator are added later only if this 
 effect worth chasing. Text-to-image needs prompt-level diversity first (body site, skin type,
 framing), since the screen showed near-identical samples from a fixed prompt.
 
-**Step 2a. Single-class pilot notebook (half a day).** One class (psoriasis). Train a Qwen
+**Step 2a. Single-class pilot notebook (half a day).** Superseded 2026-10-28 by
+`paper_experiments/2026/QWEN_LORA.md` (3 GPUs, descriptive captions, steps 2a to 4 for Qwen). One class (psoriasis). Train a Qwen
 text-to-image LoRA at the Oct 21 settings and at 500, 1000 and 2000 steps; generate a grid
 with fixed seeds; compare against real psoriasis images and the 2024 SD generations. Same for
 one edit-mode LoRA on real references. Confirm images are class-specific and not memorized
