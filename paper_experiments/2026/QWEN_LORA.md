@@ -179,6 +179,12 @@ analysis notebook makes the plot and a table, both recorded here.
   untuned, ckpt500, ckpt1000, ckpt1500, ckpt2000; 16 reals x 10). Started by hand 3 min late: the automatic chain had
   used a `pgrep -f` pattern that matched its own shell and so never fired (fixed with a `[q]wen...` pattern for the
   edit chain).
+- 23:01 UTC: edit psoriasis LoRA finished, 2000 steps in 60.6 min (1.76 s/step, 1,168 pairs cached in 74 s);
+  checkpoints 500/1000/1500/2000 and final weights in `/workspace/synderm/qwen_lora/edit/psoriasis/r16-lr0.0001-512px-2000steps/`.
+  Edit pilot generation started on GPU 1 (same five folders as t2i). t2i generation at folder 4 of 5, 2.95 s/image.
+- Protocol for the cut-off: the GPT Image varied-prompt pilot folder is scored on its own first (eval on GPU 0, shared
+  with the t2i generation), and the "lacks variety" threshold is written below from its numbers and grid before any
+  Qwen LoRA folder is scored.
 
 ## Spend ledger
 
