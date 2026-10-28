@@ -45,6 +45,11 @@ python -m pip install -r requirements-lock.txt --no-deps 2>&1 | tail -2 || {
 }
 python -m pip install -e . --no-deps
 
+# 2b. The /workspace FUSE mount (geesefs) drops symlinks on remount, which turns every file in
+#     the HF cache's snapshots/ into an empty file while the blobs survive. Rebuild the links.
+python repair_hf_cache.py || echo "WARNING: some cached model files could not be relinked; see above" >&2
+python -m pip install -q openai google-genai  # proprietary-model screen (paper_experiments/2026)
+
 # 3. Sanity checks: GPU, model cache, token, data.
 python - <<'PY'
 import os, torch, synderm
@@ -53,7 +58,7 @@ print("synderm", synderm.__version__, synderm.__file__)
 hub = os.path.join(os.environ["HF_HOME"], "hub")
 print("cached models:", sorted(d for d in os.listdir(hub) if d.startswith("models--")) if os.path.isdir(hub) else "NONE")
 print("hf token:", "present" if os.path.exists(os.path.join(os.environ["HF_HOME"], "token")) else "MISSING: run `hf auth login`")
-for p in ("/workspace/data", "/workspace/synderm/vignettes/executed", "/workspace/synderm/lora"):
+for p in ("/workspace/data", "/workspace/data/fitzpatrick17k/finalfitz17k", "/workspace/synderm/vignettes/executed", "/workspace/synderm/lora"):
     print(p, "ok" if os.path.isdir(p) else "MISSING")
 PY
 python -m pytest tests/test_cpu.py -q 2>&1 | tail -1

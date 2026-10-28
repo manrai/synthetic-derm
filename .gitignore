@@ -173,3 +173,6 @@ dist/*
 synderm/docs/examples/*-executed.ipynb
 *.safetensors
 *.zip
+
+# manuscript drafts (not part of the code)
+Augmenting_medical_image_classifiers_with_synthetic_data_from_latent_diffusion_models___RESUBMISSION*/
