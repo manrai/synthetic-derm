@@ -200,7 +200,7 @@ analysis notebook makes the plot and a table, both recorded here.
 - 23:17 UTC: t2i pilot generation finished: 5 folders x 160 images (untuned, ckpt500, ckpt1000, ckpt1500, ckpt2000),
   2.8-2.95 s/image at 512 px, 40 sampling steps, 10 prompts batched per call; ~8.5 min per folder including the
   one-minute pipeline load. Scoring the five t2i folders on GPU 0 while the edit generation continues on GPU 1.
-- **t2i pilot scores (psoriasis, 16 reals x 10, `eval-psoriasis/metrics.csv`), 23:30 UTC:**
+- **t2i pilot scores (psoriasis, 16 reals x 10, `eval-psoriasis/metrics.csv`), 23:19 UTC:**
 
   | folder | label_match | top wrong label | within_dist | nn_real_dist | near_copies |
   |---|---|---|---|---|---|
@@ -223,6 +223,28 @@ analysis notebook makes the plot and a table, both recorded here.
   is the cleanest, but in all LoRA folders fewer tiles show the classic scaly plaque than in the GPT grid, where
   nearly every tile does. Untuned Qwen draws clean, generic pink papules/plaques (probe: neutrophilic dermatoses).
   Provisional t2i choice: ckpt1500 (Stage A); final decision after the edit folders are scored.
+- **Edit pilot, early scores (untuned and ckpt500 folders, scored 23:19 UTC while ckpt1000-2000 were still generating):**
+
+  | folder | label_match | within_dist | ref_dist | nn_real_dist | near_copies | ita_shift |
+  |---|---|---|---|---|---|---|
+  | GPT Image varied (reference) | 0.89 | 0.43 | 0.52 | 0.17 | 0 | 15.7 |
+  | edit untuned | 0.74 | 0.06 | 0.07 | 0.05 | 0.56 | 5.3 |
+  | edit ckpt500 | 0.61 | 0.55 | 0.55 | 0.29 | 0 | 46.8 |
+
+  Untuned Qwen edit with one prompt and 10 seeds returns near copies of the reference (grid: the same photograph
+  ten times with small lesion-texture changes): fails cut-off (a) within_dist 0.06 < 0.21 and (c) ref_dist 0.07 <
+  0.20, and 56% of its images are within 0.05 of a training-pool image (the reference itself). The 500-step edit
+  LoRA has the opposite failure: its outputs are as far from the reference as from unrelated images (ref_dist 0.55
+  = nn distance of unrelated reals), skin tone is not kept (ITA shift 47 deg), and the grid shows arbitrary
+  Fitzpatrick-style photographs with no relation to the reference. Training on pairs of *different* patients
+  taught the LoRA to ignore the condition image, which is the risk the plan noted. Label match 0.61 is below the
+  0.74 threshold.
+- Consequence, per the plan's escalation rule: Stage A lacks variety for the edit arm (untuned) and the LoRA does
+  not preserve the reference, so **Stage B (the 10 varied prompts at generation time, no retraining, $0) is run
+  for edit**. 23:20 UTC: `qwen_lora_generate.py --method edit --prompts varied` with untuned Qwen on GPU 0, output
+  `pilot/edit-psoriasis-untuned-varied`. The remaining edit LoRA checkpoints (1000/1500/2000) are scored when their
+  Stage A folders finish; if one keeps the reference (ref_dist between 0.20 and ~0.45, ITA shift under ~20 deg)
+  it also gets a Stage B run.
 
 ## Spend ledger
 
