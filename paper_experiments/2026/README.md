@@ -9,6 +9,7 @@ Plan: `../../FIGURE3_REGEN_PLAN.md`. Code for the 2023 paper stays untouched one
 | `pilot_generate.py` | 1 | Self-contained: paper's split for one seed, reference-image edits via OpenAI or Google, `--prompts single|varied`, refusal retry and top-up, writes `synthetic.csv` |
 | `pilot_classifier.py` | 1 | The paper's fastai EfficientNetV2-M protocol on the pilot split; appends to `results.csv` |
 | `01_pilot_analysis.ipynb` | 1 | Linear pandas: pivot of accuracies, gain vs real-only, Figure 3-style plot |
+| `02_pilot_preview.ipynb` | 1 | Hardcoded paths to the pilot folders; shows each real reference next to its ten synthetic slots, per model and class |
 | `REPRODUCE.md` | all | Every command run, in order, with measurements |
 
 Run from the repo root or from this folder:

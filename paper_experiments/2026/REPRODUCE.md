@@ -98,8 +98,20 @@ python paper_experiments/2026/pilot_classifier.py --pilot-dir /workspace/synderm
 Each run appends one row to `/workspace/synderm/pilot/results/results.csv` (run_id, generator, n, augmentation,
 top-1 accuracy with Wald CI, top-3, epochs, timing) and writes `predictions__<run_id>.csv`. Finished run_ids are skipped.
 
+Varied-prompt results (2026-10-28). Generation: GPT Image 2.5 Sunburst 1,440 ok, 97 refused and topped up,
+$27.31, done 17:37; Nano Banana 2.1 1,440 ok, 7 refused and topped up, $48.38, done 17:26. All nine classes
+reached 160 synthetic images on both providers. Classifier chain finished 18:02 (about 2 min per run).
+Top-1 accuracy on the 360-image held-out set, one seed:
+
+| n per class | real only | + GPT | + Nano Banana | real + transforms | + GPT + transforms | + Nano Banana + transforms |
+|---|---|---|---|---|---|---|
+| 1  | 14.4 | 17.8 | 15.6 | 16.1 | 17.5 | 15.6 |
+| 8  | 15.8 | 22.2 | 21.1 | 18.6 | 22.2 | 24.2 |
+| 16 | 16.1 | 21.1 | 25.0 | 16.4 | 25.3 | 23.1 |
+
 ## 3. Analysis
 
 ```bash
 jupyter lab paper_experiments/2026/01_pilot_analysis.ipynb   # reads results.csv, writes figure3_pilot.png
+jupyter lab paper_experiments/2026/02_pilot_preview.ipynb    # grids of real reference + 10 synthetic slots from the pilot folders
 ```
