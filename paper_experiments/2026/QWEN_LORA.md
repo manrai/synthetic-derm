@@ -185,6 +185,18 @@ analysis notebook makes the plot and a table, both recorded here.
 - Protocol for the cut-off: the GPT Image varied-prompt pilot folder is scored on its own first (eval on GPU 0, shared
   with the t2i generation), and the "lacks variety" threshold is written below from its numbers and grid before any
   Qwen LoRA folder is scored.
+- **"Lacks variety" cut-off (written 23:12 UTC, before any Qwen LoRA folder was scored).** Reference numbers from
+  `eval-psoriasis/metrics.csv`: GPT Image varied-prompt pilot (146 images, 15 reals, top-ups dropped): label_match 0.89,
+  within_dist 0.43, ref_dist 0.52, nn_real_dist 0.17, near_copies 0, ita_shift 15.7 deg; random sets of 10 real
+  psoriasis images: within_dist 0.59; nearest-neighbour distance among reals: 0.17. In the GPT grid the 10 slots of a
+  real differ in body site, framing and skin region, i.e. the variety is prompt-driven. A Qwen Stage A folder
+  (seed-only variety) is judged to **lack variety** if either (a) `within_dist` < 0.21, i.e. under half the GPT value,
+  or (b) its grid shows the 10 slots of a real as the same composition with only texture changes (judged by eye on
+  the 6-real grid). For edit folders a third condition applies: (c) `ref_dist` < 0.20 means the outputs are near
+  copies of the reference and add nothing for a classifier. Separately, a folder keeps the **disease look** if
+  `label_match` >= 0.74 (within 0.15 of GPT) and `near_copies` <= 0.05; the LoRA checkpoint is chosen among those
+  that keep the disease look, preferring the highest `within_dist`, ties to the earlier checkpoint. Edit LoRAs must
+  beat untuned Qwen edit on label_match or within_dist without failing (c), else the edit arm uses untuned Qwen.
 
 ## Spend ledger
 
