@@ -1,4 +1,4 @@
-% Synderm modernization and Figure 3 update, October 2026.   pdflatex synderm_update.tex (twice)
+% Synderm update, October 2026.   pdflatex synderm_update.tex (twice)
 \documentclass[aspectratio=169,11pt]{beamer}
 \usetheme{default}
 \usecolortheme{dove}
@@ -23,8 +23,8 @@
   \titlepage
 \end{frame}
 
-% ---------------------------------------------------------------- 1. package
-\begin{frame}{Modernizing the \texttt{synderm} package (v0.2, branch \texttt{modernize})}
+% ================================================================ context
+\begin{frame}{Package modernization (\texttt{synderm} v0.2, branch \texttt{modernize})}
   \begin{columns}[T]
     \column{0.47\textwidth}
     \textbf{Replaced}
@@ -45,8 +45,7 @@
   \muted{The code that produced the paper is untouched in \texttt{paper\_experiments/}; \texttt{main} still reproduces the published results.}
 \end{frame}
 
-% ---------------------------------------------------------------- 2. planned updates
-\begin{frame}{Planned update to the paper: Figure 3 with current generators}
+\begin{frame}{New Figure 3 arms}
   \begin{itemize}
     \item Figure 3: nine-way accuracy vs. number of real training images per class, with and without 10 synthetic images per real
     \item The published SD arms stay as they are; new arms are added under the same classifier protocol
@@ -70,8 +69,8 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------- 3. experiment overview
-\begin{frame}{Figure 3 experiment: one run}
+% ================================================================ experiment
+\begin{frame}{Figure 3 protocol}
   \begin{enumerate}
     \item Sample $n$ real images per class from the training pool, $n \in \{1, 8, 16, 32, 64, 128, 228\}$
     \item Attach the \textbf{10 synthetic images} that belong to each sampled real image
@@ -90,7 +89,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Figure 3 experiment: the data}
+\begin{frame}{Data: nine classes, 3{,}339 training images}
   \begin{columns}[T]
     \column{0.54\textwidth}
     \small
@@ -128,19 +127,19 @@
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 4. proprietary: screen, samples, pilot
-\begin{frame}{Performance of the three models}
+% ================================================================ proprietary, zero-shot
+\begin{frame}{Zero-shot samples: GPT Image, Nano Banana, Qwen}
   \begin{center}
     \includegraphics[height=0.72\textheight]{screen_psoriasis.png}
   \end{center}
-  \muted{Left four columns: text-to-image from the paper's prompt and a clinical prompt. Right three: edits of the real reference above. Grey = refused or errored.}
+  \muted{Psoriasis. Left four columns: text-to-image from the paper's prompt and a clinical prompt. Right three: edits of the real reference above. Grey = refused or errored.}
 \end{frame}
 
-\begin{frame}{Proprietary edits: GPT Image 2.5 Sunburst vs. Nano Banana 2.1 (lichen planus)}
+\begin{frame}{GPT Image vs. Nano Banana edits}
   \begin{center}
     \includegraphics[height=0.70\textheight]{gpt_vs_nano_lichen.jpg}
   \end{center}
-  \muted{Three reference images (left column), each edited 10 times with the 10 varied prompts. For each reference: GPT Image row above, Nano Banana row below.}
+  \muted{Lichen planus. Three reference images (left column), each edited 10 times with the 10 varied prompts. For each reference: GPT Image row above, Nano Banana row below.}
 \end{frame}
 
 \begin{frame}{One prompt vs. 10 prompts}
@@ -152,15 +151,25 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Preliminary results: one seed, $n \in \{1, 8, 16\}$}
-  \begin{center}
-    \includegraphics[height=0.74\textheight]{figure3_pilot_three.png}
-  \end{center}
-  \muted{Nine-way accuracy on the 360-image held-out test, 10 synthetic images per real. The proprietary pilot and the Qwen run used different seeds, so each panel carries its own real-only curve.}
+\begin{frame}{Proprietary edits: preliminary sweep}
+  \begin{columns}[T]
+    \column{0.6\textwidth}
+    \includegraphics[width=\textwidth]{figure3_pilot_two.png}
+    \column{0.38\textwidth}
+    \vspace{1em}
+    \small
+    \begin{itemize}
+      \item One seed, $n \in \{1, 8, 16\}$, 10 edits per real with the 10 varied prompts
+      \item GPT Image 2.5 Sunburst (medium): \$0.019 per edit; 97 of 1{,}440 refused, replaced by extra edits of other references
+      \item Nano Banana 2.1 (1K): \$0.034 per edit; 7 refused
+      \item At $n = 16$: 25\% vs. 16\% real-only (GPT, with transforms); 25\% vs. 16\% (Nano Banana, without)
+      \item Wide intervals: 360 test images, one seed
+    \end{itemize}
+  \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 5. fine-tuned qwen, text-to-image
-\begin{frame}{Fine-tuning Qwen-Image-2.1: two modes}
+% ================================================================ fine-tuning qwen
+\begin{frame}{Two LoRA modes: text-to-image and image edit}
   \small
   \begin{columns}[T]
     \column{0.48\textwidth}
@@ -183,7 +192,7 @@
   \muted{Both: one LoRA per class on all pool images of that class; rank 16, lr $10^{-4}$, 512 px, 2{,}000 steps; 33 min (text-to-image) and 61 min (edit) per class on one RTX PRO 6000.}
 \end{frame}
 
-\begin{frame}{Fine-tuned Qwen-Image-2.1, text-to-image: training}
+\begin{frame}{Text-to-image LoRA: psoriasis}
   \begin{columns}[T]
     \column{0.42\textwidth}
     \begin{itemize}
@@ -200,73 +209,62 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Fine-tuned Qwen-Image-2.1, text-to-image: two more classes}
+\begin{frame}{Text-to-image LoRA: basal cell carcinoma and lupus}
   \begin{center}
     \includegraphics[height=0.75\textheight]{grid_t2i_bcc_lupus.jpg}
   \end{center}
   \muted{Same settings as psoriasis: one LoRA per class, checkpoint 1500, one prompt, 10 seeds. Untuned Qwen draws a generic lesion on a plain background; the LoRA moves to the dataset's sites and presentations.}
 \end{frame}
 
-\begin{frame}{Fine-tuned Qwen-Image-2.1, text-to-image: does the LoRA help?}
-  \begin{columns}[T]
-    \column{0.5\textwidth}
-    \textbf{Psoriasis pilot} \muted{(16 reals $\times$ 10 images; real-only DINOv2 probe)}
-    \begin{center}
-    \begin{tabular}{lcc}
-      \toprule
-      & label match & variety \\
-      \midrule
-      untuned Qwen & 0.49 & 0.37 \\
-      LoRA, step 500 & 0.68 & 0.55 \\
-      LoRA, step 1000 & 0.63 & 0.51 \\
-      \textbf{LoRA, step 1500} & \textbf{0.78} & \textbf{0.53} \\
-      LoRA, step 2000 & 0.66 & 0.54 \\
-      GPT Image edits (varied) & 0.89 & 0.43 \\
-      \muted{random sets of 10 reals} & & 0.59 \\
-      \bottomrule
-    \end{tabular}
-    \end{center}
-    \column{0.47\textwidth}
-    \vspace{0.5em}
-    \small
-    \begin{itemize}
-      \item Label match: share of images a probe trained on real images only assigns to the class (relative measure)
-      \item Variety: mean DINOv2 distance among the 10 images of one real
-      \item Confirmed on two more classes: basal cell carcinoma 0.76 vs. 0.16 untuned, lupus 0.40 vs. 0.16
-      \item The LoRA picks up the dataset's look (varied sites, clinic backgrounds, darker skin tones) and its artifacts
-    \end{itemize}
-  \end{columns}
+\begin{frame}{Image-edit LoRA: psoriasis}
+  \begin{center}
+    \includegraphics[height=0.6\textheight]{edit_lora_psoriasis.jpg}
+  \end{center}
+  \footnotesize
+  \begin{itemize}
+    \item Untuned edit with one prompt returns near-copies of the reference; with the LoRA the outputs no longer relate to the reference at all, at every checkpoint. The 10 varied prompts on untuned Qwen give some variety while keeping the reference
+    \item Likely cause: the training pairs are different patients with one fixed caption, so the reference carried no information and the LoRA learned to ignore it
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{Why the edit arm uses no LoRA: fine-tuning for edits did not work}
-  \begin{columns}[T]
-    \column{0.58\textwidth}
-    \includegraphics[width=\textwidth]{edit_lora_failure_psoriasis.jpg}
-    \column{0.4\textwidth}
-    \scriptsize
-    \begin{itemize}
-      \item Untuned edit with one prompt: near-copies of the reference (56\% within copy distance)
-      \item Edit + LoRA learned to \emph{ignore} the reference: training pairs were two different patients with the same label and one fixed caption, so the reference carried no information. A 20-step LoRA still kept it; longer training unlearned it
-      \item A fix needs same-patient or self-augmented pairs (not tried). The edit arm runs untuned Qwen with the 10 varied prompts
-    \end{itemize}
-  \end{columns}
-  \vspace{0.3em}
+\begin{frame}{LoRA scores: real-image probe and DINOv2 embeddings}
   \begin{center}
     \scriptsize
-    \begin{tabular}{lccc}
+    \begin{tabular}{lcccc}
       \toprule
-      psoriasis pilot (16 reals $\times$ 10) & distance to reference & skin tone shift & label match \\
+      psoriasis, 16 reals $\times$ 10 images & label match & variety & distance to reference & skin tone shift \\
       \midrule
-      edit, untuned, one prompt & 0.07 & 5$^\circ$ & 0.74 \\
-      edit + LoRA (steps 500 to 2000) & 0.55 to 0.60 & 41 to 47$^\circ$ & 0.56 to 0.61 \\
-      edit, untuned, 10 prompts & 0.34 & 16$^\circ$ & 0.72 \\
-      text-to-image + LoRA, step 1500 & -- & -- & 0.78 \\
+      \multicolumn{5}{l}{\emph{text-to-image}} \\
+      untuned Qwen & 0.49 & 0.37 & -- & -- \\
+      LoRA, step 500 / 1000 / 2000 & 0.68 / 0.63 / 0.66 & 0.55 / 0.51 / 0.54 & -- & -- \\
+      \textbf{LoRA, step 1500} & \textbf{0.78} & \textbf{0.53} & -- & -- \\
+      \multicolumn{5}{l}{\emph{edit}} \\
+      untuned, one prompt & 0.74 & 0.06 & 0.07 & 5$^\circ$ \\
+      LoRA, steps 500 to 2000 & 0.56 to 0.61 & 0.55 to 0.57 & 0.55 to 0.60 & 41 to 47$^\circ$ \\
+      \textbf{untuned, 10 prompts} & \textbf{0.72} & \textbf{0.35} & \textbf{0.34} & \textbf{16$^\circ$} \\
+      \multicolumn{5}{l}{\emph{reference}} \\
+      GPT Image edits, 10 prompts & 0.89 & 0.43 & 0.52 & 16$^\circ$ \\
+      random sets of 10 real images & & 0.59 & & \\
       \bottomrule
     \end{tabular}
   \end{center}
+  \vspace{0.3em}
+  \scriptsize
+  \begin{itemize}
+    \item Label match: share of images that a 9-way logistic regression on DINOv2 features of the real pool assigns to the class (probe CV accuracy 0.51, so a relative measure). Variety: mean DINOv2 distance among the 10 images of one real. Distance to reference and ITA skin-tone shift apply to edits
+    \item Chosen: text-to-image LoRA at step 1500 (confirmed on BCC, 0.76 vs. 0.16 untuned, and lupus, 0.40 vs. 0.16); edit arm = untuned Qwen with the 10 prompts
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{Status: the Qwen Figure 3 run is in progress}
+% ================================================================ where things stand
+\begin{frame}{Preliminary sweep: all three generators}
+  \begin{center}
+    \includegraphics[height=0.74\textheight]{figure3_pilot_three.png}
+  \end{center}
+  \muted{Nine-way accuracy on the 360-image held-out test, one seed, 10 synthetic images per real. The proprietary pilot and the Qwen run used different seeds, so each panel carries its own real-only curve.}
+\end{frame}
+
+\begin{frame}{Qwen Figure 3 run in progress}
   \begin{itemize}
     \item All nine text-to-image LoRAs are trained
     \item Generation of 10 synthetic images per training-pool image is running on 2$\times$ RTX PRO 6000: 33{,}390 text-to-image and 33{,}390 edit images, about 3 s per image
@@ -275,7 +273,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Image counts and API cost to extend the proprietary arms}
+\begin{frame}{Cost to extend the proprietary arms}
   \begin{center}
   \scriptsize
   \begin{tabular}{lp{5cm}rrr}
