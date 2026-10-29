@@ -414,6 +414,7 @@ Caveats recorded with the decision:
 - 13:04 UTC: t2i BCC at 160/406 reals (2.79 s/image); edit at 1,420/3,339 (3.02 s/image); mirror current 12:46.
 - 13:34 UTC: t2i BCC at 230/406 reals (2.79 s/image); edit at 1,480/3,339 (3.02 s/image); mirror current 13:31.
 - 14:04 UTC: t2i BCC at 290/406 reals (2.79 s/image); edit at 1,540/3,339 (3.02 s/image); mirror current 13:54.
+- 14:34 UTC: t2i BCC at 360/406 reals (2.80 s/image); edit at 1,600/3,339 (3.02 s/image); mirror current 14:16.
 
 ## Spend ledger
 
