@@ -400,6 +400,8 @@ Caveats recorded with the decision:
   `qwen_lora_full_run.sh`, which the two generation runners are still executing.
 - 07:45 UTC: first parallel sync pass cleared the backlog in 573 s (12,730 images in RAM, mirror current).
 - 08:04 UTC: t2i at 520/584 psoriasis reals (2.82 s/image); edit at 820/3,339 (3.02 s/image).
+- 08:32 UTC: t2i psoriasis class complete (584 reals, 5,840 images, 2.82 s/image, 4.6 h); lichen planus started
+  (class 2 of 9). Edit at 880/3,339 (3.02 s/image). Sync passes now take ~4 min.
 
 ## Spend ledger
 
