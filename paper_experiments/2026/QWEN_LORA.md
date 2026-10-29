@@ -430,6 +430,9 @@ Caveats recorded with the decision:
   (18 runs: 3 arms x 2 augmentations x 3 sizes) on GPU 1 next to the edit generation, writing into the final sweep
   folder `/workspace/synderm/qwen_lora/sweep` (the full sweep later skips these run ids). Expected: images ready
   ~17:15, sweep results ~17:45 UTC. Cost to the full run: two pipeline reloads plus nine extra LoRA loads (~10 min).
+- 16:35 UTC: priority pass for seed 2026001: t2i at class 6 of 9 (neutrophilic dermatoses, 16 reals per class,
+  ~2.5 min per class plus LoRA load); edit at 110/144 reals (3.0 s/image). Early sweep chain waiting for both
+  markers. Mirror current 16:12 (33,630 images). Side work: slide deck `paper_experiments/2026/slides/` (commit 1059799).
 
 ## Spend ledger
 
