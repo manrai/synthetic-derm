@@ -1,0 +1,8 @@
+synderm_update.pdf
+build.log
+*.aux
+*.nav
+*.out
+*.snm
+*.toc
+*.log
