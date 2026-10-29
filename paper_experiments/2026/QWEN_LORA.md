@@ -464,6 +464,7 @@ Caveats recorded with the decision:
 - 19:04 UTC: t2i lupus at 80/297 reals (2.83 s/image); edit at 2,070/3,339 (3.08 s/image); mirror current 18:51, 40,026 images.
 - 19:34 UTC: t2i lupus at 150/297 reals (2.82 s/image); edit at 2,140/3,339 (3.07 s/image); mirror current 19:14, 40,960 images.
 - 20:04 UTC: t2i lupus at 220/297 reals (2.83 s/image); edit at 2,200/3,339 (3.07 s/image); mirror current 19:59, 42,800 images.
+- 20:34 UTC: t2i lupus at 290/297 reals (2.83 s/image), neutrophilic dermatoses next; edit at 2,260/3,339 (3.06 s/image); mirror current 20:21, 43,720 images.
 
 ## Spend ledger
 
