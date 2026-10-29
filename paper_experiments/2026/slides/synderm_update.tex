@@ -233,4 +233,13 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{Status: the Qwen Figure 3 run is in progress}
+  \begin{itemize}
+    \item All nine text-to-image LoRAs are trained
+    \item Generation of 10 synthetic images per training-pool image is running on 2$\times$ RTX PRO 6000: 33{,}390 text-to-image and 33{,}390 edit images, about 3 s per image
+    \item The full Figure 3 sweep follows: $n \in \{1, 8, 16, 32, 64, 128, 228\}$, real only vs. + Qwen text-to-image vs. + Qwen edit, with and without image transforms, five seeds
+    \item No API spend in this round: Qwen runs locally
+  \end{itemize}
+\end{frame}
+
 \end{document}
