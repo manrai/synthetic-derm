@@ -187,6 +187,13 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{Fine-tuned Qwen-Image-2.1, text-to-image: two more classes}
+  \begin{center}
+    \includegraphics[height=0.75\textheight]{grid_t2i_bcc_lupus.jpg}
+  \end{center}
+  \muted{Same settings as psoriasis: one LoRA per class, checkpoint 1500, one prompt, 10 seeds. Untuned Qwen draws a generic lesion on a plain background; the LoRA moves to the dataset's sites and presentations.}
+\end{frame}
+
 \begin{frame}{Fine-tuned Qwen-Image-2.1, text-to-image: does the LoRA help?}
   \begin{columns}[T]
     \column{0.5\textwidth}
