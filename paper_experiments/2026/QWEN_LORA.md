@@ -301,6 +301,31 @@ Caveats recorded with the decision:
 - 00:15 UTC: lupus t2i LoRA trained (297 training-pool images, 2000 steps, 31.3 min). 00:30: lupus t2i untuned and
   ckpt1500 folders done on GPU 1; BCC t2i untuned, ckpt1500 and edit-varied done on GPU 0; lupus edit-varied generating.
   Scoring BCC (all three folders) and lupus t2i on GPU 1, each against the GPT Image pilot folder of the same class.
+- **Step 2 scores, 00:40 UTC** (16 reals x 10 per folder; label_match from the same 9-label DINOv2 probe; the
+  "within 0.15 of GPT" label line and the 0.21 variety line are applied per class):
+
+  | class | folder | label_match | top wrong label | within_dist | ref_dist | near_copies | ita_shift |
+  |---|---|---|---|---|---|---|---|
+  | BCC | GPT Image varied (reference) | 0.33 | lichen planus 38 | 0.43 | 0.43 | 0 | 11.1 |
+  | BCC | t2i untuned | 0.16 | squamous cell carcinoma 85 | 0.30 | 0.49 | 0 | 21.6 |
+  | BCC | t2i ckpt1500 | **0.76** | squamous cell carcinoma 26 | 0.42 | 0.45 | 0 | 26.1 |
+  | BCC | edit untuned varied | 0.13 | sarcoidosis 38 | 0.41 | 0.41 | 0.01 | 9.5 |
+  | lupus | GPT Image varied (reference) | 0.21 | psoriasis 49 | 0.43 | 0.53 | 0 | 18.3 |
+  | lupus | t2i untuned | 0.16 | allergic contact dermatitis 46 | 0.50 | 0.62 | 0 | 31.2 |
+  | lupus | t2i ckpt1500 | **0.40** | psoriasis 39 | 0.58 | 0.60 | 0 | 48.1 |
+  | lupus | edit untuned varied | (generating) | | | | | |
+
+  Reference values: random sets of 10 reals have within_dist 0.45 (BCC) and 0.60 (lupus).
+  t2i: the ckpt1500 LoRA is the best folder on label_match in both classes by a wide margin (BCC 0.76 vs GPT 0.33
+  and untuned 0.16; lupus 0.40 vs 0.21 and 0.16), variety is at the level of real sets (0.42 vs 0.45; 0.58 vs 0.60),
+  no near copies. Grids: BCC LoRA tiles are periocular/nasal/cheek lesions on older skin, pearly or ulcerated
+  nodules, with the pool's text fragments; lupus LoRA tiles are malar and discoid facial lesions, scarring, oral
+  lesions, mixed skin tones, plus a few off-target tiles (a butterfly, full faces, a nude torso). Untuned Qwen
+  draws generic pink papules for both (probe: SCC / contact dermatitis). The t2i decision (Stage A, ckpt1500) holds.
+  Edit (BCC): untuned edit with varied prompts keeps skin tone (9.5 deg) and follows the prompts, but the lesion
+  becomes a small generic papule or bruise and the probe no longer calls it BCC (0.13, below the per-class line
+  GPT-0.15 = 0.18). The GPT edits also score low on BCC (0.33), so this class is hard for both edit models; recorded,
+  the edit decision is reviewed once the lupus edit folder is scored.
 
 ## Spend ledger
 
