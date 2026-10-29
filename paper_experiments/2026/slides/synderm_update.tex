@@ -259,9 +259,9 @@
 % ================================================================ where things stand
 \begin{frame}{Preliminary sweep: all three generators}
   \begin{center}
-    \includegraphics[height=0.74\textheight]{figure3_pilot_three.png}
+    \includegraphics[height=0.6\textheight]{figure3_pilot_three.png}
   \end{center}
-  \muted{Nine-way accuracy on the 360-image held-out test, one seed, 10 synthetic images per real. The proprietary pilot and the Qwen run used different seeds, so each panel carries its own real-only curve.}
+  \muted{Nine-way accuracy on the 360-image held-out test, 10 synthetic images per real. \textbf{One seed per panel}, i.e.\ one draw of real images and one classifier run per point, where the paper averaged five; the Qwen dip at $n = 8$ with transforms is one real-only run landing high (23\%, above its own $n = 16$), not a measured effect. The proprietary pilot and the Qwen run used different seeds, so each panel carries its own real-only curve.}
 \end{frame}
 
 \begin{frame}{Qwen Figure 3 run in progress}
