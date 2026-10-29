@@ -399,6 +399,7 @@ Caveats recorded with the decision:
   59 min and was still running), so the mirror could not catch up. New script rather than editing
   `qwen_lora_full_run.sh`, which the two generation runners are still executing.
 - 07:45 UTC: first parallel sync pass cleared the backlog in 573 s (12,730 images in RAM, mirror current).
+- 08:04 UTC: t2i at 520/584 psoriasis reals (2.82 s/image); edit at 820/3,339 (3.02 s/image).
 
 ## Spend ledger
 
