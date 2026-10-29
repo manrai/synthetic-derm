@@ -388,6 +388,7 @@ Caveats recorded with the decision:
   edit a shell script that a running job is executing; copy it first.
 - 04:04 UTC: t2i generation at 10/584 psoriasis reals, 2.79 s/image; edit at 350/3,339, 3.00 s/image.
 - 04:34 UTC: t2i at 70/584 psoriasis reals (2.81 s/image); edit at 410/3,339 (3.00 s/image); 35 GB in /dev/shm.
+- 05:04 UTC: t2i at 140/584 psoriasis reals (2.82 s/image); edit at 470/3,339 (3.01 s/image); last sync 04:37, 5,010 images.
 
 ## Spend ledger
 
