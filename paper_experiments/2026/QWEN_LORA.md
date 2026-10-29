@@ -326,6 +326,33 @@ Caveats recorded with the decision:
   becomes a small generic papule or bruise and the probe no longer calls it BCC (0.13, below the per-class line
   GPT-0.15 = 0.18). The GPT edits also score low on BCC (0.33), so this class is hard for both edit models; recorded,
   the edit decision is reviewed once the lupus edit folder is scored.
+- 00:36 UTC: lupus edit untuned varied scored: label_match 0.25 (GPT 0.21; line 0.06), within_dist 0.42,
+  ref_dist 0.43, near_copies 0.05, ITA shift 17.2 deg: passes every line.
+
+**Step 2 decision, 00:38 UTC.** The Step 1 settings hold; no adjustment made.
+- t2i: Stage A with the ckpt1500 per-class LoRA, confirmed on BCC (label_match 0.76 vs GPT 0.33, untuned 0.16) and
+  lupus (0.40 vs 0.21, 0.16); variety at the level of random real sets in both; no near copies.
+- edit: untuned Qwen with the 10 varied prompts (plan fallback). Per class: lupus passes all lines; psoriasis
+  misses label_match by 0.02 and near_copies by 0.03; BCC fails label_match (0.13 vs line 0.18) because the edit
+  turns the lesion into a generic papule, a class on which the GPT Image edits are also weak (0.33). Recorded as a
+  known weakness of the edit arm; no in-plan adjustment fixes it without an edit LoRA, and the trained edit LoRAs
+  ignore the reference (Step 1).
+- The user was given the pilot update (23:43 UTC) and answered "continue as you were" (00:10 UTC); the three
+  edit-LoRA alternatives listed there were not run.
+
+**Step 3 and 4 launched, 00:38 UTC** (`qwen_lora_full_run.sh`, commands in the script header):
+- GPU 0: `train-t2i` for the six remaining classes in sequence (lichen planus, allergic contact dermatitis,
+  neutrophilic dermatoses, photodermatoses, sarcoidosis, squamous cell carcinoma; ~33 min each, ~3.3 h), then
+  `gen-t2i`: 10 images per pool image for all nine classes with each class's ckpt1500 LoRA, single prompt,
+  seed-only (33,390 images, ~2.9 s each, ~27 h).
+- GPU 1: `gen-edit`: 10 images per pool image, untuned Qwen, varied prompts (slot k = variation k), reference =
+  the real image (33,390 images, ~3.2 s each, ~30 h).
+- Only 9 LoRAs are trained, not 18: the edit arm uses no LoRA. Edit LoRAs can be trained later if wanted.
+- Pool: `generations/pool9.csv` (3,339 images, nine labels, from the training CSV). Output layout
+  `generations/{t2i,edit}/{00..09}/{md5hash}.png` + `.json`. Note: `gen-t2i` runs one class at a time, so the
+  `synthetic.csv` in `generations/t2i/` holds only the last class; the sweep reads the folder layout, and a
+  combined CSV is built afterwards.
+- Expected end: both arms about 2026-10-30 07:00 UTC. Step 5 (classifier sweep) follows.
 
 ## Spend ledger
 
