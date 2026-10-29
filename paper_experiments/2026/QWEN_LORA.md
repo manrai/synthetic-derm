@@ -298,6 +298,9 @@ Caveats recorded with the decision:
   started: BCC t2i untuned, BCC t2i ckpt1500, edit-varied BCC, edit-varied lupus. Lupus t2i LoRA training on GPU 1.
 - Push to GitHub: the first push of the session (80e9c88) succeeded; later pushes fail with "Authentication failed"
   (no credential helper configured on this pod). Commits stay local until credentials are supplied.
+- 00:15 UTC: lupus t2i LoRA trained (297 training-pool images, 2000 steps, 31.3 min). 00:30: lupus t2i untuned and
+  ckpt1500 folders done on GPU 1; BCC t2i untuned, ckpt1500 and edit-varied done on GPU 0; lupus edit-varied generating.
+  Scoring BCC (all three folders) and lupus t2i on GPU 1, each against the GPT Image pilot folder of the same class.
 
 ## Spend ledger
 
