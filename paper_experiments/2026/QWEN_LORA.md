@@ -378,6 +378,14 @@ Caveats recorded with the decision:
   on the volume. Note for restarts: RAM output is lost with the pod, so the sync loop must be running.
 - 03:23 UTC: sarcoidosis t2i LoRA trained (32.6 min); squamous cell carcinoma training (6 of 6, last).
   03:34: edit generation at 290/3,339 reals; cumulative rate since the restart 2.98 s/image (was 3.44 on the volume).
+- **03:56 UTC: Step 3 complete, all 9 t2i LoRAs trained** (psoriasis, BCC, lupus, lichen planus, allergic contact
+  dermatitis, neutrophilic dermatoses, photodermatoses, sarcoidosis, squamous cell carcinoma; 31-33 min each;
+  checkpoints 500/1000/1500/2000 under `/workspace/synderm/qwen_lora/t2i/<slug>/r16-lr0.0001-512px-2000steps/`).
+- 03:57: the chained `gen-t2i` did not start: the `train-t2i` runner ended with "syntax error near unexpected token
+  `done`" because `qwen_lora_full_run.sh` was edited (sync flags) while that bash process was still reading it, so
+  its `&&` chain stopped. No training was affected (all nine weight files exist). `gen-t2i 0` launched by hand at
+  03:57:55 UTC, writing to RAM like the edit arm; one minute of GPU 0 time lost. Rule for the rest of the run: do not
+  edit a shell script that a running job is executing; copy it first.
 
 ## Spend ledger
 
