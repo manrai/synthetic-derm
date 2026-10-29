@@ -239,4 +239,27 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}{Image counts and API cost to extend the proprietary arms}
+  \begin{center}
+  \scriptsize
+  \begin{tabular}{lp{5cm}rrr}
+    \toprule
+    Figure & Needed & Images / model & GPT Image & Nano Banana \\
+    \midrule
+    Fig.\ 3, finish & 10 per pool image (3{,}339 reals; 1{,}440 done) & 31{,}950 & \$610 & \$1{,}070 \\
+    Fig.\ 4, DDI test & 10 per real, 2{,}251 Fitz17k images with DDI labels & 22{,}510 & \$430 & \$760 \\
+    Fig.\ 5, one seed & up to 150 per real, $n=64$ subsets (576 reals) & 86{,}400 & \$1{,}640 & \$2{,}900 \\
+    Fig.\ 5, five seeds & 150 per real, in effect the whole pool & 500{,}850 & \$9{,}500 & \$16{,}800 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{0.6em}
+  \small
+  \begin{itemize}
+    \item List prices from the pilot: \$0.019 per GPT Image edit (medium), \$0.034 per Nano Banana edit (1K); batch mode halves both
+    \item GPT Image refuses about 7\% of references; replacements add about 7\%
+    \item Fig.\ 4 images overlap with Fig.\ 3 where labels coincide, so its count is an upper bound
+  \end{itemize}
+\end{frame}
+
 \end{document}
