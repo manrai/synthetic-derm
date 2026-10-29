@@ -394,6 +394,10 @@ Caveats recorded with the decision:
 - 06:34 UTC: t2i at 330/584 psoriasis reals (2.82 s/image); edit at 640/3,339 (3.02 s/image); last sync 06:15, 9,030 images.
 - 07:04 UTC: t2i at 390/584 psoriasis reals (2.82 s/image); edit at 700/3,339 (3.02 s/image); sync pass in progress.
 - 07:34 UTC: t2i at 460/584 psoriasis reals (2.82 s/image); edit at 760/3,339 (3.01 s/image).
+- 07:40 UTC: sync changed to 20 parallel streams (`qwen_lora_sync.sh`, one rsync per method/slot folder, every
+  20 min). The single-stream loop wrote ~1 file per 0.8 s, about the rate both arms produce files (one pass took
+  59 min and was still running), so the mirror could not catch up. New script rather than editing
+  `qwen_lora_full_run.sh`, which the two generation runners are still executing.
 
 ## Spend ledger
 
