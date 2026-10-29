@@ -392,6 +392,7 @@ Caveats recorded with the decision:
 - 05:34 UTC: t2i at 200/584 psoriasis reals (2.82 s/image); edit at 530/3,339 (3.01 s/image); last sync 05:20, 6,790 images.
 - 06:04 UTC: t2i at 260/584 psoriasis reals (2.82 s/image); edit at 590/3,339 (3.02 s/image).
 - 06:34 UTC: t2i at 330/584 psoriasis reals (2.82 s/image); edit at 640/3,339 (3.02 s/image); last sync 06:15, 9,030 images.
+- 07:04 UTC: t2i at 390/584 psoriasis reals (2.82 s/image); edit at 700/3,339 (3.02 s/image); sync pass in progress.
 
 ## Spend ledger
 
