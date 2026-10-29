@@ -405,6 +405,7 @@ Caveats recorded with the decision:
 - 09:04 UTC: t2i lichen planus at 60/412 reals (2.81 s/image); edit at 940/3,339 (3.02 s/image); mirror current 08:59.
 - 09:34 UTC: t2i lichen planus at 130/412 reals (2.81 s/image); edit at 1,000/3,339 (3.02 s/image); mirror current 09:22.
 - 10:04 UTC: t2i lichen planus at 190/412 reals (2.81 s/image); edit at 1,060/3,339 (3.02 s/image); mirror current 09:45.
+- 10:34 UTC: t2i lichen planus at 260/412 reals (2.81 s/image); edit at 1,120/3,339 (3.02 s/image); mirror current 10:30.
 
 ## Spend ledger
 
