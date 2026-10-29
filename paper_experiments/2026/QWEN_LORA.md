@@ -353,6 +353,13 @@ Caveats recorded with the decision:
   `synthetic.csv` in `generations/t2i/` holds only the last class; the sweep reads the folder layout, and a
   combined CSV is built afterwards.
 - Expected end: both arms about 2026-10-30 07:00 UTC. Step 5 (classifier sweep) follows.
+- 00:41-00:45 UTC: Step 5 script `qwen_lora_sweep.py` written (the paper's `n_per_label.py` protocol, results to
+  CSV, missing synthetic files are an error) and smoke-tested on GPU 1 next to the edit generation: real-only arm,
+  seed 2026001, n in {1, 8}, both augmentations: 4 runs, 8-21 s each, early stopping after 4-11 epochs, top-1
+  0.12-0.23 on the 360 test images (not results; smoke only, `sweep-smoke/`). Synthetic arms are smoke-tested once
+  a seed's n=1 subset has its generated images. Sweep seeds will be 2026001-2026005 (new; the paper's other four
+  seeds are not recoverable). Generations are copied from `/workspace` to `/dev/shm/qwen_lora_generations` before
+  the sweep so training does not read PNGs over the network mount.
 
 ## Spend ledger
 
