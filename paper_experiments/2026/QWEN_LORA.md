@@ -360,6 +360,8 @@ Caveats recorded with the decision:
   a seed's n=1 subset has its generated images. Sweep seeds will be 2026001-2026005 (new; the paper's other four
   seeds are not recoverable). Generations are copied from `/workspace` to `/dev/shm/qwen_lora_generations` before
   the sweep so training does not read PNGs over the network mount.
+- 01:12 UTC: lichen planus t2i LoRA trained (412 images, 32.8 min); allergic contact dermatitis training (2 of 6).
+  01:34: edit generation at 100/3,339 reals, 3.23 s/image (on pace for ~30 h).
 
 ## Spend ledger
 
