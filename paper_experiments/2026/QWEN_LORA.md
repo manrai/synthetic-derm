@@ -398,6 +398,7 @@ Caveats recorded with the decision:
   20 min). The single-stream loop wrote ~1 file per 0.8 s, about the rate both arms produce files (one pass took
   59 min and was still running), so the mirror could not catch up. New script rather than editing
   `qwen_lora_full_run.sh`, which the two generation runners are still executing.
+- 07:45 UTC: first parallel sync pass cleared the backlog in 573 s (12,730 images in RAM, mirror current).
 
 ## Spend ledger
 
