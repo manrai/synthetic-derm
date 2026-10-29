@@ -376,6 +376,8 @@ Caveats recorded with the decision:
   were mirrored into RAM (rsync from the volume, ~10 min), and `gen-edit 1` restarted; it skips existing files so
   nothing is regenerated. The GPU 0 chain picks up the new output path when it reaches `gen-t2i`. The pool CSV stays
   on the volume. Note for restarts: RAM output is lost with the pod, so the sync loop must be running.
+- 03:23 UTC: sarcoidosis t2i LoRA trained (32.6 min); squamous cell carcinoma training (6 of 6, last).
+  03:34: edit generation at 290/3,339 reals; cumulative rate since the restart 2.98 s/image (was 3.44 on the volume).
 
 ## Spend ledger
 
