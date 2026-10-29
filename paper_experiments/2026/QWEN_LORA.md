@@ -462,6 +462,7 @@ Caveats recorded with the decision:
 - 18:35 UTC: t2i ACD class complete; lupus (class 5 of 9) at 20/297 reals (2.82 s/image). Edit at 2,010/3,339
   (3.10 s/image). Mirror current 18:28, 39,100 images. Pushed to GitHub at 18:2x (bf85b10); pushes succeed intermittently.
 - 19:04 UTC: t2i lupus at 80/297 reals (2.83 s/image); edit at 2,070/3,339 (3.08 s/image); mirror current 18:51, 40,026 images.
+- 19:34 UTC: t2i lupus at 150/297 reals (2.82 s/image); edit at 2,140/3,339 (3.07 s/image); mirror current 19:14, 40,960 images.
 
 ## Spend ledger
 
