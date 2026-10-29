@@ -469,6 +469,7 @@ Caveats recorded with the decision:
   Edit at 2,320/3,339 (3.06 s/image). Mirror current 20:43, 44,621 images.
 - 21:34 UTC: t2i neutrophilic dermatoses at 120/284 reals (2.81 s/image); edit at 2,390/3,339 (3.05 s/image); mirror current 21:28, 46,490 images.
 - 22:04 UTC: t2i neutrophilic dermatoses at 190/284 reals (2.81 s/image); edit at 2,450/3,339 (3.05 s/image); mirror current 21:51, 47,420 images.
+- 22:34 UTC: t2i neutrophilic dermatoses at 260/284 reals (2.81 s/image), photodermatoses next; edit at 2,510/3,339 (3.05 s/image); mirror current 22:13, 48,340 images.
 
 ## Spend ledger
 
