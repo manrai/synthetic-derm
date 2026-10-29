@@ -160,6 +160,29 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 5. fine-tuned qwen, text-to-image
+\begin{frame}{Fine-tuning Qwen-Image-2.1: two modes}
+  \small
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+    \textbf{Text-to-image LoRA}
+    \begin{itemize}
+      \item One training example = one pool image + the paper's caption, ``An image of \{condition\}, a skin disease''
+      \item LoRA on the Qwen-Image-2.1 transformer, trained with the vendored diffusers DreamBooth script
+      \item Generation: prompt only; the real image just names the output files
+    \end{itemize}
+    \column{0.48\textwidth}
+    \textbf{Image-edit LoRA}
+    \begin{itemize}
+      \item One training example = reference image + target image + caption; same script in image-to-image mode
+      \item No before/after photographs exist, so each pair is two different pool images of the same class, matched on Fitzpatrick skin type (2 pairs per image)
+      \item Caption: ``same skin disease, \{condition\}, keeping the lesions and skin tone of the reference, on a different patient''
+      \item Generation: real image as reference + prompt
+    \end{itemize}
+  \end{columns}
+  \vspace{0.4em}
+  \muted{Both: one LoRA per class on all pool images of that class; rank 16, lr $10^{-4}$, 512 px, 2{,}000 steps; 33 min (text-to-image) and 61 min (edit) per class on one RTX PRO 6000.}
+\end{frame}
+
 \begin{frame}{Fine-tuned Qwen-Image-2.1, text-to-image: training}
   \begin{columns}[T]
     \column{0.42\textwidth}
@@ -213,6 +236,34 @@
       \item The LoRA picks up the dataset's look (varied sites, clinic backgrounds, darker skin tones) and its artifacts
     \end{itemize}
   \end{columns}
+\end{frame}
+
+\begin{frame}{Why the edit arm uses no LoRA: fine-tuning for edits did not work}
+  \begin{columns}[T]
+    \column{0.58\textwidth}
+    \includegraphics[width=\textwidth]{edit_lora_failure_psoriasis.jpg}
+    \column{0.4\textwidth}
+    \scriptsize
+    \begin{itemize}
+      \item Untuned edit with one prompt: near-copies of the reference (56\% within copy distance)
+      \item Edit + LoRA learned to \emph{ignore} the reference: training pairs were two different patients with the same label and one fixed caption, so the reference carried no information. A 20-step LoRA still kept it; longer training unlearned it
+      \item A fix needs same-patient or self-augmented pairs (not tried). The edit arm runs untuned Qwen with the 10 varied prompts
+    \end{itemize}
+  \end{columns}
+  \vspace{0.3em}
+  \begin{center}
+    \scriptsize
+    \begin{tabular}{lccc}
+      \toprule
+      psoriasis pilot (16 reals $\times$ 10) & distance to reference & skin tone shift & label match \\
+      \midrule
+      edit, untuned, one prompt & 0.07 & 5$^\circ$ & 0.74 \\
+      edit + LoRA (steps 500 to 2000) & 0.55 to 0.60 & 41 to 47$^\circ$ & 0.56 to 0.61 \\
+      edit, untuned, 10 prompts & 0.34 & 16$^\circ$ & 0.72 \\
+      text-to-image + LoRA, step 1500 & -- & -- & 0.78 \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
 \end{frame}
 
 \begin{frame}{Status: the Qwen Figure 3 run is in progress}
