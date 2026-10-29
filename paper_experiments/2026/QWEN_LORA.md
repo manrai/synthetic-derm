@@ -449,11 +449,11 @@ Caveats recorded with the decision:
   | 1 | aug_transforms | 0.122 | 0.144 | 0.175 |
   | 8 | none | 0.139 | 0.181 | 0.225 |
   | 8 | aug_transforms | 0.228 | 0.189 | 0.192 |
-  | 16 | none | 0.222 | 0.244 | 0.253 |
+  | 16 | none | 0.222 | 0.228 | 0.244 |
   | 16 | aug_transforms | 0.219 | 0.228 | 0.267 |
 
   One seed, so none of the differences is significant on its own. Pattern: the Qwen t2i LoRA arm is above real-only
-  in 5 of 6 cells (by 0.03-0.09), the edit arm in 5 of 6 (by 0.02-0.04); the exception for both is n=8 with
+  in 5 of 6 cells (by 0.02-0.09), the edit arm in 5 of 6 (by 0.01-0.04); the exception for both is n=8 with
   transforms, where the real-only run happened to land high (0.228). For comparison the proprietary pilot (seed
   20261028, different real subsets) had GPT Image edits at 0.25 and Nano Banana at 0.25 at n=16. These runs are
   part of the final sweep (same run ids), not a separate experiment.
