@@ -152,21 +152,11 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Preliminary results: proprietary models, zero-shot edits}
-  \begin{columns}[T]
-    \column{0.56\textwidth}
-    \includegraphics[width=\textwidth]{figure3_pilot.png}
-    \column{0.42\textwidth}
-    \vspace{1em}
-    \small
-    \begin{itemize}
-      \item One seed, $n \in \{1, 8, 16\}$, 10 edits per real with the 10 varied prompts
-      \item GPT Image 2.5 Sunburst (medium): \$0.019 per edit; 97 of 1{,}440 refused, replaced by extra edits of other references
-      \item Nano Banana 2.1 (1K): \$0.034 per edit; 7 refused
-      \item At $n = 16$: 25\% vs. 16\% real-only (GPT, with transforms); 25\% vs. 16\% (Nano Banana, without)
-      \item Wide intervals: 360 test images, one seed
-    \end{itemize}
-  \end{columns}
+\begin{frame}{Preliminary results: one seed, $n \in \{1, 8, 16\}$}
+  \begin{center}
+    \includegraphics[height=0.74\textheight]{figure3_pilot_three.png}
+  \end{center}
+  \muted{Nine-way accuracy on the 360-image held-out test, 10 synthetic images per real. The proprietary pilot and the Qwen run used different seeds, so each panel carries its own real-only curve.}
 \end{frame}
 
 % ---------------------------------------------------------------- 5. fine-tuned qwen, text-to-image
