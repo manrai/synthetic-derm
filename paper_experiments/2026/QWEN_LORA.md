@@ -410,6 +410,7 @@ Caveats recorded with the decision:
 - 11:34 UTC: t2i lichen planus at 380/412 reals (2.81 s/image); edit at 1,240/3,339 (3.02 s/image); mirror current 11:16.
 - 12:04 UTC: t2i lichen planus class complete (412 reals, 4,120 images); basal cell carcinoma (class 3 of 9) at
   40/406 reals, 2.79 s/image. Edit at 1,300/3,339 (3.02 s/image); mirror current 12:01, 23,270 images.
+- 12:34 UTC: t2i BCC at 100/406 reals (2.79 s/image); edit at 1,360/3,339 (3.02 s/image); mirror current 12:23.
 
 ## Spend ledger
 
