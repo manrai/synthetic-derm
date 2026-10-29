@@ -366,6 +366,16 @@ Caveats recorded with the decision:
   02:04: edit generation at 155/3,339 reals, 3.30 s/image (rate drifting up from 3.17; ETA ~2026-10-30 07:00 UTC).
 - 02:17 UTC: neutrophilic dermatoses t2i LoRA trained (32.8 min); photodermatoses training (4 of 6).
   02:34: edit generation at 200/3,339 reals, 3.37 s/image.
+- 02:50 UTC: photodermatoses t2i LoRA trained (32.8 min); sarcoidosis training (5 of 6).
+- 03:04-03:17 UTC, **generation output moved to RAM.** The cumulative edit rate had drifted from 3.17 to 3.44 s/image
+  while the per-call GPU time stayed at ~2.9 s: the difference is file I/O on the volume. Measured: saving one 512 px
+  PNG to `/workspace` 780 ms vs 51 ms to `/dev/shm` (stat/mkdir are fast), i.e. ~7 s per pool image, ~6.8 h per arm.
+  Change (operational only, same images): `qwen_lora_full_run.sh` now writes to `/dev/shm/qwen_lora_generations`
+  and a `sync` loop mirrors it to `/workspace/synderm/qwen_lora/generations` every 20 min with
+  `rsync -rt --no-owner --no-group`. The edit generation was stopped at 257 reals (03:06), the 2,570 existing images
+  were mirrored into RAM (rsync from the volume, ~10 min), and `gen-edit 1` restarted; it skips existing files so
+  nothing is regenerated. The GPU 0 chain picks up the new output path when it reaches `gen-t2i`. The pool CSV stays
+  on the volume. Note for restarts: RAM output is lost with the pod, so the sync loop must be running.
 
 ## Spend ledger
 
