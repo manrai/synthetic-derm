@@ -470,6 +470,8 @@ Caveats recorded with the decision:
 - 21:34 UTC: t2i neutrophilic dermatoses at 120/284 reals (2.81 s/image); edit at 2,390/3,339 (3.05 s/image); mirror current 21:28, 46,490 images.
 - 22:04 UTC: t2i neutrophilic dermatoses at 190/284 reals (2.81 s/image); edit at 2,450/3,339 (3.05 s/image); mirror current 21:51, 47,420 images.
 - 22:34 UTC: t2i neutrophilic dermatoses at 260/284 reals (2.81 s/image), photodermatoses next; edit at 2,510/3,339 (3.05 s/image); mirror current 22:13, 48,340 images.
+- 23:04 UTC: t2i neutrophilic dermatoses class complete; photodermatoses (class 7 of 9) at 40/272 reals (2.83 s/image).
+  Edit at 2,580/3,339 (3.04 s/image). Mirror current 22:58, 50,190 images.
 
 ## Spend ledger
 
