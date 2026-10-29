@@ -436,6 +436,9 @@ Caveats recorded with the decision:
 - 16:59 UTC: priority pass for seed 2026001 complete on both arms (t2i nine classes, edit 144 reals); the full
   runs resumed (t2i at allergic contact dermatitis, edit from pool position 1,790) and the early sweep started on
   GPU 1 next to the edit generation: `qwen_lora_sweep.py --gpu 1 --seeds 2026001 --n 1 8 16`, 18 runs.
+- 17:04 UTC: early sweep running on GPU 1 (results accumulate in `sweep/results.csv`); full runs resumed: t2i at
+  ACD 180/358, edit at 1,830/3,339 (3.1 s/image with the sweep sharing GPU 1). Push to GitHub failed again
+  (authentication); the 16:48 push succeeded, so the failure is intermittent.
 
 ## Spend ledger
 
