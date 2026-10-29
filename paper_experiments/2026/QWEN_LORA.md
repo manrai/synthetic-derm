@@ -418,6 +418,7 @@ Caveats recorded with the decision:
 - 14:55 UTC: t2i BCC class complete (406 reals, 4,060 images); allergic contact dermatitis (class 4 of 9) started,
   10/358 reals at 15:04. Edit at 1,660/3,339 (3.02 s/image); mirror current 15:01, 30,730 images.
 - 15:34 UTC: t2i ACD at 80/358 reals (2.83 s/image); edit at 1,720/3,339 (3.02 s/image); mirror current 15:24.
+- 16:04 UTC: t2i ACD at 140/358 reals (2.83 s/image); edit at 1,780/3,339 (3.02 s/image); mirror current 15:47.
 
 ## Spend ledger
 
