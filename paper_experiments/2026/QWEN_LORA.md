@@ -433,6 +433,9 @@ Caveats recorded with the decision:
 - 16:35 UTC: priority pass for seed 2026001: t2i at class 6 of 9 (neutrophilic dermatoses, 16 reals per class,
   ~2.5 min per class plus LoRA load); edit at 110/144 reals (3.0 s/image). Early sweep chain waiting for both
   markers. Mirror current 16:12 (33,630 images). Side work: slide deck `paper_experiments/2026/slides/` (commit 1059799).
+- 16:59 UTC: priority pass for seed 2026001 complete on both arms (t2i nine classes, edit 144 reals); the full
+  runs resumed (t2i at allergic contact dermatitis, edit from pool position 1,790) and the early sweep started on
+  GPU 1 next to the edit generation: `qwen_lora_sweep.py --gpu 1 --seeds 2026001 --n 1 8 16`, 18 runs.
 
 ## Spend ledger
 
