@@ -457,6 +457,7 @@ Caveats recorded with the decision:
   transforms, where the real-only run happened to land high (0.228). For comparison the proprietary pilot (seed
   20261028, different real subsets) had GPT Image edits at 0.25 and Nano Banana at 0.25 at n=16. These runs are
   part of the final sweep (same run ids), not a separate experiment.
+- 17:34 UTC: t2i at ACD 240/358 (2.83 s/image); edit at 1,890/3,339 (3.20 s/image since the resume); mirror current 17:21.
 
 ## Spend ledger
 
