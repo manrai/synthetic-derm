@@ -419,6 +419,17 @@ Caveats recorded with the decision:
   10/358 reals at 15:04. Edit at 1,660/3,339 (3.02 s/image); mirror current 15:01, 30,730 images.
 - 15:34 UTC: t2i ACD at 80/358 reals (2.83 s/image); edit at 1,720/3,339 (3.02 s/image); mirror current 15:24.
 - 16:04 UTC: t2i ACD at 140/358 reals (2.83 s/image); edit at 1,780/3,339 (3.02 s/image); mirror current 15:47.
+- 16:05-16:17 UTC, **early single-seed sweep requested by the user.** Preview notebook
+  `03_qwen_lora_preview.ipynb` written (pilot tables, grids, Step 4 sample strips; executed copy at
+  `/workspace/synderm/qwen_lora/03_qwen_lora_preview.executed.ipynb`). Then the Step 4 queue was reordered, not
+  changed: `qwen_lora_priority.sh build-csv 2026001` wrote the 144 reals of seed 2026001's n=16 subset (drawn exactly
+  as the sweep draws them; n=1 and n=8 nest inside, checked), of which t2i already had 59 and edit 81. Both full runs
+  were stopped at 16:16 (t2i at ACD 150/358, edit at 1,790/3,339; nothing lost, the scripts resume) and relaunched as
+  `priority gen-t2i 0 2026001 && full_run gen-t2i 0` and `priority gen-edit 1 2026001 && full_run gen-edit 1`.
+  A chain waits for both `priority-2026001.done` markers and then runs `qwen_lora_sweep.py --seeds 2026001 --n 1 8 16`
+  (18 runs: 3 arms x 2 augmentations x 3 sizes) on GPU 1 next to the edit generation, writing into the final sweep
+  folder `/workspace/synderm/qwen_lora/sweep` (the full sweep later skips these run ids). Expected: images ready
+  ~17:15, sweep results ~17:45 UTC. Cost to the full run: two pipeline reloads plus nine extra LoRA loads (~10 min).
 
 ## Spend ledger
 
