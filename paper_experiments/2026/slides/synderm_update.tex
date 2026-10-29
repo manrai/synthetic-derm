@@ -233,20 +233,4 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Fine-tuned Qwen text-to-image across the nine classes}
-  \begin{center}
-    \includegraphics[width=\textwidth]{nine_classes_t2i.jpg}
-  \end{center}
-  \muted{Top row: one real pool image per class. Rows below: three LoRA text-to-image samples (seeds 0 to 2) for that class.}
-\end{frame}
-
-\begin{frame}{What is running now}
-  \begin{itemize}
-    \item Generation of 10 images per pool image: 33{,}390 text-to-image and 33{,}390 edit images on two GPUs, about 3 s per image; done by tomorrow morning
-    \item A single-seed sweep at $n \in \{1, 8, 16\}$ runs first; the full 5-seed, 7-size sweep follows
-    \item Qwen edit LoRAs trained on different-patient pairs learned to ignore the reference; the edit arm uses untuned Qwen with the varied prompts
-    \item Nothing paid so far in this round: Qwen runs locally
-  \end{itemize}
-\end{frame}
-
 \end{document}
