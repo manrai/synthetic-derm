@@ -215,21 +215,6 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Where the variety among the 10 images comes from: seeds vs. prompts}
-  \begin{columns}[T]
-    \column{0.46\textwidth}
-    \small
-    \begin{itemize}
-      \item \textbf{Seeds} (Qwen): one prompt, 10 seeds. With the LoRA the spread among the 10 images (0.53) is close to that of 10 random real images (0.59); untuned Qwen gives mostly hands on white (0.37)
-      \item \textbf{Prompts} (APIs expose no seed): 10 prompt variations change body site, framing and lighting; used for GPT Image and Nano Banana, and for Qwen edits, where one prompt returned near-copies of the reference
-      \item Prompt variety is held in reserve for Qwen text-to-image; seed variety was enough
-    \end{itemize}
-    \column{0.52\textwidth}
-    \includegraphics[width=\textwidth]{seed_vs_prompt_psoriasis.jpg}\\
-    \muted{Same real image (left). Top: Qwen LoRA text-to-image, one prompt, five seeds. Middle: untuned Qwen edit, five prompts. Bottom: GPT Image edit, five prompts.}
-  \end{columns}
-\end{frame}
-
 \begin{frame}{Status: the Qwen Figure 3 run is in progress}
   \begin{itemize}
     \item All nine text-to-image LoRAs are trained
