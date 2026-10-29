@@ -439,6 +439,24 @@ Caveats recorded with the decision:
 - 17:04 UTC: early sweep running on GPU 1 (results accumulate in `sweep/results.csv`); full runs resumed: t2i at
   ACD 180/358, edit at 1,830/3,339 (3.1 s/image with the sweep sharing GPU 1). Push to GitHub failed again
   (authentication); the 16:48 push succeeded, so the failure is intermittent.
+- **17:08 UTC: early single-seed sweep done** (seed 2026001, 18 runs in ~8 min on GPU 1 next to the edit generation;
+  `sweep/results.csv`, plot `sweep/figure3_early_seed2026001.png`). Top-1 accuracy on the 360 held-out images
+  (Wald 95% CI about +-0.04):
+
+  | n real per class | transforms | real only | + Qwen edit | + Qwen t2i |
+  |---|---|---|---|---|
+  | 1 | none | 0.122 | 0.153 | 0.167 |
+  | 1 | aug_transforms | 0.122 | 0.144 | 0.175 |
+  | 8 | none | 0.139 | 0.181 | 0.225 |
+  | 8 | aug_transforms | 0.228 | 0.189 | 0.192 |
+  | 16 | none | 0.222 | 0.244 | 0.253 |
+  | 16 | aug_transforms | 0.219 | 0.228 | 0.267 |
+
+  One seed, so none of the differences is significant on its own. Pattern: the Qwen t2i LoRA arm is above real-only
+  in 5 of 6 cells (by 0.03-0.09), the edit arm in 5 of 6 (by 0.02-0.04); the exception for both is n=8 with
+  transforms, where the real-only run happened to land high (0.228). For comparison the proprietary pilot (seed
+  20261028, different real subsets) had GPT Image edits at 0.25 and Nano Banana at 0.25 at n=16. These runs are
+  part of the final sweep (same run ids), not a separate experiment.
 
 ## Spend ledger
 
