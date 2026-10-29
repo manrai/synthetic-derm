@@ -362,6 +362,8 @@ Caveats recorded with the decision:
   the sweep so training does not read PNGs over the network mount.
 - 01:12 UTC: lichen planus t2i LoRA trained (412 images, 32.8 min); allergic contact dermatitis training (2 of 6).
   01:34: edit generation at 100/3,339 reals, 3.23 s/image (on pace for ~30 h).
+- 01:44 UTC: allergic contact dermatitis t2i LoRA trained (32.4 min); neutrophilic dermatoses training (3 of 6).
+  02:04: edit generation at 155/3,339 reals, 3.30 s/image (rate drifting up from 3.17; ETA ~2026-10-30 07:00 UTC).
 
 ## Spend ledger
 
