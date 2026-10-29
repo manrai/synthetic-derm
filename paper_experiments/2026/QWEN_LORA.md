@@ -294,6 +294,10 @@ Caveats recorded with the decision:
 - Generation for the 16 reals of each class in the API pilot `reals.csv`: t2i untuned and ckpt1500 (single prompt),
   edit untuned varied; chained automatically after each training. Then `qwen_lora_eval.py --label <class>` on
   those folders plus the GPT Image pilot folder for the same class, with the same cut-offs as psoriasis.
+- 2026-10-29 00:04 UTC: BCC t2i LoRA trained (406 training-pool images, 2000 steps, 32.7 min). GPU 0 chain
+  started: BCC t2i untuned, BCC t2i ckpt1500, edit-varied BCC, edit-varied lupus. Lupus t2i LoRA training on GPU 1.
+- Push to GitHub: the first push of the session (80e9c88) succeeded; later pushes fail with "Authentication failed"
+  (no credential helper configured on this pod). Commits stay local until credentials are supplied.
 
 ## Spend ledger
 
