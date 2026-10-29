@@ -403,6 +403,7 @@ Caveats recorded with the decision:
 - 08:32 UTC: t2i psoriasis class complete (584 reals, 5,840 images, 2.82 s/image, 4.6 h); lichen planus started
   (class 2 of 9). Edit at 880/3,339 (3.02 s/image). Sync passes now take ~4 min.
 - 09:04 UTC: t2i lichen planus at 60/412 reals (2.81 s/image); edit at 940/3,339 (3.02 s/image); mirror current 08:59.
+- 09:34 UTC: t2i lichen planus at 130/412 reals (2.81 s/image); edit at 1,000/3,339 (3.02 s/image); mirror current 09:22.
 
 ## Spend ledger
 
