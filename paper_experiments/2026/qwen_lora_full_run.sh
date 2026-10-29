@@ -66,7 +66,7 @@ gen-edit)
 sync)
   every=${2:-20}
   while true; do
-    rsync -rt --no-owner --no-group --exclude synthetic.csv "$OUT/" "$BACKUP/" && echo "synced $(date -u +%FT%T): $(find "$OUT" -name '*.png' | wc -l) png"
+    rsync -rtO --no-owner --no-group --exclude synthetic.csv "$OUT/" "$BACKUP/" && echo "synced $(date -u +%FT%T): $(find "$OUT" -name '*.png' | wc -l) png"
     sleep $((every * 60))
   done
   ;;
