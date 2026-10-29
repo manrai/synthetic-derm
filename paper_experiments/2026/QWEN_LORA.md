@@ -459,6 +459,8 @@ Caveats recorded with the decision:
   part of the final sweep (same run ids), not a separate experiment.
 - 17:34 UTC: t2i at ACD 240/358 (2.83 s/image); edit at 1,890/3,339 (3.20 s/image since the resume); mirror current 17:21.
 - 18:04 UTC: t2i at ACD 310/358 (2.83 s/image); edit at 1,950/3,339 (3.13 s/image); mirror current 17:43.
+- 18:35 UTC: t2i ACD class complete; lupus (class 5 of 9) at 20/297 reals (2.82 s/image). Edit at 2,010/3,339
+  (3.10 s/image). Mirror current 18:28, 39,100 images. Pushed to GitHub at 18:2x (bf85b10); pushes succeed intermittently.
 
 ## Spend ledger
 
