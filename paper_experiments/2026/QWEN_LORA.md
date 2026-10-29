@@ -364,6 +364,8 @@ Caveats recorded with the decision:
   01:34: edit generation at 100/3,339 reals, 3.23 s/image (on pace for ~30 h).
 - 01:44 UTC: allergic contact dermatitis t2i LoRA trained (32.4 min); neutrophilic dermatoses training (3 of 6).
   02:04: edit generation at 155/3,339 reals, 3.30 s/image (rate drifting up from 3.17; ETA ~2026-10-30 07:00 UTC).
+- 02:17 UTC: neutrophilic dermatoses t2i LoRA trained (32.8 min); photodermatoses training (4 of 6).
+  02:34: edit generation at 200/3,339 reals, 3.37 s/image.
 
 ## Spend ledger
 
