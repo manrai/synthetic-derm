@@ -463,6 +463,7 @@ Caveats recorded with the decision:
   (3.10 s/image). Mirror current 18:28, 39,100 images. Pushed to GitHub at 18:2x (bf85b10); pushes succeed intermittently.
 - 19:04 UTC: t2i lupus at 80/297 reals (2.83 s/image); edit at 2,070/3,339 (3.08 s/image); mirror current 18:51, 40,026 images.
 - 19:34 UTC: t2i lupus at 150/297 reals (2.82 s/image); edit at 2,140/3,339 (3.07 s/image); mirror current 19:14, 40,960 images.
+- 20:04 UTC: t2i lupus at 220/297 reals (2.83 s/image); edit at 2,200/3,339 (3.07 s/image); mirror current 19:59, 42,800 images.
 
 ## Spend ledger
 
