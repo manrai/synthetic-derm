@@ -386,6 +386,7 @@ Caveats recorded with the decision:
   its `&&` chain stopped. No training was affected (all nine weight files exist). `gen-t2i 0` launched by hand at
   03:57:55 UTC, writing to RAM like the edit arm; one minute of GPU 0 time lost. Rule for the rest of the run: do not
   edit a shell script that a running job is executing; copy it first.
+- 04:04 UTC: t2i generation at 10/584 psoriasis reals, 2.79 s/image; edit at 350/3,339, 3.00 s/image.
 
 ## Spend ledger
 
