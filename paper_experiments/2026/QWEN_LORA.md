@@ -486,6 +486,8 @@ Caveats recorded with the decision:
 - 02:34 UTC: t2i sarcoidosis at 250/286 reals (2.80 s/image), then squamous cell carcinoma (440 reals, ~3.4 h);
   edit at 3,010/3,339 (3.03 s/image, ~2.7 h left at 30 s per pool image). ETA: edit ~05:20, t2i ~06:15 UTC.
   Mirror current 02:20, 58,530 images.
+- 03:04 UTC: t2i sarcoidosis class complete; squamous cell carcinoma (class 9 of 9, last) at 30/440 reals
+  (2.80 s/image). Edit at 3,070/3,339 (3.03 s/image). Mirror current 02:43, 59,481 images.
 
 ## Spend ledger
 
