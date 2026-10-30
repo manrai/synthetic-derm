@@ -515,6 +515,7 @@ Caveats recorded with the decision:
   stopped. The sweep reads from the RAM copy.
 - 07:04 UTC: sweep at 104 of 210 runs (real-only and edit on seed 3 of 5; t2i on seed 2 of 5). No errors.
 - 07:34 UTC: sweep at 142 of 210 runs (real-only and edit on seed 4 of 5; t2i on seed 3 of 5). No errors.
+- 08:04 UTC: sweep at 180 of 210 runs (real-only and edit on seed 5 of 5; t2i on seed 4 of 5). No errors.
 
 ## Spend ledger
 
