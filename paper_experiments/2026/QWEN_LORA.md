@@ -506,6 +506,9 @@ Caveats recorded with the decision:
   GPU 0 at 06:09 (`--arms t2i`, five seeds, 70 runs, 6 early runs skipped); the real-only + edit arms continue on
   GPU 1. The sync loop keeps mirroring RAM to `/workspace/synderm/qwen_lora/generations/` every 20 min; the final
   pass is verified before the loop is stopped.
+- 06:34 UTC: sweep at 66 of 210 runs (real-only and edit: seed 2 of 5; t2i: seed 1 done, 13 runs). n=228 runs
+  take ~5 min (t2i: 22,572 training images, 10 epochs, 303 s). Mirror: 66,780 images in RAM, last pass 40 s (nothing
+  left to copy); volume count being verified before the sync loop is stopped. Pushed to GitHub (2fe2cf3 and later).
 
 ## Spend ledger
 
