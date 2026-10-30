@@ -571,7 +571,29 @@ Slides: the three-generator comparison slide now uses the five-seed Qwen means f
 (`slides/build_figure3_compare.py` -> `fig/figure3_compare.png`); a table slide with the full sweep numbers was
 added after the five-seed figure (19 slides).
 
+### 2026-10-30, 20:00 UTC: Figure 3 proprietary arm, Nano Banana 2.1 only (user request)
+
+The user asked for the GPT Image and Nano Banana arms at all n, then restricted it to Nano Banana (only a Gemini key is
+available). Caps set by the user and not to be raised by this agent: **$1,200 for Nano Banana** (GPT Image, if run
+later: $700). On an API limit or any error that stops the run: stop and ask, no workaround.
+
+Plan: `api_generate_pool.py` (new, derived from `pilot_generate.py`) makes 10 varied-prompt edits for every image of
+`generations/pool9.csv` (3,339 reals) in the sweep's layout `api_generations/nano-banana-2.1/<00..09>/<md5>.png`,
+importing the 1,440 pilot edits first (no new spend), refusals retried once then topped up with an edit of another
+accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0334 = ~$1,070. Then the sweep with
+`--arms nano-banana-2.1`, five seeds, 70 runs on one GPU, reusing the real-only rows. A 30-minute check-in loop
+(cron a4ed34ef) watches the run.
+
+- 20:04 UTC: dry run started (imports the pilot images; ~0.8 s per file write on the volume).
+- 20:17 UTC: dry run done: 1,440 pilot images imported, 33,390 slots, 31,950 to run (~$1,067 at the pilot's rate).
+- 20:17-20:20 UTC: paid test, 20 psoriasis reals x 2 slots, $2 cap: 38 ok + 2 refused, both topped up from another
+  accepted psoriasis reference; 40 of 40 slots filled, $1.34, 24 s latency, 1,120 output image tokens per image.
+- 20:22 UTC: full run launched: `api_generate_pool.py --model nano-banana-2.1 --budget 1198 --threads 20`
+  (cap 1,198 so that test + run stay within the user's $1,200), log `api-nano-banana-fig3.log`.
+
 ## Spend ledger
 
 | When | What | Model | Images | Cost (from usage) | Session total |
 |---|---|---|---|---|---|
+| 2026-10-30 20:17-20:20 UTC | Figure 3 arm, paid test (20 psoriasis reals x 2 slots + 2 top-ups) | gemini-nano-banana-2.1, 1K | 40 | $1.34 | $1.34 |
+| 2026-10-30 20:22 UTC | Figure 3 arm, full run, cap $1,198 (running; final cost logged when done) | gemini-nano-banana-2.1, 1K | up to 31,950 + top-ups | see progress.json | |
