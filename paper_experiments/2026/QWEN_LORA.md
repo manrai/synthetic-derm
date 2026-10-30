@@ -517,6 +517,7 @@ Caveats recorded with the decision:
 - 07:34 UTC: sweep at 142 of 210 runs (real-only and edit on seed 4 of 5; t2i on seed 3 of 5). No errors.
 - 08:04 UTC: sweep at 180 of 210 runs (real-only and edit on seed 5 of 5; t2i on seed 4 of 5). No errors.
 - 08:34 UTC: sweep at 204 of 210 runs (real-only complete; edit 69/70; t2i 65/70). No errors.
+- 08:38 UTC: GPU 1 sweep done: real-only and edit arms complete (70 runs each, 3 h 3 min). t2i arm at 66/70 on GPU 0.
 
 ## Spend ledger
 
