@@ -498,6 +498,8 @@ Caveats recorded with the decision:
   started by hand at 05:35 UTC: `qwen_lora_sweep.py --gpu 1 --seeds 2026001..2026005 --arms none edit`
   (140 runs; the 12 early seed-2026001 runs are skipped). The t2i chain is replaced by one that waits for the
   "gen-t2i done" line in the t2i log instead of a process pattern.
+- 06:04 UTC: GPU 1 sweep at 32 runs in `results.csv` (seed 2026001 real-only and edit arms nearly complete; runs
+  take 40 s to 5 min, n=128 edit with transforms 304 s). t2i generation at SCC 420/440 reals. Mirror current 05:43.
 
 ## Spend ledger
 
