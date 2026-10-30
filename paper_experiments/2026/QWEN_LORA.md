@@ -590,10 +590,18 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
   accepted psoriasis reference; 40 of 40 slots filled, $1.34, 24 s latency, 1,120 output image tokens per image.
 - 20:22 UTC: full run launched: `api_generate_pool.py --model nano-banana-2.1 --budget 1198 --threads 20`
   (cap 1,198 so that test + run stay within the user's $1,200), log `api-nano-banana-fig3.log`.
+- 20:26-21:52 UTC: steady at 33-37 images/min, 0 errors, 0 rate limits; refusals ~2% (61 of 3,312 by 21:52).
+- **22:02 UTC: stopped by hand (SIGTERM) at the user's request** (pod being shut down; the run continues on a new
+  pod). Last totals from progress.json: ok=3,697, refused=61, error=0, cost **$124.22** this process (+$1.34 test =
+  $125.56 of the $1,200 cap; **$1,074 remains**). Up to 20 in-flight requests were lost at the kill (no file, no JSON;
+  they are redone on resume; at most ~$0.70). Images and JSON sidecars are written straight to the volume, nothing
+  was in RAM. Resume on any machine (no GPU needed) with the same command and the remaining cap:
+  `python paper_experiments/2026/api_generate_pool.py --model nano-banana-2.1 --budget 1074 --threads 20`
+  (finished slots are skipped; the top-up pass runs after the main pass). Check-in loop a4ed34ef cancelled.
 
 ## Spend ledger
 
 | When | What | Model | Images | Cost (from usage) | Session total |
 |---|---|---|---|---|---|
 | 2026-10-30 20:17-20:20 UTC | Figure 3 arm, paid test (20 psoriasis reals x 2 slots + 2 top-ups) | gemini-nano-banana-2.1, 1K | 40 | $1.34 | $1.34 |
-| 2026-10-30 20:22 UTC | Figure 3 arm, full run, cap $1,198 (running; final cost logged when done) | gemini-nano-banana-2.1, 1K | up to 31,950 + top-ups | see progress.json | |
+| 2026-10-30 20:22-22:02 UTC | Figure 3 arm, full run part 1, cap $1,198, stopped by hand for pod shutdown | gemini-nano-banana-2.1, 1K | 3,697 ok + 61 refused | $124.22 | $125.56 |
