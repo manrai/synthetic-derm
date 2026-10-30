@@ -490,6 +490,7 @@ Caveats recorded with the decision:
   (2.80 s/image). Edit at 3,070/3,339 (3.03 s/image). Mirror current 02:43, 59,481 images.
 - 03:34 UTC: t2i SCC at 90/440 reals (2.81 s/image); edit at 3,130/3,339 (3.03 s/image); mirror current 03:28, 61,330 images.
 - 04:04 UTC: t2i SCC at 160/440 reals (2.82 s/image); edit at 3,200/3,339 (3.02 s/image); mirror current 03:50, 62,250 images.
+- 04:34 UTC: t2i SCC at 220/440 reals (2.82 s/image); edit at 3,260/3,339 (3.02 s/image, ~40 min left); mirror current 04:13, 63,190 images.
 
 ## Spend ledger
 
