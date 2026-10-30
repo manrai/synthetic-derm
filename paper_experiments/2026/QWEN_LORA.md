@@ -105,6 +105,49 @@ held-out 360 test). n in {1, 8, 16, 32, 64, 128, 228} x {real only, + Qwen edit,
 x {no transforms, aug_transforms} x 5 new seeds = 210 runs, across 3 GPUs. Results to one CSV;
 analysis notebook makes the plot and a table, both recorded here.
 
+**Step 6. Figure 5 (dose-response) with Nano Banana 2.1 edits, 16 real per class first, one seed (planned
+2026-10-30, not started; runs only after the Figure 3 Nano Banana arm is finished and the user says start).**
+Paper Figure 5 (main.tex, "dose-response and saturation"): 16, 32, 64 real per class x 0, 10, 25, 50, 75,
+100, 125, 150 synthetic per real x {no transforms, aug_transforms}; the paper used DreamBooth text-to-image,
+this arm uses Nano Banana reference-image edits. Step 6 runs the 16-per-class panel; Step 7 adds 32 and 64.
+- Protocol: `paper_experiments/Experiments/dose_response.py`, not `n_per_label.py`. Same split as Step 5
+  (nine labels, 40 val per label from the pool with `random_state`, n per label from the rest with the same
+  `random_state`, 360 held-out test), but two differences that the new sweep script keeps: a batch size of 128
+  when n_train/10 >= 500, and `SaveModelCallback` + load of the best valid_loss model before testing.
+- Seed: one, 2026001 (first Step 5 seed), so the reals are the same as in the Figure 3 sweep. 16 and 32 nest
+  inside 64 (checked for the Step 5 seeds), so the Step 6 images are reused by Step 7 and nothing is paid twice.
+  Step 6 needs images for the 16 x 9 = 144 reals of that draw.
+- Prompts: 150 edit variations. Slots 0-9 keep the current 10 (`EDIT_VARIATIONS`) and reuse the Figure 3
+  images already on disk; slots 10-149 get 140 new prompts (a fixed, written-out list of body site x framing x
+  lighting/age combinations, no duplicates). Slot k uses prompt k; a run with k per real uses slots 0..k-1, so
+  the doses nest. The original also used a separate set of slots for this figure (`generations-more`, from 10).
+- Generation: `api_generate_pool.py` with `--reals` = the 144 reals, `--k 150`, same output folder (slots
+  `10..149` added next to `00..09`). Needs one change: the top-up rule ("reference with all its slots
+  accepted") almost never holds at 150 slots (0.98^150 = 5%), so a refused slot is topped up from another
+  reference of the class whose own edit for that slot was accepted.
+- Paid pilot first: 1 real x 140 new slots for 2 classes (280 images, ~$10) to check the prompts give
+  varied images, then the run.
+- Size and cost: 144 x 140 = 20,160 new images + ~2% top-ups = ~20,600 at the measured $0.0336/image =
+  **~$690** including the pilot (Batch API, if it supports this model: ~$350 with up to 24 h turnaround).
+  Separate cap to be set by the user; not part of the $1,200 Figure 3 cap. ~10 h at 20 threads (35 images/min
+  measured).
+- Classifier: 8 doses x 2 transforms = 16 runs at n=16, one GPU. The 0 and 10 doses are rerun with this
+  protocol rather than taken from Step 5 (batch size differs). ~2M image-epochs, about 1-2 GPU-hours.
+  Storage: the 21,600 synthetic images used are ~29 GB at 1K PNG; copied to local disk (45 GB free) for training.
+- Output: `results.csv` and the 16-per-class panel of a Figure 5-style plot with Wald 95% CIs and BH-adjusted
+  two-proportion tests as in the paper; one seed, so no between-run spread. Reviewed with the user before Step 7.
+
+**Step 7. Figure 5 full run: add 32 and 64 real per class (planned 2026-10-30, not started; only after the
+user reviews Step 6 and says start).** Same protocol, seed, prompts and script as Step 6.
+- Generation: `--reals` = the 64 x 9 = 576 reals of the seed-2026001 draw; the 144 from Step 6 are skipped as
+  done. 432 x 140 = 60,480 new images + ~2% top-ups = ~61,700 = **~$2,070** (Batch API: ~$1,040). Steps 6 + 7
+  together: ~$2,760. ~30 h at 20 threads. Separate cap to be set by the user.
+- Classifier: n in {32, 64} x 8 doses x 2 transforms = 32 runs (n=16 is reused from Step 6). ~12M image-epochs,
+  about 5-10 GPU-hours.
+- Storage: all 86,400 synthetic images used are ~117 GB at 1K PNG; this pod has 24 GB /dev/shm and 45 GB root
+  free, so training reads 512 px copies made once (originals untouched) or runs on a pod with more RAM.
+- Output: the full three-panel Figure 5-style plot and table, recorded here.
+
 ## Run log
 
 **2026-10-28, session 1 (new pod, 3x RTX PRO 6000). Nothing trained, nothing generated, $0 spent.**
@@ -599,9 +642,29 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
   `python paper_experiments/2026/api_generate_pool.py --model nano-banana-2.1 --budget 1074 --threads 20`
   (finished slots are skipped; the top-up pass runs after the main pass). Check-in loop a4ed34ef cancelled.
 
+### 2026-10-30, 22:30 UTC: Figure 3 Nano Banana arm resumed on a new pod (no GPU needed; A40 pod)
+
+- Setup: `pip install pandas pillow google-genai`; reals copied to `/root/data/fitzpatrick17k/finalfitz17k` (16,536 files,
+  24-way cp, 1.5 min). Sum of `cost_usd` over all non-imported sidecars: **$125.56** (matches the ledger). Allowance for
+  the 20 requests killed at the 22:02 shutdown: $0.70, so $1,073.74 left under the user's $1,200.
+- 22:39 dry run: 33,390 slots, 5,240 done, 28,150 to run (~$940).
+- Thread test (user asked to push parallelism up to the rate limit). Each step was stopped by SIGTERM; in-flight requests
+  lost at each kill are counted as spent (threads x $0.0336) in the budget:
+  | threads | images/min | median / p90 latency | 429s | log |
+  |---|---|---|---|---|
+  | 20 (previous pod) | 33-37 | 24 s | 0 | api-nano-banana-fig3.log |
+  | 40 | ~98 | 16.5 / 31.7 s | 0 | pod-2026-10-31/api-nano-banana-fig3-t40.log |
+  | 80 | ~142 | 17.7 / 45.8 s | 0 | pod-2026-10-31/api-nano-banana-fig3-t80.log |
+  | 120 | ~140 | | 0 | pod-2026-10-31/api-nano-banana-fig3-t120.log |
+  Throughput plateaus at ~140/min between 80 and 120 threads with no 429s (a throughput ceiling, not a rate limit).
+- 22:57 UTC: running at 120 threads, `--budget 1003` = $1,200 - $187.25 recorded - $4.73 kill allowance - 120 x $0.0336
+  overshoot margin (the cap is checked after each request completes). 26,300 requests at start. ETA main pass ~02:10 UTC
+  Oct 31, then the top-up pass. Projected total ~$1,090. 30-minute check-in cron 18c38652 (session-only).
+
 ## Spend ledger
 
 | When | What | Model | Images | Cost (from usage) | Session total |
 |---|---|---|---|---|---|
 | 2026-10-30 20:17-20:20 UTC | Figure 3 arm, paid test (20 psoriasis reals x 2 slots + 2 top-ups) | gemini-nano-banana-2.1, 1K | 40 | $1.34 | $1.34 |
 | 2026-10-30 20:22-22:02 UTC | Figure 3 arm, full run part 1, cap $1,198, stopped by hand for pod shutdown | gemini-nano-banana-2.1, 1K | 3,697 ok + 61 refused | $124.22 | $125.56 |
+| 2026-10-30 22:39-22:57 UTC | Figure 3 arm, part 2: thread tests at 40 and 80 (stopped by hand), killed in-flight allowance $4.03 | gemini-nano-banana-2.1, 1K | ~1,750 ok | $61.69 + $4.03 | $191.98 |
