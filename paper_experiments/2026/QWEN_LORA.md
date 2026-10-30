@@ -482,6 +482,7 @@ Caveats recorded with the decision:
   --arms none edit --seeds 2026001..2026005` starts on GPU 1; when the t2i runner exits and all 33,390 t2i images are
   present, `--gpu 0 --arms t2i` starts on GPU 0. Both write to `sweep/results.csv` (run ids already there, e.g. the
   early seed-2026001 n<=16 runs, are skipped). Each chain stops with a report if the image count is short.
+- 02:04 UTC: t2i sarcoidosis at 180/286 reals (2.80 s/image); edit at 2,950/3,339 (3.03 s/image); mirror current 01:58, 57,600 images.
 
 ## Spend ledger
 
