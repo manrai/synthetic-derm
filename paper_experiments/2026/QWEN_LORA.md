@@ -514,6 +514,7 @@ Caveats recorded with the decision:
   only 790 of 3,339 names (stale geesefs listing); stat-based checks are the reliable test on this mount. Sync loop
   stopped. The sweep reads from the RAM copy.
 - 07:04 UTC: sweep at 104 of 210 runs (real-only and edit on seed 3 of 5; t2i on seed 2 of 5). No errors.
+- 07:34 UTC: sweep at 142 of 210 runs (real-only and edit on seed 4 of 5; t2i on seed 3 of 5). No errors.
 
 ## Spend ledger
 
