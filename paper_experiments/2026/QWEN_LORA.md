@@ -555,6 +555,22 @@ Reading (five seeds; SD across seeds, not a confidence interval):
   are not recoverable); the API arms exist only for n<=16, one seed.
 Total: $0 of the $50 API cap spent in this session; everything ran locally.
 
+### 2026-10-30, after Step 5: backup check of the generations on /workspace
+
+The user asked whether every synthetic image is on /workspace (they will go to Hugging Face later). Checked the RAM
+copy (/dev/shm/qwen_lora_generations) against the volume copy (/workspace/synderm/qwen_lora/generations) with
+`find -type f -printf '%P %s'` on both sides, sorted, and `diff`: 133,566 files (66,780 PNG + 66,780 JSON sidecars
++ config files) identical in name and size. Two gaps fixed by `cp`: the top-level `t2i/synthetic.csv` (589,628 B) and
+`edit/synthetic.csv` (4,318,898 B) had never been synced (the parallel sync covered only the slot folders), and
+`t2i/generate_config.json` on the volume was from an earlier run. One zero-byte rsync temp file
+(`t2i/03/.0b4c...json.y4zXyj`) removed from the volume. Volume copy is 28 GB; the pool9.csv and priority-2026001.csv
+there are extras written to the volume directly. The LoRA weights (t2i/<class>/.../checkpoint-*, edit/psoriasis),
+pilot folders and sweep results were written to /workspace from the start.
+
+Slides: the three-generator comparison slide now uses the five-seed Qwen means for both Qwen arms at n<=16
+(`slides/build_figure3_compare.py` -> `fig/figure3_compare.png`); a table slide with the full sweep numbers was
+added after the five-seed figure (19 slides).
+
 ## Spend ledger
 
 | When | What | Model | Images | Cost (from usage) | Session total |
