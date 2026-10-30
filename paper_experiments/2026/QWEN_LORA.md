@@ -509,6 +509,10 @@ Caveats recorded with the decision:
 - 06:34 UTC: sweep at 66 of 210 runs (real-only and edit: seed 2 of 5; t2i: seed 1 done, 13 runs). n=228 runs
   take ~5 min (t2i: 22,572 training images, 10 epochs, 303 s). Mirror: 66,780 images in RAM, last pass 40 s (nothing
   left to copy); volume count being verified before the sync loop is stopped. Pushed to GitHub (2fe2cf3 and later).
+- 06:45 UTC: mirror verified by stat and size for all 66,780 images (`/workspace/synderm/qwen_lora/generations/`,
+  0 missing, 0 size mismatches, 2 s with 32 threads). A plain directory listing of `edit/05` on the volume returned
+  only 790 of 3,339 names (stale geesefs listing); stat-based checks are the reliable test on this mount. Sync loop
+  stopped. The sweep reads from the RAM copy.
 
 ## Spend ledger
 
