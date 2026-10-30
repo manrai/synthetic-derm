@@ -488,6 +488,7 @@ Caveats recorded with the decision:
   Mirror current 02:20, 58,530 images.
 - 03:04 UTC: t2i sarcoidosis class complete; squamous cell carcinoma (class 9 of 9, last) at 30/440 reals
   (2.80 s/image). Edit at 3,070/3,339 (3.03 s/image). Mirror current 02:43, 59,481 images.
+- 03:34 UTC: t2i SCC at 90/440 reals (2.81 s/image); edit at 3,130/3,339 (3.03 s/image); mirror current 03:28, 61,330 images.
 
 ## Spend ledger
 
