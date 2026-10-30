@@ -261,15 +261,23 @@
   \begin{center}
     \includegraphics[height=0.6\textheight]{figure3_pilot_three.png}
   \end{center}
-  \muted{Nine-way accuracy on the 360-image held-out test, 10 synthetic images per real. \textbf{One seed per panel}, i.e.\ one draw of real images and one classifier run per point, where the paper averaged five; the Qwen dip at $n = 8$ with transforms is one real-only run landing high (23\%, above its own $n = 16$), not a measured effect. The proprietary pilot and the Qwen run used different seeds, so each panel carries its own real-only curve.}
+  \muted{Nine-way accuracy on the 360-image held-out test, 10 synthetic images per real. \textbf{One seed per panel}, i.e.\ one draw of real images and one classifier run per point, where the paper averaged five.}
 \end{frame}
 
-\begin{frame}{Qwen Figure 3 run in progress}
+\begin{frame}{Qwen Figure 3: five seeds}
+  \begin{center}
+    \includegraphics[height=0.74\textheight]{figure3_qwen.png}
+  \end{center}
+  \muted{210 runs: $n \in \{1, 8, 16, 32, 64, 128, 228\}$ real per class, 10 synthetic per real, with and without image transforms, five seeds; the real-only curve is shared. Error bars: SD across seeds.}
+\end{frame}
+
+\begin{frame}{Qwen Figure 3: what it shows}
   \begin{itemize}
-    \item All nine text-to-image LoRAs are trained
-    \item Generation of 10 synthetic images per training-pool image is running on 2$\times$ RTX PRO 6000: 33{,}390 text-to-image and 33{,}390 edit images, about 3 s per image
-    \item The full Figure 3 sweep follows: $n \in \{1, 8, 16, 32, 64, 128, 228\}$, real only vs. + Qwen text-to-image vs. + Qwen edit, with and without image transforms, five seeds
-    \item No API spend in this round: Qwen runs locally
+    \item Both Qwen arms sit above real-only at every $n$ (tie at $n = 1$ for edit)
+    \item \textbf{Edit} (untuned Qwen, varied prompts, images derived from each real): +3 to +4 points at $n = 8$ to $16$, +8 to +11 at $n = 32$ to $128$, +9 to +13 at $n = 228$ (53\% vs. 44\% with transforms). The gain grows with $n$
+    \item \textbf{Text-to-image LoRA}: +2 to +5 points at $n \le 16$, +7 to +9 at $n = 32$, +4 to +5 at $n = 64$ to $128$, about 0 at $n = 228$ with transforms. Closer to the paper's SD pattern
+    \item Caveat on the edit arm: about half of its images stay close to their reference, so part of the gain may be augmentation of the real images rather than new disease information
+    \item Comparison with the published SD arms is across figures (new seeds); the proprietary arms exist only for $n \le 16$, one seed
   \end{itemize}
 \end{frame}
 
