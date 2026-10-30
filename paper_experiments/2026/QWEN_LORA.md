@@ -513,6 +513,7 @@ Caveats recorded with the decision:
   0 missing, 0 size mismatches, 2 s with 32 threads). A plain directory listing of `edit/05` on the volume returned
   only 790 of 3,339 names (stale geesefs listing); stat-based checks are the reliable test on this mount. Sync loop
   stopped. The sweep reads from the RAM copy.
+- 07:04 UTC: sweep at 104 of 210 runs (real-only and edit on seed 3 of 5; t2i on seed 2 of 5). No errors.
 
 ## Spend ledger
 
