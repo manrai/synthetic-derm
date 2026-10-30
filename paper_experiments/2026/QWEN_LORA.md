@@ -483,6 +483,9 @@ Caveats recorded with the decision:
   present, `--gpu 0 --arms t2i` starts on GPU 0. Both write to `sweep/results.csv` (run ids already there, e.g. the
   early seed-2026001 n<=16 runs, are skipped). Each chain stops with a report if the image count is short.
 - 02:04 UTC: t2i sarcoidosis at 180/286 reals (2.80 s/image); edit at 2,950/3,339 (3.03 s/image); mirror current 01:58, 57,600 images.
+- 02:34 UTC: t2i sarcoidosis at 250/286 reals (2.80 s/image), then squamous cell carcinoma (440 reals, ~3.4 h);
+  edit at 3,010/3,339 (3.03 s/image, ~2.7 h left at 30 s per pool image). ETA: edit ~05:20, t2i ~06:15 UTC.
+  Mirror current 02:20, 58,530 images.
 
 ## Spend ledger
 
