@@ -500,6 +500,12 @@ Caveats recorded with the decision:
   "gen-t2i done" line in the t2i log instead of a process pattern.
 - 06:04 UTC: GPU 1 sweep at 32 runs in `results.csv` (seed 2026001 real-only and edit arms nearly complete; runs
   take 40 s to 5 min, n=128 edit with transforms 304 s). t2i generation at SCC 420/440 reals. Mirror current 05:43.
+- **06:09 UTC: t2i generation complete, Step 4 done.** 33,390 t2i images (nine classes, ckpt1500 LoRAs, single
+  prompt, 10 seeds per pool image) verified in RAM; with the edit arm, 66,780 images, about 52 GPU-hours net over
+  ~29.5 h wall-clock on two GPUs (including the 16:17 reorder and the RAM switch). The t2i sweep arm started on
+  GPU 0 at 06:09 (`--arms t2i`, five seeds, 70 runs, 6 early runs skipped); the real-only + edit arms continue on
+  GPU 1. The sync loop keeps mirroring RAM to `/workspace/synderm/qwen_lora/generations/` every 20 min; the final
+  pass is verified before the loop is stopped.
 
 ## Spend ledger
 
