@@ -475,6 +475,8 @@ Caveats recorded with the decision:
 - 23:34 UTC: t2i photodermatoses at 110/272 reals (2.82 s/image); edit at 2,640/3,339 (3.04 s/image); mirror current 23:21, 51,115 images.
 - 2026-10-30 00:04 UTC: t2i photodermatoses at 180/272 reals (2.81 s/image); edit at 2,700/3,339 (3.04 s/image); mirror current 23:43, 52,050 images.
 - 00:34 UTC: t2i photodermatoses at 250/272 reals (2.81 s/image), sarcoidosis next; edit at 2,760/3,339 (3.03 s/image); mirror current 00:28, 53,890 images.
+- 01:04 UTC: t2i photodermatoses class complete; sarcoidosis (class 8 of 9) at 40/286 reals (2.82 s/image).
+  Edit at 2,820/3,339 (3.03 s/image). Mirror current 00:50, 54,810 images.
 
 ## Spend ledger
 
