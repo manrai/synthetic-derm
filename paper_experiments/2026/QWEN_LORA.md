@@ -519,6 +519,42 @@ Caveats recorded with the decision:
 - 08:34 UTC: sweep at 204 of 210 runs (real-only complete; edit 69/70; t2i 65/70). No errors.
 - 08:38 UTC: GPU 1 sweep done: real-only and edit arms complete (70 runs each, 3 h 3 min). t2i arm at 66/70 on GPU 0.
 
+**Step 5 complete, 09:00 UTC (2026-10-30).** 210 runs (7 sizes x 3 arms x 2 transform settings x 5 seeds), `sweep/results.csv`,
+plot `sweep/figure3_qwen.png`, table `sweep/figure3_qwen_table.{csv,md}` (`qwen_lora_figure3.py`). Real-only and edit arms
+ran on GPU 1 05:35-08:38, t2i arm on GPU 0 06:09-09:00. Top-1 accuracy on the 360-image held-out test, mean +- SD over
+seeds 2026001-2026005 (n seeds):
+
+| n real per class | transforms | real only | + Qwen edit | + Qwen t2i |
+|---|---|---|---|---|
+| 1 | None | 0.123 ± 0.020 (5) | 0.130 ± 0.026 (5) | 0.177 ± 0.015 (5) |
+| 1 | aug_transforms | 0.136 ± 0.018 (5) | 0.137 ± 0.025 (5) | 0.158 ± 0.010 (5) |
+| 8 | None | 0.165 ± 0.028 (5) | 0.198 ± 0.018 (5) | 0.221 ± 0.009 (5) |
+| 8 | aug_transforms | 0.183 ± 0.030 (5) | 0.196 ± 0.020 (5) | 0.201 ± 0.011 (5) |
+| 16 | None | 0.203 ± 0.015 (5) | 0.236 ± 0.012 (5) | 0.253 ± 0.014 (5) |
+| 16 | aug_transforms | 0.215 ± 0.026 (5) | 0.236 ± 0.041 (5) | 0.257 ± 0.008 (5) |
+| 32 | None | 0.216 ± 0.016 (5) | 0.293 ± 0.017 (5) | 0.289 ± 0.012 (5) |
+| 32 | aug_transforms | 0.213 ± 0.015 (5) | 0.317 ± 0.014 (5) | 0.305 ± 0.014 (5) |
+| 64 | None | 0.267 ± 0.011 (5) | 0.387 ± 0.025 (5) | 0.322 ± 0.016 (5) |
+| 64 | aug_transforms | 0.301 ± 0.018 (5) | 0.387 ± 0.014 (5) | 0.344 ± 0.013 (5) |
+| 128 | None | 0.331 ± 0.013 (5) | 0.444 ± 0.015 (5) | 0.373 ± 0.018 (5) |
+| 128 | aug_transforms | 0.359 ± 0.022 (5) | 0.471 ± 0.025 (5) | 0.397 ± 0.041 (5) |
+| 228 | None | 0.390 ± 0.031 (5) | 0.521 ± 0.022 (5) | 0.436 ± 0.018 (5) |
+| 228 | aug_transforms | 0.444 ± 0.025 (5) | 0.533 ± 0.021 (5) | 0.443 ± 0.027 (5) |
+
+Reading (five seeds; SD across seeds, not a confidence interval):
+- Both Qwen arms are above real-only at every n and both transform settings except n=1 edit, where they tie.
+- Edit arm (untuned Qwen, varied prompts, images derived from each real): +3 to +4 points at n=8-16, +8 to +10 at
+  n=32-64, +11 points at n=128, +9 to +13 at n=228 (0.52-0.53 vs 0.39-0.44). The gain grows with n rather than
+  vanishing as in the paper's SD arms. Interpretation to check: about half the edit slots stay close to the reference
+  (pilot), so this arm also acts as strong augmentation of the real images; the gain may partly reflect that rather
+  than new disease information.
+- t2i LoRA arm: +2 to +5 points at n=1-16, +7 to +9 at n=32, +4 to +5 at n=64-128, +5 without transforms and
+  ~0 with transforms at n=228. Closer to the paper's pattern (gains at small and mid n, vanishing at 228 with transforms).
+- Real-only baseline: 0.12 at n=1 to 0.39/0.44 at n=228 (without/with transforms).
+- Comparison with the published SD arms is between figures, not within one run (different seeds, the original seeds
+  are not recoverable); the API arms exist only for n<=16, one seed.
+Total: $0 of the $50 API cap spent in this session; everything ran locally.
+
 ## Spend ledger
 
 | When | What | Model | Images | Cost (from usage) | Session total |
