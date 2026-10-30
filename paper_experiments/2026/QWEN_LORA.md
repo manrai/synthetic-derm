@@ -492,6 +492,12 @@ Caveats recorded with the decision:
 - 04:04 UTC: t2i SCC at 160/440 reals (2.82 s/image); edit at 3,200/3,339 (3.02 s/image); mirror current 03:50, 62,250 images.
 - 04:34 UTC: t2i SCC at 220/440 reals (2.82 s/image); edit at 3,260/3,339 (3.02 s/image, ~40 min left); mirror current 04:13, 63,190 images.
 - 05:04 UTC: t2i SCC at 290/440 reals (2.82 s/image); edit at 3,320/3,339 (~10 min left); mirror current 04:59, 65,070 images.
+- **05:09 UTC: edit generation complete**: 33,390 images (3,339 pool images x 10, untuned Qwen, varied prompts),
+  about 25.5 GPU-hours net; verified count in RAM. The chained sweep did not start on its own: its wait pattern also
+  matched the (still alive) shell that launched both generation chains at 16:17, so it was stopped and the sweep was
+  started by hand at 05:35 UTC: `qwen_lora_sweep.py --gpu 1 --seeds 2026001..2026005 --arms none edit`
+  (140 runs; the 12 early seed-2026001 runs are skipped). The t2i chain is replaced by one that waits for the
+  "gen-t2i done" line in the t2i log instead of a process pattern.
 
 ## Spend ledger
 
