@@ -477,6 +477,11 @@ Caveats recorded with the decision:
 - 00:34 UTC: t2i photodermatoses at 250/272 reals (2.81 s/image), sarcoidosis next; edit at 2,760/3,339 (3.03 s/image); mirror current 00:28, 53,890 images.
 - 01:04 UTC: t2i photodermatoses class complete; sarcoidosis (class 8 of 9) at 40/286 reals (2.82 s/image).
   Edit at 2,820/3,339 (3.03 s/image). Mirror current 00:50, 54,810 images.
+- 01:34 UTC: t2i sarcoidosis at 110/286 reals (2.80 s/image); edit at 2,880/3,339 (3.03 s/image); mirror current 01:13, 55,740 images.
+  Step 5 chains armed: when the edit runner exits and all 33,390 edit images are present, `qwen_lora_sweep.py --gpu 1
+  --arms none edit --seeds 2026001..2026005` starts on GPU 1; when the t2i runner exits and all 33,390 t2i images are
+  present, `--gpu 0 --arms t2i` starts on GPU 0. Both write to `sweep/results.csv` (run ids already there, e.g. the
+  early seed-2026001 n<=16 runs, are skipped). Each chain stops with a report if the image count is short.
 
 ## Spend ledger
 
