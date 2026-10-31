@@ -114,17 +114,30 @@ this arm uses Nano Banana reference-image edits. Step 6 runs the 16-per-class pa
   (nine labels, 40 val per label from the pool with `random_state`, n per label from the rest with the same
   `random_state`, 360 held-out test), but two differences that the new sweep script keeps: a batch size of 128
   when n_train/10 >= 500, and `SaveModelCallback` + load of the best valid_loss model before testing.
-- Seed: one, 2026001 (first Step 5 seed), so the reals are the same as in the Figure 3 sweep. 16 and 32 nest
-  inside 64 (checked for the Step 5 seeds), so the Step 6 images are reused by Step 7 and nothing is paid twice.
-  Step 6 needs images for the 16 x 9 = 144 reals of that draw.
-- Prompts: 150 edit variations. Slots 0-9 keep the current 10 (`EDIT_VARIATIONS`) and reuse the Figure 3
-  images already on disk; slots 10-149 get 140 new prompts (a fixed, written-out list of body site x framing x
-  lighting/age combinations, no duplicates). Slot k uses prompt k; a run with k per real uses slots 0..k-1, so
-  the doses nest. The original also used a separate set of slots for this figure (`generations-more`, from 10).
-- Generation: `api_generate_pool.py` with `--reals` = the 144 reals, `--k 150`, same output folder (slots
-  `10..149` added next to `00..09`). Needs one change: the top-up rule ("reference with all its slots
-  accepted") almost never holds at 150 slots (0.98^150 = 5%), so a refused slot is topped up from another
-  reference of the class whose own edit for that slot was accepted.
+- Seed: **119108**, one of the two 2023 Figure 5 seeds (119108, 329101: the first field of the model file names in
+  the 2023 `derm/dose-response/` folder, which cover 16/32/64 x doses 10-75 x both transform settings; 4 of the 48
+  files are missing). Confirmed 2026-10-31 that the draw reproduces 2023: the 2023 machine's
+  `Fitzpatrick17k/fitzpatrick17k_10label_clean_{training,held_out_set}.csv` have the same md5 as `fitz_metadata/`
+  (11b4b1c7..., 8ff2299d...), and the 2023 generation folders (`generations-more`, `generations-lots-more`) cover
+  exactly the 3,530 training-CSV images with the same labels and no held-out image (`fig5_per_real_counts.csv` from
+  `check_original_dose_response_images.py`). The groupby sampling of `dose_response.py` and the per-label loop in
+  `fig5_dose_response_sweep.py` give identical draws for both seeds. 16 and 32 nest inside 64, so the Step 6 images are
+  reused by Step 7. Step 6 reals: `/workspace/synderm/fig5/reals-119108-n16.csv` (144, all in the Figure 3 pool, so
+  slots 0-9 exist).
+- 2023 originals, for a same-reals comparison arm (GPU only): every training image has 145-200 text-to-image
+  generations (`generations-more` slots 10-99 + `generations-lots-more` slots 0-109, separate images: 0 of 300
+  overlapping pairs identical). Lichen planus, psoriasis and squamous cell carcinoma have only 145-149, so a dose of
+  150 with the 2023 images is short for those classes; the 2023 model files stop at dose 75.
+- Prompts: 150 edit variations in `api_generate_pool.py`. Slots 0-9 keep the current 10 and reuse the Figure 3
+  images; slots 10-149 are 14 body sites (`DOSE_SITES`) x 10 photo setups (`DOSE_SETUPS`), slot 10 + j = site j % 14,
+  setup (j // 14 + j % 14) % 10, so any 14 consecutive slots cover every site and setup. Slot k uses prompt k; a run
+  with k per real uses slots 0..k-1, so the doses nest.
+- Generation: `api_generate_pool.py --reals /workspace/synderm/fig5/reals-119108-n16.csv --k 150 --topup-ref same-slot
+  --pilot-dir ''`, same output folder (slots `10..149` next to `00..09`). `--topup-ref same-slot`: a refused slot is
+  filled from up to 3 other reals of the class whose own edit for that slot was accepted (the Figure 3 rule, "all
+  slots accepted", almost never holds at 150 slots).
+- Sweep: `fig5_dose_response_sweep.py` (dose_response.py protocol: batch 128 tier, best-epoch weights) on 512 px
+  copies, doses 0 10 25 50 75 100 125 150.
 - Paid pilot first: 1 real x 140 new slots for 2 classes (280 images, ~$10) to check the prompts give
   varied images, then the run.
 - Size and cost: 144 x 140 = 20,160 new images + ~2% top-ups = ~20,600 at the measured $0.0336/image =
@@ -139,7 +152,7 @@ this arm uses Nano Banana reference-image edits. Step 6 runs the 16-per-class pa
 
 **Step 7. Figure 5 full run: add 32 and 64 real per class (planned 2026-10-30, not started; only after the
 user reviews Step 6 and says start).** Same protocol, seed, prompts and script as Step 6.
-- Generation: `--reals` = the 64 x 9 = 576 reals of the seed-2026001 draw; the 144 from Step 6 are skipped as
+- Generation: `--reals` = `/workspace/synderm/fig5/reals-119108-n64.csv` (576 reals); the 144 from Step 6 are skipped as
   done. 432 x 140 = 60,480 new images + ~2% top-ups = ~61,700 = **~$2,070** (Batch API: ~$1,040). Steps 6 + 7
   together: ~$2,760. ~30 h at 20 threads. Separate cap to be set by the user.
 - Classifier: n in {32, 64} x 8 doses x 2 transforms = 32 runs (n=16 is reused from Step 6). ~12M image-epochs,

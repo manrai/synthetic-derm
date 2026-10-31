@@ -8,15 +8,20 @@ output layout, which is the one qwen_lora_sweep.py reads:  <out>/<kk>/<md5hash>.
 
     python paper_experiments/2026/api_generate_pool.py --model nano-banana-2.1 --budget 1200 --threads 20 --dry-run
     python paper_experiments/2026/api_generate_pool.py --model nano-banana-2.1 --budget 1200 --threads 20
+    # Figure 5 (Step 6): the 144 reals of seed 119108 at 16 per class, 150 slots (0-9 already exist from Figure 3)
+    python paper_experiments/2026/api_generate_pool.py --model nano-banana-2.1 --reals <fig5_reals.csv> --k 150 \
+        --topup-ref same-slot --pilot-dir '' --budget <cap> --threads 120
 
-PROMPTS  slot k uses EDIT_FRAME with EDIT_VARIATIONS[k]: the ten body-site / framing / lighting variations of the
-         pilot (the same list for every class and reference). The models expose no seed.
+PROMPTS  slot k uses EDIT_FRAME with EDIT_VARIATIONS[k]: slots 0-9 are the ten body-site / framing / lighting variations
+         of the pilot; slots 10-149 (Figure 5) are 14 body sites x 10 photo setups (DOSE_SITES, DOSE_SETUPS). The same
+         list for every class and reference. The models expose no seed.
 REALS    --reals CSV with md5hash and label (default: generations/pool9.csv, the 3,339 training-pool images of the
          nine Figure 3 classes); images from --images-dir/<md5hash>.jpg.
 PILOT    before any API call, the pilot folder's images (--pilot-dir, 10 edits for 144 reals of seed 20261028) are
          copied into the layout, so they are not paid for twice. Their JSON sidecars are copied too.
 REFUSALS a refused request is retried once. A slot refused twice is filled by an edit of a *different* reference of
-         the same class (one that had all its own slots accepted), with the refused slot's prompt, and saved under the
+         the same class (--topup-ref all-slots: one that had all its own slots accepted; same-slot: up to 3 that had
+         their own edit for that slot accepted), with the refused slot's prompt, and saved under the
          refused real's path; its JSON has topup=true and ref_md5 = the reference actually used. Same convention as
          the pilot's synthetic.csv, so every (real, slot) file the sweep asks for exists.
 BUDGET   --budget is a hard cap in USD for this process: no new request is submitted once the recorded cost reaches
@@ -49,6 +54,24 @@ EDIT_VARIATIONS = [
     "Lesions on the scalp margin and forehead, close-up, hair partly visible.",
     "Lesions on the foot and ankle, mid-range view, natural outdoor light.",
 ]
+# Slots 10-149 (Figure 5 dose-response): 14 body sites x 10 photo setups, none of them a repeat of slots 0-9, no
+# sensitive body sites (the screen's refusals clustered there). Slot 10 + j uses site j % 14 and setup
+# (j // 14 + j % 14) % 10: every (site, setup) pair once, and any run of 14 consecutive slots covers all 14 sites
+# and all 10 setups, so the first k slots of a dose stay varied.
+DOSE_SITES = ["upper arm and shoulder", "elbow", "inner wrist and palm", "fingertips and nail folds", "knee",
+              "back of the knee", "calf", "sole and heel", "lower back", "flank", "upper chest below the collarbones",
+              "back of the neck", "nose and upper lip", "chin and lower face"]
+DOSE_SETUPS = ["Close-up, even clinic lighting, plain light background.",
+               "Mid-range view, overhead fluorescent lighting.",
+               "Very close macro view of the lesion surface, camera flash.",
+               "Slightly oblique view, soft daylight from a window.",
+               "Middle-aged adult patient, close-up, bright diffuse lighting.",
+               "Older adult patient, mid-range view, warm indoor lighting.",
+               "Young adult patient, close-up, natural outdoor light.",
+               "Clinic photograph with a blue drape in the background, camera flash.",
+               "Smartphone photograph in room lighting, slightly soft focus at the edges.",
+               "Wider view including surrounding healthy skin, neutral grey background."]
+EDIT_VARIATIONS += [f"Lesions on the {DOSE_SITES[j % 14]}. {DOSE_SETUPS[(j // 14 + j % 14) % 10]}" for j in range(140)]
 
 MODELS = {
     "gpt-image-2.5-sunburst": dict(provider="openai", model_id="gpt-image-2.5-sunburst", default_quality="medium",
@@ -118,7 +141,10 @@ def main():
     ap.add_argument("--quality", default=None)
     ap.add_argument("--budget", type=float, required=True, help="USD hard cap for this process")
     ap.add_argument("--reals", default="/workspace/synderm/qwen_lora/generations/pool9.csv")
-    ap.add_argument("--k", type=int, default=10)
+    ap.add_argument("--k", type=int, default=10, help="slots per real (10 for Figure 3, 150 for Figure 5)")
+    ap.add_argument("--topup-ref", choices=["all-slots", "same-slot"], default="all-slots",
+                    help="all-slots (Figure 3): one reference with all its own slots accepted; same-slot (Figure 5): up to "
+                         "3 references whose own edit for that slot was accepted")
     ap.add_argument("--threads", type=int, default=20)
     ap.add_argument("--images-dir", default="/root/data/fitzpatrick17k/finalfitz17k")
     ap.add_argument("--out", default=None, help="default /workspace/synderm/api_generations/<model>")
@@ -127,6 +153,7 @@ def main():
     ap.add_argument("--max-reals", type=int, default=None, help="first N reals only (tests)")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+    assert a.k <= len(EDIT_VARIATIONS), f"--k {a.k} but only {len(EDIT_VARIATIONS)} prompts"
 
     load_env(REPO / ".env")
     m = MODELS[a.model]
@@ -286,7 +313,7 @@ def main():
         recs = [(md5, label, k, record(md5, k)) for md5, label, k in jobs if md5 not in have_png[k] and not png_path(md5, k).exists()]
         deficits = [(md5, label, k) for md5, label, k, rec in recs if rec and rec.get("status") == "refused"]
         say(f"top-up: {len(deficits)} refused slots")
-        if deficits:
+        if deficits and a.topup_ref == "all-slots":  # Figure 3: a reference with all its own slots accepted
             accepted = {}
             for label in reals["label"].unique():
                 refs = [md5 for md5, lab in label_of.items() if lab == label]
@@ -297,6 +324,21 @@ def main():
             with ThreadPoolExecutor(max_workers=a.threads) as ex:
                 for f in as_completed([ex.submit(generate, *j) for j in extra]):
                     f.result()
+        elif deficits:  # same-slot (Figure 5): a reference whose own edit for this slot was accepted; up to 3 references
+            rng = random.Random(0)
+            candidates = {}
+            for md5, label, k in deficits:
+                refs = [r for r, lab in label_of.items() if lab == label and r != md5]
+                ok = [r for r in refs if png_path(r, k).exists() and not (record(r, k) or {}).get("topup")]
+                candidates[(md5, k)] = rng.sample(ok, min(3, len(ok)))
+            for attempt in range(3):
+                extra = [(md5, label, k, candidates[(md5, k)][attempt]) for md5, label, k in deficits
+                         if not png_path(md5, k).exists() and len(candidates[(md5, k)]) > attempt and not stop.is_set()]
+                say(f"  top-up round {attempt + 1}: {len(extra)} slots")
+                with ThreadPoolExecutor(max_workers=a.threads) as ex:
+                    for f in as_completed([ex.submit(generate, *j) for j in extra]):
+                        f.result()
+        if deficits:
             still = [j for j in deficits if not png_path(j[0], j[2]).exists()]
             say(f"top-up end: {len(deficits) - len(still)} filled, {len(still)} still missing, cost so far ${totals['cost_usd']:.2f}")
 
