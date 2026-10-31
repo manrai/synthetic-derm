@@ -153,6 +153,8 @@ def main():
     ap.add_argument("--pilot-dir", default=None, help="pilot folder whose images are imported first; '' to skip")
     ap.add_argument("--labels", nargs="*", default=None, help="restrict to these labels (tests)")
     ap.add_argument("--max-reals", type=int, default=None, help="first N reals only (tests)")
+    ap.add_argument("--synthetic-csv", default="synthetic.csv", help="name of the output CSV in --out (use another name "
+                    "for a subset of reals, so the Figure 3 synthetic.csv is not overwritten)")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     assert a.k <= len(EDIT_VARIATIONS), f"--k {a.k} but only {len(EDIT_VARIATIONS)} prompts"
@@ -351,7 +353,7 @@ def main():
         if p.exists():
             rec = record(md5, k) or {}
             rows.append(dict(md5hash=md5, label=label, slot=k, location=str(p), ref_md5=rec.get("ref_md5", md5), topup=bool(rec.get("topup", False))))
-    pd.DataFrame(rows).to_csv(out / "synthetic.csv", index=False)
+    pd.DataFrame(rows).to_csv(out / a.synthetic_csv, index=False)
     missing = len(jobs) - len(rows)
     say(f"DONE: {len(rows)} of {len(jobs)} slots have images ({missing} missing); ok={totals['ok']} refused={totals['refused']} "
         f"error={totals['error']} cost this run=${totals['cost_usd']:.2f}" + (f"; stopped: {stop_reason[-1]}" if stop_reason else ""))

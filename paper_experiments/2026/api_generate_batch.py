@@ -25,6 +25,7 @@ OUTPUT   <out>/<kk>/<md5hash>.png + .json (status, prompt, ref_md5, topup, token
          <out>/synthetic_<reals-file-stem>.csv for these reals and slots 0..max, <out>/batch.log.
 """
 import argparse, base64, io, json, os, random, sys, time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
@@ -75,6 +76,14 @@ def record(md5, slot):
     p = png_path(md5, slot).with_suffix(".json")
     return json.loads(p.read_text()) if p.exists() else {}
 
+def parallel(fn, items):
+    # the volume answers one stat in ~30 ms; 64 at a time turns 80k checks from ~50 min into ~1 min
+    with ThreadPoolExecutor(64) as ex:
+        return list(ex.map(fn, items))
+
+def still_missing(pairs):
+    return [ms for ms, e in zip(pairs, parallel(lambda ms: png_path(*ms).exists(), pairs)) if not e]
+
 reals = pd.read_csv(a.reals)[["md5hash", "label"]]
 label_of = dict(zip(reals["md5hash"], reals["label"]))
 slots = list(range(a.slots[0], a.slots[1] + 1))
@@ -82,11 +91,14 @@ spent = lambda: sum(j.get("cost_usd", 0.0) for j in state["jobs"])
 say(f"{len(reals)} reals x slots {a.slots[0]}-{a.slots[1]} from {a.reals}; budget ${a.budget:.0f}; recorded so far ${spent():.2f}")
 
 # ---------------------------------------------------------------- one request line
+_jpeg_b64 = {}
 def request_line(md5, slot, ref, rnd):
-    buf = io.BytesIO(); Image.open(f"{a.images_dir}/{ref}.jpg").convert("RGB").save(buf, format="JPEG")
+    if ref not in _jpeg_b64:  # each reference is encoded once (140 requests share it)
+        buf = io.BytesIO(); Image.open(f"{a.images_dir}/{ref}.jpg").convert("RGB").save(buf, format="JPEG")
+        _jpeg_b64[ref] = base64.b64encode(buf.getvalue()).decode()
     prompt = EDIT_FRAME.format(condition=label_of[md5], variation=EDIT_VARIATIONS[slot])
     req = {"contents": [{"role": "user", "parts": [{"text": prompt},
-           {"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(buf.getvalue()).decode()}}]}],
+           {"inline_data": {"mime_type": "image/jpeg", "data": _jpeg_b64[ref]}}]}],
            "generation_config": {"response_modalities": ["IMAGE"], "image_config": {"aspect_ratio": "1:1", "image_size": "1K"}}}
     return json.dumps({"key": f"{md5}|{slot}|{ref}|{rnd}", "request": req})
 
@@ -195,8 +207,8 @@ def wait_and_collect(once=False):
             time.sleep(a.poll)
 
 # ---------------------------------------------------------------- dry run and resume
-wait_and_collect()  # finish any job submitted before a restart
-missing = [(m, s) for m in reals["md5hash"] for s in slots if not png_path(m, s).exists()]
+wait_and_collect(once=True)  # collect jobs submitted before a restart that have finished; the rest are awaited later
+missing = still_missing([(m, s) for m in reals["md5hash"] for s in slots])
 say(f"{len(reals) * len(slots)} slots, {len(reals) * len(slots) - len(missing)} done, {len(missing)} missing; "
     f"worst case ${len(missing) * MAX_USD_PER_REQUEST:.2f}, expected ~${len(missing) * (1180 * USD_IN + 1120 * USD_OUT):.2f}")
 if a.dry_run:
@@ -205,20 +217,26 @@ if a.dry_run:
 # ---------------------------------------------------------------- rounds
 ok = True
 for rnd in (1, 2):  # own reference: first try, then one retry for refusals and errors
-    todo = [(m, s, m) for m, s in missing if not png_path(m, s).exists()
-            and record(m, s).get("refusals", 0) < 2 and record(m, s).get("errors", 0) < 3]
+    left = still_missing(missing)
+    recs = parallel(lambda ms: record(*ms), left)
+    todo = [(m, s, m) for (m, s), r in zip(left, recs) if r.get("refusals", 0) < 2 and r.get("errors", 0) < 3]
     if not todo or not ok:
         break
     say(f"round {rnd}: {len(todo)} requests with the real as reference")
     ok = run_round(rnd, todo)
 for rnd, attempt in ((3, 0), (4, 1), (5, 2)):  # same-slot top-ups from other reals of the class
-    deficits = [(m, s) for m, s in missing if not png_path(m, s).exists()]
+    deficits = still_missing(missing)
     if not deficits or not ok:
         break
+    # a reference qualifies for slot s if its own edit for s exists and is not itself a top-up; top-ups are the
+    # submitted keys whose reference differs from the real (slots 10-149 have no top-ups from any other script)
+    have = set((m, s) for m, s in missing) - set(deficits)
+    have |= {(m, s) for m in reals["md5hash"] for s in slots} - set(missing)
+    topups = {(k.split("|")[0], int(k.split("|")[1])) for j in state["jobs"] for k in j["keys"] if k.split("|")[0] != k.split("|")[2]}
     todo = []
     for m, s in deficits:
-        cands = sorted(r for r, lab in label_of.items() if lab == label_of[m] and r != m and png_path(r, s).exists()
-                       and not record(r, s).get("topup"))
+        cands = sorted(r for r, lab in label_of.items() if lab == label_of[m] and r != m and (r, s) in have
+                       and (r, s) not in topups)
         picks = random.Random(f"{m}|{s}").sample(cands, min(3, len(cands)))
         if len(picks) > attempt:
             todo.append((m, s, picks[attempt]))
@@ -228,14 +246,13 @@ for rnd, attempt in ((3, 0), (4, 1), (5, 2)):  # same-slot top-ups from other re
 
 # ---------------------------------------------------------------- synthetic CSV for these reals, slots 0..last
 rows, still = [], []
-for m in reals["md5hash"]:
-    for s in range(0, a.slots[1] + 1):
-        p = png_path(m, s)
-        if p.exists():
-            rec = record(m, s)
-            rows.append(dict(md5hash=m, label=label_of[m], slot=s, location=str(p), ref_md5=rec.get("ref_md5", m), topup=bool(rec.get("topup", False))))
-        else:
-            still.append((m, s))
+pairs = [(m, s) for m in reals["md5hash"] for s in range(0, a.slots[1] + 1)]
+for (m, s), rec in zip(pairs, parallel(lambda ms: record(*ms) if png_path(*ms).exists() else None, pairs)):
+    if rec is None:
+        still.append((m, s))
+    else:
+        rows.append(dict(md5hash=m, label=label_of[m], slot=s, location=str(png_path(m, s)), ref_md5=rec.get("ref_md5", m),
+                         topup=bool(rec.get("topup", False))))
 csv = out / f"synthetic_{Path(a.reals).stem}.csv"
 pd.DataFrame(rows).to_csv(csv, index=False)
 say(f"DONE: {len(rows)} of {len(reals) * (a.slots[1] + 1)} (real, slot) files exist, {len(still)} missing {still[:5]}; "

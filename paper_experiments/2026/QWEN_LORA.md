@@ -706,6 +706,20 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
   Backup had stopped at 14:40: `pilot` tar exited 1 three times with "file changed as we read it" (geesefs timestamp
   quirk); fixed to accept that warning only when the tar's file count and bytes match the source, restarted (PID 84891).
   Batch pilot job running since 15:04.
+- 15:39 UTC check-in: sweep 12/70 (n128 aug top1 0.439, 1,459 s; n=128/228 runs slower than estimated, ~2.75 h per seed, ETA ~04:00 UTC Nov 1). Backup: all 9 pilots tars verified (pilot.tar passed with the new check), Qwen edit/00.tar in progress. Batch pilot still RUNNING at Google (35 min), $0 recorded of $380.
+- 15:45-15:52 UTC: user asked for a fast non-batch pilot and the full dose-response run (16/32/64) in batch, Figure 5 cap
+  $1,500. Non-batch pilot: lupus 460d3e4a + SCC 7075c2cd x slots 10-149, 280 ok, 0 refused, $9.90 (input tokens
+  included); contact sheets: body sites follow the prompts, varied framing/age/background, skin tone and class look
+  kept. Batch pilot poller stopped (its job stays in batch_state.json and is collected by the full run).
+- 16:15 UTC check-in: sweep 13/70 (n228 None seed 2026001 top1 0.508, 1,908 s). Backup 11 units (9 pilots + Qwen
+  edit/00, 01). Full-run dry run (576 reals x 140) still checking 80k paths on the volume (started 15:53); batch pilot
+  job still RUNNING at Google after 70 min; Figure 5 spend so far $9.90 + $0.11 of $1,500.
+- 16:35 UTC: batch pilot job done (~90 min turnaround): 280 ok, 0 refused, $4.95. Path checks in api_generate_batch.py
+  parallelized (64 threads; dry run 50 min -> 4 min). 16:48 UTC: full run launched (576 reals x slots 10-149, 80,080
+  requests, expected ~$1,416 + top-ups; --budget 1489.99), log fig5-batch-full.log.
+- 16:48 UTC check-in: sweep 21/70 (seed 2026001 done; n32 None seed 2026002 top1 0.303; ~2.2 h per seed, ETA ~01:30
+  UTC Nov 1). Backup 12 units (Qwen edit/02 done). Full batch run starting (no jobs submitted yet); Figure 5 spend
+  $9.90 + $0.11 + $4.95 = $14.96 of $1,500.
 
 ## Spend ledger
 
