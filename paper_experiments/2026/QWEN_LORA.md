@@ -660,6 +660,21 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
 - 22:57 UTC: running at 120 threads, `--budget 1003` = $1,200 - $187.25 recorded - $4.73 kill allowance - 120 x $0.0336
   overshoot margin (the cap is checked after each request completes). 26,300 requests at start. ETA main pass ~02:10 UTC
   Oct 31, then the top-up pass. Projected total ~$1,090. 30-minute check-in cron 18c38652 (session-only).
+- 23:14 UTC check-in: 2,100 of 26,300 (2,081 ok, 19 refused), 0 errors, 0 429s, ~139 images/min; total spend $261.90; ETA main pass ~02:08 UTC.
+- 23:44 UTC check-in: 6,610 of 26,300 (6,568 ok, 42 refused), 0 errors, 0 429s, ~149 images/min; total spend $412.67; ETA main pass ~01:57 UTC.
+- 2026-10-31 00:14 UTC check-in: 10,841 of 26,300 (10,766 ok, 75 refused), 0 errors, 0 429s, ~141 images/min; total spend $553.72; ETA main pass ~02:04 UTC.
+- 00:44 UTC check-in: 14,987 of 26,300 (14,876 ok, 111 refused), 0 errors, 0 429s, ~139 images/min; total spend $691.81; ETA main pass ~02:06 UTC.
+- 01:14 UTC check-in: 19,468 of 26,300 (19,267 ok, 201 refused), 0 errors, 0 429s, ~149 images/min; total spend $839.35; ETA main pass ~02:00 UTC.
+- 01:44 UTC check-in: 24,090 of 26,300 (23,766 ok, 324 refused), 0 errors, 0 429s, ~154 images/min; total spend $990.52; ETA main pass ~01:59 UTC, then top-up (~450 refused slots).
+- 02:14 UTC check-in: **main pass ended 01:58 UTC**: ok=25,909, refused=391, error=0, 0 429s, $870.54 this process; total spend $1,062.52. Top-up pass: 462 refused slots found 02:08; scanning references per class (slow JSON reads on the volume, ~4 min per class) before ~$16 of top-up requests; ETA DONE ~03:00 UTC.
+- 02:44 UTC check-in: top-up reference scan at 6 of 9 classes (~5 min each), no new requests yet; total spend $1,062.52; then ~462 top-up requests and the synthetic.csv write (33k sidecar reads); ETA DONE ~03:30 UTC.
+- 03:14 UTC check-in: **top-up ended 03:00 UTC**: 461 of 462 refused slots filled, 1 still missing (refused twice as a top-up too); $886.03 this process; total spend **$1,078.01**. No more requests; writing synthetic.csv (33k sidecar reads).
+- **03:34 UTC: DONE.** 33,389 of 33,390 slots have images; `synthetic.csv` written (33,389 rows, 470 top-ups). This
+  process: ok=26,370, refused=392, error=0, 0 429s, $886.03. Sum of `cost_usd` over all non-imported sidecars:
+  **$1,073.28**; with the $4.73 allowance for requests killed at restarts: **$1,078.01 of the $1,200 cap**.
+  Missing: lichen planus `f03efb152b525450bdd403f8a51e7405` slot 07 (own edit refused twice, top-up refused too).
+  `qwen_lora_sweep.py` stops on a missing synthetic file, so any seed that samples this real for the Nano Banana arm
+  will fail until the user decides how to fill it. Check-in cron 18c38652 deleted.
 
 ## Spend ledger
 
@@ -668,3 +683,4 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
 | 2026-10-30 20:17-20:20 UTC | Figure 3 arm, paid test (20 psoriasis reals x 2 slots + 2 top-ups) | gemini-nano-banana-2.1, 1K | 40 | $1.34 | $1.34 |
 | 2026-10-30 20:22-22:02 UTC | Figure 3 arm, full run part 1, cap $1,198, stopped by hand for pod shutdown | gemini-nano-banana-2.1, 1K | 3,697 ok + 61 refused | $124.22 | $125.56 |
 | 2026-10-30 22:39-22:57 UTC | Figure 3 arm, part 2: thread tests at 40 and 80 (stopped by hand), killed in-flight allowance $4.03 | gemini-nano-banana-2.1, 1K | ~1,750 ok | $61.69 + $4.03 | $191.98 |
+| 2026-10-30 22:57 - 10-31 03:34 UTC | Figure 3 arm, part 3: 120 threads, main pass + top-up, DONE (1 slot missing) | gemini-nano-banana-2.1, 1K | 26,370 ok + 392 refused | $886.03 | $1,078.01 |
