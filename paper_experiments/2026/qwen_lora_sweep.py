@@ -101,7 +101,7 @@ for random_state in args.seeds:
                 m = len(truth); acc = sum(correct) / m
                 lo, hi = proportion_confint(sum(correct), m, alpha=0.05, method="normal")
                 top3_acc = sum(t in c for t, c in zip(truth, top3)) / m
-                row = dict(run_id=run_id, generator=("none" if arm == "none" else f"qwen-{arm}"), include_synthetic=arm != "none",
+                row = dict(run_id=run_id, generator=("none" if arm == "none" else f"qwen-{arm}" if arm in ("edit", "t2i") else arm), include_synthetic=arm != "none",
                            n_training_per_label=n, augmentation=augmentation, n_synthetic_per_real=(args.k if arm != "none" else 0),
                            random_state=random_state, n_train=n_train, n_val=len(val), batch_size=batch_size, epochs_run=epochs_run,
                            train_s=round(time.time() - t0), top1_acc=acc, top1_ci_lower=lo, top1_ci_upper=hi, top3_acc=top3_acc,

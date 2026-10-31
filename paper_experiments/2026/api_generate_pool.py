@@ -227,7 +227,7 @@ def main():
                     image, info = openai_edit(m["model_id"], quality, prompt, ref)
                 else:
                     image, info = google_edit(m["model_id"], quality, prompt, ref, m["usd_per_image_token"])
-                image.save(png)
+                tmp = png.with_suffix(".tmp.png"); image.save(tmp); os.replace(tmp, png)  # no partial PNG if the process is killed mid-save
                 rec.update(status="ok", latency_s=round(time.time() - t, 1), **info)
                 with lock:
                     totals["consecutive_failures"] = 0
