@@ -720,6 +720,7 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
 - 16:48 UTC check-in: sweep 21/70 (seed 2026001 done; n32 None seed 2026002 top1 0.303; ~2.2 h per seed, ETA ~01:30
   UTC Nov 1). Backup 12 units (Qwen edit/02 done). Full batch run starting (no jobs submitted yet); Figure 5 spend
   $9.90 + $0.11 + $4.95 = $14.96 of $1,500.
+- 17:15 UTC check-in: sweep 24/70 (n64 aug seed 2026002 top1 0.406). Backup 14 units (Qwen edit/04 done). Figure 5 batch: all 18 round-1 jobs submitted 17:00-17:09 (80,080 requests; no queue-cap rejections), none finished yet; recorded $4.95 + running worst case $1,429.34 = $1,434.29, under the $1,489.99 batch cap.
 
 ## Spend ledger
 
