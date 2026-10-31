@@ -76,7 +76,7 @@ EDIT_VARIATIONS += [f"Lesions on the {DOSE_SITES[j % 14]}. {DOSE_SETUPS[(j // 14
 MODELS = {
     "gpt-image-2.5-sunburst": dict(provider="openai", model_id="gpt-image-2.5-sunburst", default_quality="medium",
                                    pilot_dir="/workspace/synderm/pilot/gpt-image-2.5-sunburst-medium-varied-seed20261028-n16"),
-    "nano-banana-2.1": dict(provider="google", model_id="gemini-nano-banana-2.1", default_quality="1K", usd_per_image_token=30 / 1e6,
+    "nano-banana-2.1": dict(provider="google", model_id="gemini-nano-banana-2.1", default_quality="1K", usd_per_image_token=30 / 1e6, usd_per_input_token=1.5 / 1e6,
                             pilot_dir="/workspace/synderm/pilot/nano-banana-2.1-1K-varied-seed20261028-n16"),
 }
 
@@ -111,7 +111,7 @@ def openai_edit(model_id, quality, prompt, ref_path):
     return image, dict(input_image_tokens=in_img, input_text_tokens=in_txt, output_image_tokens=out_img, cost_usd=round(cost, 5))
 
 
-def google_edit(model_id, image_size, prompt, ref_path, usd_per_image_token):
+def google_edit(model_id, image_size, prompt, ref_path, usd_per_image_token, usd_per_input_token):
     from google import genai
     client = genai.Client()  # reads GEMINI_API_KEY
     buf = io.BytesIO(); Image.open(ref_path).convert("RGB").save(buf, format="JPEG")
@@ -130,8 +130,10 @@ def google_edit(model_id, image_size, prompt, ref_path, usd_per_image_token):
     image = Image.open(io.BytesIO(base64.b64decode(r.output_image.data)))
     u = r.usage
     img_tokens = sum(t.tokens for t in (u.output_tokens_by_modality or []) if t.modality == "image") if u else 0
-    return image, dict(input_tokens=getattr(u, "total_input_tokens", None), output_image_tokens=img_tokens,
-                       cost_usd=round(img_tokens * usd_per_image_token, 5))
+    in_tokens = getattr(u, "total_input_tokens", None) or 0
+    # input (prompt + reference image) is billed too; before 2026-10-31 only the output was counted (~5% under)
+    return image, dict(input_tokens=in_tokens, output_image_tokens=img_tokens,
+                       cost_usd=round(img_tokens * usd_per_image_token + in_tokens * usd_per_input_token, 5))
 
 
 def main():
@@ -253,7 +255,7 @@ def main():
                 if m["provider"] == "openai":
                     image, info = openai_edit(m["model_id"], quality, prompt, ref)
                 else:
-                    image, info = google_edit(m["model_id"], quality, prompt, ref, m["usd_per_image_token"])
+                    image, info = google_edit(m["model_id"], quality, prompt, ref, m["usd_per_image_token"], m["usd_per_input_token"])
                 tmp = png.with_suffix(".tmp.png"); image.save(tmp); os.replace(tmp, png)  # no partial PNG if the process is killed mid-save
                 rec.update(status="ok", latency_s=round(time.time() - t, 1), **info)
                 with lock:

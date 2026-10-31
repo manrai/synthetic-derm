@@ -1,6 +1,6 @@
 # Reproducing the 2026 experiments
 
-Commands as actually run, in order: sections 0 to 3 on the RTX 5090 pod (2026-10-28), section 4 on the RTX PRO 6000 pod (2026-10-28 to 10-30). Plans: `../../FIGURE3_REGEN_PLAN.md`, `QWEN_LORA.md`.
+Commands as actually run, in order: sections 0 to 3 on the RTX 5090 pod (2026-10-28), section 4 on the RTX PRO 6000 pod (2026-10-28 to 10-30), sections 5 to 7 on the A40 pod (2026-10-30 to 10-31). Plans: `../../FIGURE3_REGEN_PLAN.md`, `QWEN_LORA.md`.
 Everything large lives on `/workspace` (network volume); the root disk is ephemeral.
 
 ## 0. Environment (2026-10-28)
@@ -256,3 +256,97 @@ copy `/workspace/synderm/qwen_lora/generations/` to RAM or local disk first, or 
 - Logs of every job: `/workspace/logs/pod-2026-10-28b/`. Preview notebook: `03_qwen_lora_preview.ipynb`
   (executed copy `/workspace/synderm/qwen_lora/03_qwen_lora_preview.executed.ipynb`).
 - $0 of paid API used in this round.
+
+## 5. Nano Banana 2.1 arm for Figure 3 (2026-10-30 to 10-31, A40 pod, no GPU needed for generation)
+
+Edits of every training-pool image (3,339 reals x 10 varied prompts) with `gemini-nano-banana-2.1` at 1K, user cap $1,200.
+Part 1 ran on the RTX PRO 6000 pod (20:22-22:02 UTC Oct 30, stopped by hand for the shutdown); the rest here.
+
+```bash
+pip install pandas pillow google-genai
+mkdir -p /root/data/fitzpatrick17k/finalfitz17k   # reals to local disk, 24-way parallel cp (1.5 min)
+ls /workspace/data/fitzpatrick17k/finalfitz17k | xargs -P 24 -I{} cp /workspace/data/fitzpatrick17k/finalfitz17k/{} /root/data/fitzpatrick17k/finalfitz17k/
+python paper_experiments/2026/api_generate_pool.py --model nano-banana-2.1 --budget 1070 --dry-run   # 28,150 of 33,390 to run
+# thread test (40 -> ~98 images/min, 80 -> ~142, 120 -> ~140; no 429s): each step stopped with kill <pid>, then
+python paper_experiments/2026/api_generate_pool.py --model nano-banana-2.1 --budget 1003 --threads 120 \
+    > /workspace/logs/pod-2026-10-31/api-nano-banana-fig3-t120.log 2>&1 &   # 22:57 -> DONE 03:34 Oct 31, 1 slot missing
+python paper_experiments/2026/oneoff_fill_missing_slot.py   # lichen planus f03efb15 slot 07, another accepted reference
+# 6 PNGs cut short by the SIGTERMs (no sidecar, mtime = kill time) moved to api_generations/nano-banana-2.1-truncated-at-kill/
+python paper_experiments/2026/api_generate_pool.py --model nano-banana-2.1 --budget 1 --threads 6   # regenerates those 6
+```
+
+Budget per restart = $1,200 - sum of `cost_usd` in the sidecars - (threads x $0.0336 for requests killed in flight) -
+(threads x $0.0336 overshoot margin, the cap is checked when a request completes). `api_generate_pool.py` now writes
+PNGs to a temp name and renames them (a kill can no longer leave a partial PNG), and prices input tokens too: until
+2026-10-31 it counted output image tokens only, so the Figure 3 ledger in `QWEN_LORA.md` is ~5% low (corrected there).
+Outputs: `/workspace/synderm/api_generations/nano-banana-2.1/{00..09}/<md5hash>.png` + `.json`, `synthetic.csv`
+(33,390 rows, 470 top-ups), `generate.log`; logs in `/workspace/logs/pod-2026-10-31/`.
+
+Classifier sweep (Figure 3 protocol, same five seeds as section 4.5; the real-only rows come from that sweep):
+
+```bash
+pip install fastai==2.8.12 fastcore==2.2.35 statsmodels==0.15.0
+python paper_experiments/2026/resize_generations_512.py   # 512 px PNG copies in /root/data/api512 (14 GB); 1K PNGs (45 GB) do not fit the root disk
+python paper_experiments/2026/qwen_lora_sweep.py --gpu 0 --seeds 2026001 2026002 2026003 2026004 2026005 --arms nano-banana-2.1 \
+    --generations-dir /root/data/api512 --out /workspace/synderm/api_sweep/nano-banana-2.1   # 70 runs, ~2 h per seed on the A40
+```
+
+`qwen_lora_sweep.py` now labels non-Qwen arms by their folder name (`generator=nano-banana-2.1`, not `qwen-...`).
+
+## 6. Figure 5 (dose-response) with Nano Banana 2.1, seed 119108 (2026-10-31; Steps 6-7 of `QWEN_LORA.md`)
+
+The 2023 seeds come from the model file names in the 2023 machine's `derm/dose-response/` folder
+(`<random_state>_<n>_True_<k>_text-to-image_<aug>__best_model.pth`: 119108 and 329101, n 16/32/64, k 10-75).
+Checks that the split reproduces 2023:
+
+```bash
+# on the 2023 machine: the CSVs the 2023 scripts read have the same md5 as fitz_metadata/
+md5sum Fitzpatrick17k/fitzpatrick17k_10label_clean_training.csv Fitzpatrick17k/fitzpatrick17k_10label_clean_held_out_set.csv
+#   11b4b1c737c4183947f0ebbaa31d0363, 8ff2299db5a91f97fac5b717e4e148d3
+# on the 2023 machine: images per real in the 2023 text-to-image folders (generations-more, generations-lots-more)
+python3 paper_experiments/2026/check_original_dose_response_images.py --root /n/data1/hms/dbmi/manrai/derm
+#   -> fig5_per_real_counts.csv: exactly the 3,530 training-CSV images, 145-200 images each, no held-out image
+# here: the reals of seed 119108 (the per-label loop gives the same draw as dose_response.py's groupby, checked)
+python paper_experiments/2026/fig5_dose_response_sweep.py --seeds 119108 --n 16       --write-reals /workspace/synderm/fig5/reals-119108-n16.csv   # 144
+python paper_experiments/2026/fig5_dose_response_sweep.py --seeds 119108 --n 16 32 64 --write-reals /workspace/synderm/fig5/reals-119108-n64.csv   # 576
+```
+
+Prompts: slots 0-9 are the Figure 3 prompts and images; slots 10-149 are `DOSE_SITES` x `DOSE_SETUPS` in
+`api_generate_pool.py` (14 body sites x 10 photo setups, interleaved). Generation through the Gemini Batch API
+(half price: $0.0168 per 1K image + $0.75/M input tokens), user cap $380 for Step 6:
+
+```bash
+python paper_experiments/2026/api_generate_batch.py --reals /workspace/synderm/fig5/reals-119108-n16.csv --slots 10 149 --budget 380 --dry-run
+# pilot, 2 reals (psoriasis, basal cell carcinoma) x 140 slots, same output folder and cap
+python paper_experiments/2026/api_generate_batch.py --reals /workspace/synderm/fig5/reals-119108-pilot2.csv --slots 10 149 --budget 380 \
+    > /workspace/logs/pod-2026-10-31/fig5-batch-pilot.log 2>&1 &
+# Step 6 (pending the pilot review): the 144 reals; finished slots are skipped, submitted jobs are resumed from batch_state.json
+python paper_experiments/2026/api_generate_batch.py --reals /workspace/synderm/fig5/reals-119108-n16.csv --slots 10 149 --budget 380 \
+    > /workspace/logs/pod-2026-10-31/fig5-batch-step6.log 2>&1 &
+# then 512 px copies of slots 0-149 for these reals and the sweep (dose_response.py protocol)
+python paper_experiments/2026/fig5_dose_response_sweep.py --gpu 0 --seeds 119108 --n 16 --generations-dir /root/data/api512 \
+    --arm nano-banana-2.1 --out /workspace/synderm/fig5/sweep   # doses 0 10 25 50 75 100 125 150 x 2 = 16 runs
+```
+
+Batch outputs: same `{kk}/<md5hash>.png` + `.json` layout (sidecar has `mode=batch`, `batch_job`, `round`),
+`batch_state.json` (every submitted job and its recorded cost), `batch.log`, `synthetic_<reals-file-stem>.csv`.
+
+## 7. Private Hugging Face backup of generated images and LoRA adapters (2026-10-31)
+
+`HF_TOKEN` (write) in `.env`. One uncompressed tar per slot folder, uploaded, checked against the hub's sha256 and
+deleted locally; resumes from `/workspace/logs/pod-2026-10-31/hf-backup-manifest.jsonl`. Real photos are excluded
+(every `train-data/`, `vignettes/06_reader_study/images`).
+
+```bash
+python -I paper_experiments/2026/hf_backup.py > /workspace/logs/pod-2026-10-31/hf-backup.log 2>&1 &
+```
+
+| Repo (private) | Contents |
+|---|---|
+| `datasets/tbuckley/synderm-2026-pilots` | zero-shot screens, API pilots, Qwen pilot/smoke folders, Stage A generations, vignette outputs |
+| `datasets/tbuckley/synderm-2026-qwen-image-2.1` | Qwen edit and t2i Figure 3 generations (20 tars) + CSVs |
+| `models/tbuckley/synderm-2026-qwen-image-2.1-loras` | per-class t2i LoRAs with checkpoints, edit pilot LoRA, smoke LoRAs, Oct 21 LoRA |
+| `datasets/tbuckley/synderm-2026-nano-banana-2.1` | Nano Banana Figure 3 edits (10 tars) + `synthetic.csv`, `generate.log` |
+
+A `.tar` built from the geesefs volume can exit 1 with "file changed as we read it" (timestamp noise); the script
+accepts that only when the archive's file count and byte total match the source folder.

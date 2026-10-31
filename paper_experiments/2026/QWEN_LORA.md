@@ -689,6 +689,23 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
   `qwen_lora_sweep.py` stops on a missing synthetic file, so any seed that samples this real for the Nano Banana arm
   will fail until the user decides how to fill it. Check-in cron 18c38652 deleted.
 
+### 2026-10-31: Figure 3 sweep, Hugging Face backup, Figure 5 Step 6 (batch)
+
+- 13:12 UTC: missing lichen planus slot 07 filled (another accepted reference, 1 request, $0.0336). 13:37: 6 PNGs cut
+  short by the SIGTERMs of 2026-10-30 (no sidecar, written at the kill times) found by the 512 px copy, moved to
+  `nano-banana-2.1-truncated-at-kill/`, regenerated ($0.20); `api_generate_pool.py` now writes PNGs via temp + rename.
+- 14:22 UTC: Figure 3 Nano Banana sweep started on the A40 (`qwen_lora_sweep.py --arms nano-banana-2.1`, 5 seeds,
+  70 runs, 512 px copies in /root/data/api512), out /workspace/synderm/api_sweep/nano-banana-2.1.
+- Cost formula bug found: `api_generate_pool.py` priced output image tokens only; input ($1.50/M standard, ~1,180
+  tokens per edit) was never counted, so the Figure 3 ledger is ~5% low (exact figure pending). Fixed in both scripts.
+- Batch mode tested (inline 4 images, 131 s; file-based 2 images, 188 s, $0.10 together): works, $0.0168 per 1K image
+  + $0.75/M input. `api_generate_batch.py` written. Step 6 cap set by the user: $380 (expected ~$357 + top-ups).
+- 15:04 UTC: Step 6 batch pilot submitted (2 reals x slots 10-149 = 280 requests, worst case $5).
+- 15:16 UTC check-in: sweep 11/70 (n128 None seed 2026001 top1 0.431, 891 s; ~2 h per seed, ETA ~00:30 UTC Nov 1).
+  Backup had stopped at 14:40: `pilot` tar exited 1 three times with "file changed as we read it" (geesefs timestamp
+  quirk); fixed to accept that warning only when the tar's file count and bytes match the source, restarted (PID 84891).
+  Batch pilot job running since 15:04.
+
 ## Spend ledger
 
 | When | What | Model | Images | Cost (from usage) | Session total |
