@@ -697,7 +697,8 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
 - 14:22 UTC: Figure 3 Nano Banana sweep started on the A40 (`qwen_lora_sweep.py --arms nano-banana-2.1`, 5 seeds,
   70 runs, 512 px copies in /root/data/api512), out /workspace/synderm/api_sweep/nano-banana-2.1.
 - Cost formula bug found: `api_generate_pool.py` priced output image tokens only; input ($1.50/M standard, ~1,180
-  tokens per edit) was never counted, so the Figure 3 ledger is ~5% low (exact figure pending). Fixed in both scripts.
+  tokens per edit) was never counted, so the Figure 3 ledger was ~5% low: $56.55 for the accepted edits (37.7M input
+  tokens), ~$1,135-1,137 in total, still under the $1,200 cap (ledger corrected). Fixed in both scripts.
 - Batch mode tested (inline 4 images, 131 s; file-based 2 images, 188 s, $0.10 together): works, $0.0168 per 1K image
   + $0.75/M input. `api_generate_batch.py` written. Step 6 cap set by the user: $380 (expected ~$357 + top-ups).
 - 15:04 UTC: Step 6 batch pilot submitted (2 reals x slots 10-149 = 280 requests, worst case $5).
@@ -714,3 +715,6 @@ accepted reference of the class. Expected: 31,950 new images at the pilot's $0.0
 | 2026-10-30 20:22-22:02 UTC | Figure 3 arm, full run part 1, cap $1,198, stopped by hand for pod shutdown | gemini-nano-banana-2.1, 1K | 3,697 ok + 61 refused | $124.22 | $125.56 |
 | 2026-10-30 22:39-22:57 UTC | Figure 3 arm, part 2: thread tests at 40 and 80 (stopped by hand), killed in-flight allowance $4.03 | gemini-nano-banana-2.1, 1K | ~1,750 ok | $61.69 + $4.03 | $191.98 |
 | 2026-10-30 22:57 - 10-31 03:34 UTC | Figure 3 arm, part 3: 120 threads, main pass + top-up, DONE (1 slot missing) | gemini-nano-banana-2.1, 1K | 26,370 ok + 392 refused | $886.03 | $1,078.01 |
+| 2026-10-31 13:12-13:37 UTC | Figure 3 arm: missing lichen planus slot 07 + 6 PNGs truncated at the kills, regenerated | gemini-nano-banana-2.1, 1K | 7 ok | $0.24 | $1,078.25 |
+| 2026-10-31 (correction) | **Input tokens, never counted by the script**: 37,699,095 input tokens over the 31,950 accepted edits at $1.50/M; plus up to ~$2 for refused and killed requests (their input tokens are not in the sidecars) | gemini-nano-banana-2.1 | | $56.55 (+ <=$2) | **~$1,135-1,137 of $1,200** |
+| 2026-10-31 14:40-15:00 UTC | Batch mode tests (4 inline + 2 file-based edits, batch rate) | gemini-nano-banana-2.1, 1K, batch | 6 ok | ~$0.11 | |
